@@ -161,11 +161,5 @@ class Polynomial{
         if(str.length==0){return null;}
         return str;
     }
-    //TODO
-
+    // TODO add more methods
 }
-
-console.log(new Polynomial('0').fac);
-console.log(new Polynomial([0]).fac);
-
-console.log(Polynomial.mkfromstr('0').endBehavior);
