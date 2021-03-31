@@ -24,7 +24,7 @@ class Polynomial{
         /** @type {number} - const that is the new `<a₀>*x⁰` value for antiderivatives */
         this.c=c;
         /** @type {number} - Y-Axis-Interception */
-        this.yIntercept=fac[0];
+        this.yIntercept=fac[0]||0;
         /** @type {number} - Degree of the Polynomial */
         this.degree=fac.length-1;
         /** @type {number} - Leading Coefficient of the Polynomial */
@@ -51,6 +51,16 @@ class Polynomial{
             }
         }).call(this);
     }
+    /** 
+     * _RegExp for testing a decimal-(float)-number-in-scientific-notation-string_
+     * @example console.log(Polynomial.regexpFloatStr.test("-50.123E-3"));//=> true
+     */
+    static regexpFloatStr=/^(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$/;
+    /** 
+     * _RegExp for testing a polynomial-in-general-form-string_
+     * @example console.log(Polynomial.regexpPolynomialStr.test("x^3-x^2-x+1"));//=> true
+     */
+    static regexpPolynomialStr=/^(?:[+-]?(?:(?:(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?)?\*?x(?:\^[0-9]+)?|(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?))+$/;
     /**
      * __calc Y-val__
      * @param {number} x - X-Value
@@ -73,7 +83,8 @@ class Polynomial{
     integral(a,b,dx=1e-10,abs=true){
         if(a>b){[a,b]=[b,a];}
         let val=0;
-        for(let i=a;i<=b;i+=dx){val+=abs?Math.abs(this.calc(i)*dx):this.calc(i)*dx;}
+        if(abs){for(let i=a;i<=b;i+=dx){val+=Math.abs(this.calc(i)*dx);}}
+        else{for(let i=a;i<=b;i+=dx){val+=this.calc(i)*dx;}}
         return val;
     }
     /**
@@ -85,7 +96,7 @@ class Polynomial{
      */
     integralad(a,b,c=0){
         if(a>b){[a,b]=[b,a];}
-        let F=Polynomial.mkantiderivative(this.fac,c);
+        let F=Polynomial.mkantiderivative(this,c);
         return F.calc(b)-F.calc(a);
     }
     /**
@@ -114,7 +125,7 @@ class Polynomial{
      * @param {string} str - graph-function-string in format
      * @returns {Polynomial} Polynomial Object
      * @description Format:
-     * + `+a*x^n` / `-ax^n` / `a * x` / `- a`
+     * + `+a*x^n` / `-ax^n` / `a * x` / `- a` + `; c=0`
      * + a = `Float`
      * + n = Positive `Integer`
      */
@@ -122,18 +133,25 @@ class Polynomial{
         if(!str){return new Polynomial();}
         str=str.toString();
         str=str.replace(/\s+/g,'');
-        let r=/([+-])?([0-9]+)?(?:\*?(x)(?:\^([0-9]+))?)?/g;
-        let ms = str.matchAll(r);
+        let test=str.split(';');
+        const fnum="(?:[0-9]+(?:\\.[0-9]+)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?";
+        const rg=RegExp(`(?:[+-]?(?:(?:${fnum})?\\*?x(?:\\^[0-9]+)?|${fnum}))+`);
+        const r=RegExp(`([+-])?(?:(${fnum})?\\*?(x)(?:\\^([0-9]+))?|(${fnum}))`,'g');
+        const rc=RegExp(`^[cC]=(${fnum})$`);
         let f=[];
+        let c=0;
+        if(test[1]){if(rc.test(test[1])){c=rc.exec(test[1])[1];}}
+        if(!rg.test(test[0])){return new Polynomial(f,c);}
+        let ms = test[0].matchAll(r);
         for(const m of ms){
             if(m[0].length>0){
                 f[(m[3]?(m[4]?parseInt(m[4]):1):0)]=parseFloat(
                     (m[1]?m[1]:'+')+
-                    (m[2]?m[2]:(m[3]?'1':'0'))
+                    (m[5]?m[5]:(m[2]?m[2]:(m[3]?'1':'0')))
                 );
             }
         }
-        return new Polynomial(f);
+        return new Polynomial(f,c);
     }
     /**
      * __outputs formated string from current Polynomial Object__
@@ -152,14 +170,21 @@ class Polynomial{
             for(let i=this.fac.length-1;i>=0;i--){
                 if(!!this.fac[i]){
                     if(this.fac[i]>=0&&i<this.fac.length-1){str+='+';}
-                    if(this.fac[i]==1){str+=i==0?'1':'x';}
+                    else if(this.fac[i]==-1){str+='-';}
+                    if(this.fac[i]==1||this.fac[i]==-1){str+=(i==0?'1':'x');}
                     else{str+=this.fac[i]+(i==0?'':'x');}
                     if(i>1){str+='^'+i;}
                 }
             }
         }
         if(str.length==0){return null;}
+        if(full&&this.c!=undefined){str+=` ; c = ${this.c}`;}
+        else if(this.c){str+=`;c=${this.c}`;}
         return str;
     }
     // TODO add more methods
+    rootNewton(){
+        let fc=Polynomial.mkderivative(this);
+    }
 }
+// console.log(Polynomial.mkfromstr("x^3-x^2-x+1").tostr());//=> x^3-x^2-x+1
