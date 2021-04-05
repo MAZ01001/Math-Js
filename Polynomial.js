@@ -50,6 +50,12 @@ class Polynomial{
                 else if(this.degree%2==0){this.endBehavior.left=-1;}
             }
         }).call(this);
+        /** @type {number[]} - all roots of the Polynomial _(that where found)_ */
+        this.roots=[];
+        /** @type {number[]} - the ups and downs of the Polynomial _(that where found)_ */
+        this.localextremes=[];
+        /** @type {number[]} - the slope-turning-points of the Polynomial _(that where found)_ */
+        this.turnpoints=[];
     }
     /** 
      * _RegExp for testing a decimal-(float)-number-in-scientific-notation-string_
@@ -102,11 +108,10 @@ class Polynomial{
     /**
      * __create antiderivative__
      * @param {Polynomial} f - Polynomial Object
-     * @param {?number} c - const that is the new `<a₀>*x⁰` value for the antiderivative - _default `0`_
      * @returns {Polynomial} Polynomial Object
      */
-    static mkantiderivative(f,c=0){
-        let newarr=[c];
+    static mkantiderivative(f){
+        let newarr=[f.c];
         for(let i=0;i<f.fac.length;i++){newarr[i+1]=f.fac[i]/(i+1);}
         return new Polynomial(newarr);
     }
@@ -183,8 +188,82 @@ class Polynomial{
         return str;
     }
     // TODO add more methods
-    rootNewton(){
+    /**
+     * __make function from roots__
+     * @param {number[]} roots - (x-n1)(x-n2) -> `[n1,n2]`
+     * @param {number} intensity - a*(x-n1) -> `a` - _default `1`_
+     * @param {number} c - const that is the new `<a₀>*x⁰` value for the antiderivative - _default `0`_
+     * @returns {Polynomial} Polynomial Object
+     */
+    static mkfromroots(roots,intensity=1,c=0){
+        // TODO
+        if(intensity==0){return new Polynomial([0],c);}
+        if(!roots){return new Polynomial([],c);}
+        /**
+         * __makes unique multiplikation pairs and return them as string array__
+         * @param {number[]|string[]} set - the numbers
+         * @param {number} k - pair-length
+         * @returns {string[]} unique-multiplication-pairs
+         * @example console.log(uniMulPairs("abcd".split(''),2));//=>[ 'ab', 'ac', 'ad', 'bc', 'bd', 'cd' ]
+         */
+        const uniMulPairs=function(set,k){
+            const mkAllPossRec=function(set,prefix,n,k,_a){/* aaa,aab,abb,aba,~ */
+                    if (k == 0){_a.push(prefix);return;}
+                    for (let i = 0; i < n; ++i){
+                        let newPrefix=prefix+set[i];
+                        mkAllPossRec(set, newPrefix,n, k - 1,_a);/* recursion */
+                    }
+                },
+                delMultDouble=function(_A=[]){/* no 'aaa' and 'bca' when already 'abc' (since 1*2==2*1) */
+                    for(let i=_A.length-1;i>=0;i--){
+                        if(
+                            _A.find((_v,_i,_a)=>{/* no 'ab' when already 'ba' */
+                                return _i!=i&&RegExp(`^[${_v}]{${_A[i].length}}$`).test(_A[i]);
+                            })!=undefined||
+                            _A[i].split('').find((_e,_i,_a)=>{/* no 'aaa','aab',~ */
+                                return _a.find((_ee,_ii,_aa)=>{
+                                    return _ee==_e&&_i!=_ii;
+                                })!=undefined;
+                            })!=undefined
+                        ){_A.splice(i,1);}/* delete */
+                    }
+                    return _A;/* returns but also changes original array ! */
+                };
+            let _a=[];
+            mkAllPossRec(set,"",set.length,k,_a);
+            return delMultDouble(_a);
+        };
+        let f=[];
+        const degree=roots.length;
+        for(let i=degree;i>=0;i--){
+            if(i==degree){f[degree]=intensity;}
+            else if(i==0){
+                let _tmp=intensity;
+                roots.forEach((v,i,a)=>{_tmp*=v;});
+                f[0]=_tmp;
+            }else{
+                let _tmp=1,
+                    save=[];//"index index" /([index index]|[index index])/~
+                /*
+                    001111 - deg6 x^4 ((2^4)-1)
+                */
+            }
+        }
+        return new Polynomial(f,c);
+    }
+    rootNewton(firstguess=1,_max=100){
         let fc=Polynomial.mkderivative(this);
+        let xn=firstguess;
+        for(let i=0;i<_max;i++){
+            if(fc.calc(xn!=0)){xn=xn-(this.calc(xn)/fc.calc(xn));}
+            else{xn*=1.1;}
+            // TODO
+        }
+        return fc.tostr();
     }
 }
 // console.log(Polynomial.mkfromstr("x^3-x^2-x+1").tostr());//=> x^3-x^2-x+1
+let f=new Polynomial([1,2,3]);
+let erg=f.rootNewton();
+
+console.log(f.tostr(),erg);
