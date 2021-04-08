@@ -7,6 +7,9 @@
  * console.log(f.tostr());//=> x^3-3x+5
  * console.log(f.tostr(true));//=> +1x^3 +0x^2 -3x^1 +5x^0
  * console.log(f.calc(0));//=> 5
+ * f = Polynomial.mkfromstr("x^3-x");
+ * console.log(f.findRoots());//=>[ -1, 0, 1 ] (because of float precision, it's weak and often doesn't find roots)
+ * @author MAZ [GitHub](https://github.com/MAZ01001)
  */
 class Polynomial{
     /**
@@ -128,26 +131,40 @@ class Polynomial{
     /**
      * __make function from string__
      * @param {string} str - graph-function-string in format
+     * @param {boolean} roots - if string is in root-format - _default `false`_
      * @returns {Polynomial} Polynomial Object
-     * @description Format:
-     * + `+a*x^n` / `-ax^n` / `a * x` / `- a` + `; c=0`
-     * + a = `Float`
-     * + n = Positive `Integer`
+     * @description __Format__:
+     * + __normal__
+     * ++ `+a*x^n` / `-ax^n` / `a * x` / `- a` + `; c=0`
+     * ++ a,c = `Float`
+     * ++ n = Positive `Integer`
+     * + __root__
+     * ++ `n(x + a) *(a-b)( x )` + `; c=0`
+     * ++ a,n,c = `Float`
      */
-    static mkfromstr(str){
+    static mkfromstr(str,roots=false){
         if(!str){return new Polynomial();}
         str=str.toString();
         str=str.replace(/\s+/g,'');
         let test=str.split(';');
         const fnum="(?:[0-9]+(?:\\.[0-9]+)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?";
+        const rc=RegExp(`^[cC]=(${fnum})$`);
+        if(roots){
+            const rra=RegExp(`^([+-]?${fnum})?((?:\\*?\\([xX](?:[+-]${fnum})?\\))+)$`),
+                rrb=RegExp(`(?:\\*?\\(([xX])([+-]${fnum})?\\))`,'g');
+            let _c=0;
+            if(test[1]){if(rc.test(test[1])){_c=parseFloat(rc.exec(test[1])[1])||0;}}
+            let _t=parseFloat(rra.exec(test[0])[1])||1;
+            let ms=rra.exec(test[0])[2].matchAll(rrb),_a=[];
+            for(const m of ms){_a.push(parseFloat(m[2])||0);}
+            return Polynomial.mkfromroots(_a,_t,_c);
+        }
         const rg=RegExp(`(?:[+-]?(?:(?:${fnum})?\\*?x(?:\\^[0-9]+)?|${fnum}))+`);
         const r=RegExp(`([+-])?(?:(${fnum})?\\*?(x)(?:\\^([0-9]+))?|(${fnum}))`,'g');
-        const rc=RegExp(`^[cC]=(${fnum})$`);
-        let f=[];
-        let c=0;
+        let f=[],c=0;
         if(test[1]){if(rc.test(test[1])){c=rc.exec(test[1])[1];}}
         if(!rg.test(test[0])){return new Polynomial(f,c);}
-        let ms = test[0].matchAll(r);
+        let ms=test[0].matchAll(r);
         for(const m of ms){
             if(m[0].length>0){
                 f[(m[3]?(m[4]?parseInt(m[4]):1):0)]=parseFloat(
@@ -197,7 +214,7 @@ class Polynomial{
     static mkfromroots(roots,intensity=1,c=0){
         if(intensity==0){return new Polynomial([0],c);}
         if(!roots||roots.length==0){return new Polynomial([],c);}
-        if(roots.length>10){roots=roots.slice(0,9);}/* max 26 */
+        if(roots.length>26){roots=roots.slice(0,25);}/* max 26 since pallet uses alphabet but in theory could use all ascii*/
         /**
          * __makes unique multiplikation pairs and return them as string array__
          * @param {number[]|string[]} set - the numbers
@@ -228,7 +245,6 @@ class Polynomial{
         let str='',pallet='',_tmp=1,_tmp2=0;
         for(let i=0;i<degree&&i<26;i++){str+=String.fromCharCode(i+96+1);}
         for(let i=degree;i>=0;i--){
-            // x^i [degree->0]
             _tmp=1;
             _tmp2=0;
             if(i==degree){f[degree]=intensity;}
@@ -249,22 +265,114 @@ class Polynomial{
         __t.roots=roots.sort((a,b)=>{return a-b;});
         return __t;
     }
-    // TODO add more methods
-    rootNewton(firstguess=1,_max=100){
-        let fc=Polynomial.mkderivative(this);
-        let xn=firstguess;
-        for(let i=0;i<_max;i++){
-            if(fc.calc(xn!=0)){xn=xn-(this.calc(xn)/fc.calc(xn));}
-            else{xn*=1.1;}
-            // TODO
+    /**
+     * __attemps to find all possible roots of this polynomial__
+     * @param {number} trysarrabs - integer for -n to n array for integer guesses for newton
+     * @throws Error if polynomial devision fails on a given root (float precision errors)
+     * @returns `this.roots` or `null` if not "all"(degree) are found (dificult because float precision)
+     */
+    findRoots(trysarrabs=50){
+        if(this.fac.length-1==this.roots.length){this.roots.sort((a,b)=>a-b);return this.roots;}
+        const calcy=function(fac,x){
+            if(fac.length<=0){return x;}
+            if(x==0){return fac[0];}
+            let erg=0;
+            for(let i=0;i<fac.length;i++){erg+=fac[i]*Math.pow(x,i);}
+            return erg;
+        },check=function(leftfac,root,symetry){
+            if(root!=null&&calcy(leftfac,root)==0){
+                this.roots.push(root);
+                if(!polydev(leftfac,root)){throw new Error(`couldn't divide (X-(${root})) from ${JSON.stringify(leftfac)} - allready found ${this.roots}`);}
+            }
+            if(leftfac.length<4){
+                if(leftfac.length==3){d2(leftfac).forEach((v,i,a)=>{this.roots.push(v);},this);}
+                else if(leftfac.length==2){this.roots.push(d1(leftfac));}
+                return true;
+            }
+            if(root!=null&&symetry==2){if(calcy(leftfac,-root)==0){
+                this.roots.push(-root);
+                if(!polydev(leftfac,-root)){throw new Error(`couldn't divide (X-(${root})) from ${JSON.stringify(leftfac)} - allready found ${this.roots}`);}
+            }}
+            if(leftfac.length<4){
+                if(leftfac.length==3){d2(leftfac).forEach((v,i,a)=>{this.roots.push(v);},this);}
+                else if(leftfac.length==2){this.roots.push(d1(leftfac));}
+                return true;
+            }
+            return false;
+        },rootNewton=function(firstguess=1,_max=100,nodge=1.2){
+            let fc=Polynomial.mkderivative(this);
+            let xn=firstguess,last1,last2;
+            for(let i=0;i<_max;i++){
+                if(fc.calc(xn)!=0){xn=xn-(this.calc(xn)/fc.calc(xn));}
+                else{xn*=nodge;}
+                if(this.calc(xn)==0){break;}
+                if(last2!=undefined&&xn==last2){break;}
+                last2=last1;
+                last1=xn;
+            }
+            return xn;
+        },polydev=function(fac=[],root=0){
+            if(root==0){fac.shift();return true;}
+            let newfac=[];
+            newfac[fac.length-2]=fac[fac.length-1];
+            for(let i=fac.length-2;i>0;i--){newfac[i-1]=fac[i]-(newfac[i]*-root);}
+            if(fac[0]==newfac[0]*-root){
+                fac.forEach((v,i,a)=>{
+                    if(newfac[i]!=undefined){a[i]=newfac[i];}
+                    else{a.splice(i,1);}
+                });
+                return true;
+            }
+            return false;
+        },issymetry=function(fac){
+            let a=true,b=true;
+            fac.forEach((v,i,a)=>{
+                if(v!=0){
+                    if(i%2==0){b=false;}
+                    else{a=false;}
+                }
+            });
+            if(a){return 2;}/* only even -> mirror on Yaxis */
+            else if(b){return 1;}/* only uneven -> same if +180degrees turned */
+            else{return 0;}/* no symetry (that i know of) */
+        },d2=function(fac){
+            let _sqr=Math.sqrt((fac[1]*fac[1])-(4*fac[2]*fac[0])),
+                _2=(2*fac[2]);
+            return [
+                (-fac[1]+_sqr)/_2,
+                (-fac[1]-_sqr)/_2
+            ];
+        },d1=function(fac){return -fac[0]/fac[1];};
+        let leftfac=this.fac.slice(0),
+            symetry=issymetry(this.fac),
+            trys=[],trysn=0;
+        for(let i=-trysarrabs;i<=trysarrabs;i++){trys.push(i);}
+        if(symetry==1&&this.yIntercept==0){symetry=2;}// symetry==2 -> if n is a root than -n is also a root
+        if(leftfac.length-1>this.fac.length-1-this.roots){this.roots.forEach((v,i,a)=>{if(check.call(this,leftfac,v,symetry)){return;}});}
+        if(this.yIntercept==0){if(check.call(this,leftfac,0,symetry)){this.roots.sort((a,b)=>a-b);return this.roots;}}
+        if(check.call(this,leftfac,null,symetry)){this.roots.sort((a,b)=>a-b);return this.roots;}
+        let newtonlast=rootNewton.call(this,trys[trysn++]);
+        while(trysn<=trys.length){
+            if(calcy(leftfac,newtonlast)==0){
+                if(check.call(this,leftfac,newtonlast,symetry,true)){this.roots.sort((a,b)=>a-b);return this.roots;}
+                trysn=0;
+                newtonlast=rootNewton.call(this,trys[trysn]);
+            }else{if(trysn<trys.length){newtonlast=rootNewton.call(this,trys[trysn]);}}
+            trysn++;
         }
-        return fc.tostr();
+        if(check.call(this,leftfac,null,symetry)){this.roots.sort((a,b)=>a-b);return this.roots;}
+        return null;
     }
+    // TODO add more methods ~
 }
 // console.log(Polynomial.mkfromstr("x^3-x^2-x+1").tostr());//=> x^3-x^2-x+1
-
-// let f=new Polynomial([1,2,3]);
-// let erg=f.rootNewton();
-// console.log(f.tostr(),erg);
-
-console.log([-1,0,1,0],Polynomial.mkfromroots([-1,0,1,0],1).tostr());
+// console.log(Polynomial.mkfromstr("(x-1)(x+1)(x)",true).tostr());//=> x^3-x
+// let f=new Polynomial(Polynomial.mkfromroots([1,2,3,4],5).fac);
+// console.log('\n3)\t%O\t%s%O',f.tostr(),f.findRoots()==null?"only found "+f.roots.length+" out of possible "+f.degree+" : ":"found all "+f.degree+" possible roots: ",f.roots);
+/*
+! float precision error !
+7.000000000000121 [-210.00000000000068,107.00000000000014,-18.00000000000001,1]
+7 [-210,107,-18,1]
+// let f=new Polynomial(Polynomial.mkfromroots([Math.PI,5,6,7]).fac);
+// console.log('\n2)\t%O\t%s%O',f.tostr(),f.findRoots()==null?"only found "+f.roots.length+" out of possible "+f.degree+" : ":"found all "+f.degree+" possible roots: ",f.roots);
+*/
