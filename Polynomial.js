@@ -284,8 +284,10 @@ class Polynomial{
                 this.roots.push(root);
                 if(!polydev(leftfac,root)){throw new Error(`couldn't divide (X-(${root})) from ${JSON.stringify(leftfac)} - allready found ${this.roots}`);}
             }
-            if(leftfac.length<4){
-                if(leftfac.length==3){d2(leftfac).forEach((v,i,a)=>{this.roots.push(v);},this);}
+            if(leftfac.length<4){/* TODO */
+                if(leftfac.length==5){d4(leftfac).forEach((v,i,a)=>{this.roots.push(v);},this);}
+                else if(leftfac.length==4){d3(leftfac).forEach((v,i,a)=>{this.roots.push(v);},this);}
+                else if(leftfac.length==3){d2(leftfac).forEach((v,i,a)=>{this.roots.push(v);},this);}
                 else if(leftfac.length==2){this.roots.push(d1(leftfac));}
                 return true;
             }
@@ -335,6 +337,10 @@ class Polynomial{
             if(a){return 2;}/* only even -> mirror on Yaxis */
             else if(b){return 1;}/* only uneven -> same if +180degrees turned */
             else{return 0;}/* no symetry (that i know of) */
+        },d4=function(fac){
+            // TODO https://en.wikipedia.org/wiki/Quartic_function#General_formula_for_roots
+        },d3=function(fac){
+            // TODO https://math.vanderbilt.edu/schectex/courses/cubic/
         },d2=function(fac){
             let _sqr=Math.sqrt((fac[1]*fac[1])-(4*fac[2]*fac[0])),
                 _2=(2*fac[2]);
