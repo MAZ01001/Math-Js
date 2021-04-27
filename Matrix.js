@@ -48,10 +48,10 @@ class Matrix{
     }
     /**
      * __format the matrix to a human readable string__
-     * @param {boolean} a_t_ - if `true` format as ascii-table, if `false` as space-separated list - _default `true`_
+     * @param {boolean} a_t_ - if `true` format as ascii-table, if `false` as space-separated list - _default `false`_
      * @returns {string} the formated string
      */
-    tostr(a_t_=true){
+    tostr(a_t_=false){
         if(this.list.length==0){return "++\n||\n++";}
         const colwidth=Math.max(...this.list.map((v,i,a)=>{return Math.max(...v);})).toString().length;
         if(a_t_){
@@ -82,7 +82,7 @@ class Matrix{
      * @param {number} size - size of the identity matrix
      * @returns {Matrix} the identity matrix as Matrix object
      * @example 
-     *  Matrix.mkIdentityMatrix(3).tostr(false);
+     *  Matrix.mkIdentityMatrix(3).tostr();
      *  // 1 0 0
      *  // 0 1 0
      *  // 0 0 1
@@ -99,36 +99,63 @@ class Matrix{
         }
         return new Matrix(nm);
     }
+    // TODO
+    static mkFromStr(str=''){
+        if(/^\s*$/.test(str)){return new Matrix();}
+        const rma=/^(?:[+-]?[0-9]+\s)+[+-]?[0-9]+(?:\n(?:[+-]?[0-9]+\s)+[+-]?[0-9]+)?$/,
+            rmr=/\s?([+-]?[0-9]+)/g;
+        str=str.replace(/\s\s+/g,' ').replace(/\n(\s*\n)*/g,'\n');
+        if(!rma.test(str)){return new Matrix();}
+        const rows=str.split('\n');
+        rows.forEach((v,i,a)=>{
+            a[i]=[...v.matchAll(rmr)];
+            a[i].forEach((v_,i_,a_)=>{
+                a_[i_]=parseFloat(v_[1]);
+            });
+        });
+        return new Matrix(rows);
+    }
+    add_m(m2=null){
+        if(
+            m2==null
+            ||!(m2 instanceof Matrix)
+            ||!(this.rows==m2.rows&&this.cols==m2.cols)
+        ){return null;}
+        return new Matrix(this.list.map((v,i,a)=>{
+            return v.map((v_,i_,a_)=>{
+                return v_+m2[i][i_];
+            });
+        }));
+    }
+    sub_m(m2=null){
+        if(
+            m2==null
+            ||!(m2 instanceof Matrix)
+            ||!(this.rows==m2.rows&&this.cols==m2.cols)
+        ){return null;}
+        return new Matrix(this.list.map((v,i,a)=>{
+            return v.map((v_,i_,a_)=>{
+                return v_-m2[i][i_];
+            });
+        }));
+    }
     get_cell(i=0,j=0){return this.list[i][j];}
     mul_n(n=1){return this.list.map((v,i,a)=>{v*=n;});}
     dev_n(n=1){return this.list.map((v,i,a)=>{v/=n;});}
-    // TODO
-    static mkFromStr(str=''){
-        if(/^[\s\n]*$/.test(str)){return new Matrix();}
-    }
-    mul_m(m2=new Matrix()){}
-    // add_m(m2=new Matrix()){}
-    // sub_m(m2=new Matrix()){}
+    // mul_m(m2=new Matrix()){}
     // dev_m(m2=new Matrix()){}
-    inverse(){
-        if(!this.square){return null;}
-    }
+    // https://matrixcalc.org/en/ Gauß-Bareiss Gauß-Jordan
+    // inverseGB(){if(!this.square){return null;}}
+    // inverseGJ(){if(!this.square){return null;}}
 };
 // const {performance} = require('perf_hooks');
 // const t1=performance.now();
 // const t2=performance.now()-t1;
-let m1=new Matrix(
-        [
-            [1,2,3],
-            [4,5,6],
-            [7,8,9]
-        ]
-    );
+let m1=new Matrix([[1,2,3],[4,5,6],[7,8,9]]);
 let m2=new Matrix([[10],[11],[12]]);
 let m3=new Matrix([[10,11,12]]);
+let ms1=Matrix.mkFromStr(m1.tostr());
 console.log(
-    "%s\n%s\n%s",
-    m1.tostr(false),
-    m2.tostr(false),
-    m3.tostr(false)
+    "%s",
+    ms1.tostr()
 );
