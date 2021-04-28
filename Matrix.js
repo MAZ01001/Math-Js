@@ -141,9 +141,9 @@ class Matrix{
     }
     get_cell(i=0,j=0){return this.list[i][j];}
     mul_n(n=1){return this.list.map((v,i,a)=>{v*=n;});}
-    dev_n(n=1){return this.list.map((v,i,a)=>{v/=n;});}
+    div_n(n=1){return this.list.map((v,i,a)=>{v/=n;});}
     // mul_m(m2=new Matrix()){}
-    // dev_m(m2=new Matrix()){}
+    // div_m(m2=new Matrix()){}
     // https://matrixcalc.org/en/ Gauß-Bareiss Gauß-Jordan
     // inverseGB(){if(!this.square){return null;}}
     // inverseGJ(){if(!this.square){return null;}}
