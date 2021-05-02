@@ -40,6 +40,89 @@ class Fraction{
         return B;
     }
     /**
+     * __converts a decimal number to a improper-fraction (rough estimation)__
+     * @param {number} dec - (real float) - decimal number
+     * @param {number} max_den - (real positive integer) - max number for denominator - _default `0` (no limit)_
+     * @param {number} max_iter - (real positive integer) - max iteration count - _default `1e6`_
+     * @param {number} prec - (real positive float) - decimal value for precision error - _default `1e-30`_
+     * @returns {{t:number,b:number,c:number,n:number,l:string}}
+     * + t : sign (`1|-1`)
+     * + b : numerator (real positive integer)
+     * + c : denominator (real positive integer)
+     * + n : iteration count (real positive integer)
+     * + l : reason of exit (`'max_den'|'infinity'|'prec'|'max_iter'`)
+     */
+    static dectofrac(dec,max_den=0,max_iter=1e6,prec=1e-30){
+        let sign=(dec<0?-1:1),
+            nint,ndec=Math.abs(dec),
+            num,pnum=1,ppnum=0,
+            den,pden=0,ppden=1,
+            iter=0;
+        do{
+            nint=Math.floor(ndec);
+            if(max_den>0&&(ppden+(nint*pden))>max_den){return{t:sign,b:num,c:den,n:iter,l:'max_den'};}
+            if(!isFinite(ppnum+(nint*pnum))){return{t:sign,b:num,c:den,n:iter,l:'infinity'};}
+            num=ppnum+nint*pnum;
+            den=ppden+nint*pden;
+            // console.log(
+            //     ">>%d\n%s\n%s",
+            //     iter,
+            //     `${num.toString().padEnd(10,' ')} ${ppnum} + ${nint} * ${pnum}`,
+            //     `${den.toString().padEnd(10,' ')} ${ppden} + ${nint} * ${pden}`
+            // );
+            ppnum=pnum;
+            ppden=pden;
+            pnum=num;
+            pden=den;
+            ndec=1.0/(ndec-nint);
+            if(prec>Math.abs((sign*(num/den))-dec)){return{t:sign,b:num,c:den,n:iter,l:'prec'};}
+        }while(iter++<max_iter);
+        return {t:sign,b:num,c:den,n:iter,l:'max_iter'};
+    };
+    /**
+     * __converting a decimal number to a Fraction-Object__
+     * @param {string|number} v - _Real_ decimal number _(auto detects repeating digits) - (can be a string and of negative value) - default `0.0`_
+     * @param {number} md - _(Real Integer)_ maximum value for denominator _(makes it a rough estimation - `0` is no limit) - default `0`_
+     * @param {boolean} nl - if `true` doesn't loop -> literal `0.4` not `0.44444..4` - _default `false`_
+     * @param {boolean} fl - if `true` allways loop -> `0.123` => `0.123123..123` - _(only active if `nl` is `false`) - default `false`_
+     * @returns {Fraction} Fraction-Object
+     * @throws {Error} if parsing a string that can't be converted to a decimal number
+     */
+    static fromdecimal(v=0.0,md=0,nl=false,fl=false){
+        if(typeof(v)=='string'){
+            v=parseFloat(v);
+            if(v==NaN){throw new Error("parsed string is not a number");}
+        }
+        if(v==0.0){return new Fraction();}
+        let _az,f=new Fraction();
+        if(v<0){f.neg=true;}
+        [,f.a,_az]=[...Math.abs(v).toString().match(/(-?[0-9]+)(?:[,.]([0-9]+))?/)];
+        f.a=parseInt(f.a);
+        if(!_az){_az='0';}
+        if(nl){
+            f.b=parseInt(_az);
+            f.c=Math.pow(10,_az.length);
+        }else{
+            const r=/^((?<d>[0-9]+?)\k<d>*)$/;
+            const _a=_az.match(r)[1],
+                _d=_az.match(r)[2];
+            f.b=parseInt(_d);
+            f.c=Math.pow(10,_d.length);
+            if(_a!=_d||_a.length==1||fl){f.c--;}
+        }
+        if(md>0){
+            if(f.toImproper().c>md){
+                let f2=Fraction.dectofrac(v,md);
+                {const _tmp=Math.floor(f2.b/f2.c);f2.t*=_tmp;f2.b-=_tmp*f2.c;}
+                f.neg=(f2.t<0);
+                f.a=Math.abs(f2.t);
+                f.b=f2.b;
+                f.c=f2.c;
+            }
+        }
+        return f.toMixed();
+    }
+    /**
      * __converts this fraction to the smallest possible mixed-fraction-form__
      * @returns {Fraction} current object (`this`)
      */
@@ -80,39 +163,6 @@ class Fraction{
             this.c/=_gcd;
         }
         return this;
-    }
-    /**
-     * __converting a decimal number to a Fraction-Object__
-     * @param {string|number} v - _Real_ decimal number _(auto detects repeating digits) - (can be a string) - default `0.0` (can be negative)_
-     * @param {boolean} nl - if `true` doesn't loop -> literal `0.4` not `0.44444..4`
-     * @returns {Fraction} Fraction-Object
-     */
-    static fromdecimal(v=0.0,nl=false,md=0){
-        if(typeof(v)=='string'){
-            v=parseFloat(v);
-            if(v==NaN){throw new Error("parsed string is not a number");}
-        }
-        if(v==0.0){return new Fraction();}
-        let _az,f=new Fraction();
-        if(v<0){f.neg=true;}
-        [,f.a,_az]=[...Math.abs(v).toString().match(/(-?[0-9]+)(?:[,.]([0-9]+))?/)];
-        f.a=parseInt(f.a);
-        if(!_az){_az='0';}
-        if(md>0){
-            //TODO max denominator setting ~ for long numbers
-        }
-        if(nl){
-            f.b=parseInt(_az);
-            f.c=Math.pow(10,_az.length);
-        }else{
-            const r=/^((?<d>[0-9]+?)\k<d>*)$/;
-            const _a=_az.match(r)[1],
-                _d=_az.match(r)[2];
-            f.b=parseInt(_d);
-            f.c=Math.pow(10,_d.length);
-            if(_a!=_d||_a.length==1){f.c--;}
-        }
-        return f.toMixed();
     }
     /**
      * __computes the decimal value of this fraction and returns it__
@@ -257,8 +307,9 @@ class Fraction{
         return this.toMixed();
     }
 };
-console.log(
-    // new Fraction(0,1,3).div_f(new Fraction(0,3,4)).tostr()//=> 4/9 ~ 0.44444..4
-    // Fraction.fromdecimal(3.333).tostr()//=> 3 1/3 ~ 3.33333..5
-    Fraction.fromdecimal(Math.PI,true,1000).tostr()
-);
+// console.log(
+//     "%s\n%s\n%s",
+//     new Fraction(0,1,3).div_f(new Fraction(0,3,4)).tostr(),//=> 4/9 ~ 0.44444..4
+//     Fraction.fromdecimal(3.333).tostr(),//=> 3 1/3 ~ 3.33333..5
+//     Fraction.fromdecimal(Math.PI,1e9,true).tostr()//=> 3 11080585/78256779 ~ 3.141592653589793
+// );

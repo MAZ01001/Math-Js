@@ -99,7 +99,7 @@ class Matrix{
         }
         return new Matrix(nm);
     }
-    // TODO
+    // TODO doc
     static mkFromStr(str=''){
         if(/^\s*$/.test(str)){return new Matrix();}
         const rma=/^(?:[+-]?[0-9]+\s)+[+-]?[0-9]+(?:\n(?:[+-]?[0-9]+\s)+[+-]?[0-9]+)?$/,
@@ -142,9 +142,10 @@ class Matrix{
     get_cell(i=0,j=0){return this.list[i][j];}
     mul_n(n=1){return this.list.map((v,i,a)=>{v*=n;});}
     div_n(n=1){return this.list.map((v,i,a)=>{v/=n;});}
+    // TODO https://en.wikipedia.org/wiki/Matrix_multiplication
     // mul_m(m2=new Matrix()){}
     // div_m(m2=new Matrix()){}
-    // https://matrixcalc.org/en/ Gauß-Bareiss Gauß-Jordan
+    // TODO https://matrixcalc.org/en/ Gauß-Bareiss Gauß-Jordan
     // inverseGB(){if(!this.square){return null;}}
     // inverseGJ(){if(!this.square){return null;}}
 };
