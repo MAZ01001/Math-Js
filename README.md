@@ -2,6 +2,7 @@
 
 > ## Polynomial.js
 >
+> >
 > > ### __*WIP*__
 > >
 > > + formula for degree 3/4
@@ -39,17 +40,20 @@
 >
 > ## Matrix.js
 >
+> >
 > > ### __*WIP*__
 > >
-> > + matrix inversion
-> > + matrix multiplication/divition
-> > + documentation
-> > + chainable methods
+> > + row to row addition
+> > + row to row subtraction
+> > + row multiplied by constant
+> > + switching rows
+> > + delete row
+> > + delete column
 > >
 >
 > + make matrix directly/from string
 > + create identity matrix
-> + print as formated string
+> + print as a formatted string
 > + single number
 >   + muliplication
 >   + divition
@@ -58,7 +62,16 @@
 >   + subtraction
 >   + multiplication
 >   + divition
-> + matrix inversion
->   + Gauß Bareiss
->   + Gauß Jordan
+> + matrix inversion (Gauß Bareiss)
+> + chainable methods
+>
+----
+>
+> ## Vector.js
+>
+> >
+> > ### __*WIP*__
+> >
+> > + ...
+> >
 >

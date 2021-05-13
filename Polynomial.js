@@ -85,11 +85,11 @@ class Polynomial{
      * __calc integral__
      * @param {number} a - start of integral
      * @param {number} b - end of integral
-     * @param {?number} dx - resolution _default `1e-10`_
+     * @param {?number} dx - resolution _default `Number.EPSILON`_
      * @param {?boolean} abs - area absolute _default `true`_
      * @returns {number} the value of the area/integral
      */
-    integral(a,b,dx=1e-10,abs=true){
+    integral(a,b,dx=Number.EPSILON,abs=true){
         if(a>b){[a,b]=[b,a];}
         let val=0;
         if(abs){for(let i=a;i<=b;i+=dx){val+=Math.abs(this.calc(i)*dx);}}
@@ -369,7 +369,7 @@ class Polynomial{
         if(check.call(this,leftfac,null,symetry)){this.roots.sort((a,b)=>a-b);return this.roots;}
         return null;
     }
-    // TODO add more methods ~
+    // TODO add more methods ~ update older ones
 }
 // console.log(Polynomial.mkfromstr("x^3-x^2-x+1").tostr());//=> x^3-x^2-x+1
 // console.log(Polynomial.mkfromstr("(x-1)(x+1)(x)",true).tostr());//=> x^3-x
