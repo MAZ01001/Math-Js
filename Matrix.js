@@ -438,7 +438,7 @@ class Matrix{
     //~ https://en.wikipedia.org/wiki/Division_(mathematics)#Of_matrices
     //~ https://en.wikipedia.org/wiki/Gaussian_elimination
     //~ https://en.wikipedia.org/wiki/Matrix_(mathematics)
-    //~ https://matrixcalc.org/en/ "Gauß-Jordan"
+    //~ https://matrixcalc.org/en/
 };
 // const {performance} = require('perf_hooks');
 // const t1=performance.now();

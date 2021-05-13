@@ -44,7 +44,7 @@ class Fraction{
      * @param {number} dec - (real float) - decimal number
      * @param {number} max_den - (real positive integer) - max number for denominator - _default `0` (no limit)_
      * @param {number} max_iter - (real positive integer) - max iteration count - _default `1e6`_
-     * @param {number} prec - (real positive float) - decimal value for precision error - _default `1e-30`_
+     * @param {number} prec - (real positive float) - decimal value for precision error - _default `Number.EPSILON`_
      * @returns {{t:number,b:number,c:number,n:number,l:string}}
      * + t : sign (`1|-1`)
      * + b : numerator (real positive integer)
@@ -52,7 +52,7 @@ class Fraction{
      * + n : iteration count (real positive integer)
      * + l : reason of exit (`'max_den'|'infinity'|'prec'|'max_iter'`)
      */
-    static dectofrac(dec,max_den=0,max_iter=1e6,prec=1e-30){
+    static dectofrac(dec,max_den=0,max_iter=1e6,prec=Number.EPSILON){
         let sign=(dec<0?-1:1),
             nint,ndec=Math.abs(dec),
             num,pnum=1,ppnum=0,
