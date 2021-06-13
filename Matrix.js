@@ -32,10 +32,11 @@ class Matrix{
         });
         if(cp){this.list=list.map(v=>v.map(v_=>Number(v_)));}
         else{
-            list.forEach((v,i,a)=>{a[i].forEach((v_,i_,a_)=>{a[i][i_]=Number(v_);})});
+            list.forEach((v,i,a)=>{a[i].forEach((v_,i_,a_)=>{a_[i_]=Number(v_);})});
             this.list=list;
         }
-        if(this.list[0].length==0&&this.list.length==1){this.rows=0}
+        if(this.list.length==0){this.list[0]=[];this.rows=0;}
+        else if(this.list[0].length==0&&this.list.length==1){this.rows=0}
         else{this.rows=this.list.length;}
         /** @type {number[][]} __the matrix as array__ */
         this.list;
@@ -46,11 +47,7 @@ class Matrix{
         /** @type {boolean} __true if the matrix is square__ _(cols==rows)_ */
         this.square=this.cols==this.rows;
         /** @type {boolean} __true if the matrix is symmetrical__ _(m[i,j]==m[j,i])_ */
-        this.symmetric=(this.square&&!this.list.some((v,i,a)=>{
-            let t=true;
-            for(let j=0;j<i;j++){t=(a[i][j]==a[j][i]?t:false);}
-            return !t;
-        }));
+        this.symmetric=(this.square&&!this.list.some((v,i,a)=>{for(let j=0;j<i;j++){if(a[i][j]!=a[j][i]){return true;}}}));
     }
     /**
      * __copies current matrix__
@@ -427,13 +424,74 @@ class Matrix{
         try{return this.mul_m(m2.mkCopy().inv_m_GB(),flip);}
         catch(err){throw Error("matrix-matrix division failed: "+err);}
     }
+    /**
+     * __checks the matrix list and updates the properties__ \
+     * _if, for instance, the array was modified externally_
+     * @returns {Matrix} `this` matrix after successful check
+     * @throws {TypeError} if invalid values are found in `this.list`
+     */
+    check(){
+        if(!Array.isArray(this.list)){throw TypeError("list is not an array. expected [[<Number>,..],..].");}
+        this.list.forEach((v,i,a)=>{
+            if(!Array.isArray(v)){throw TypeError("not every entry, in list, is an array. expected [[<Number>,..],..].");}
+            if(v.length!=a[0].length){throw TypeError("not every array, in list, has the same length. expected [[<Number>,..],..].");}
+            if(v.some(v_=>Number.isNaN(Number(v_)))){throw TypeError("not every value, in every array, in list, is a valid number. expected [[<Number>,..],..].");}
+        });
+        this.list.forEach((v,i,a)=>{a[i].forEach((v_,i_,a_)=>{a_[i_]=Number(v_);})});
+        if(this.list.length==0){this.list[0]=[];this.rows=0;}
+        else if(this.list[0].length==0&&this.list.length==1){this.rows=0}
+        else{this.rows=this.list.length;}
+        this.cols=this.list[0].length;
+        this.square=this.cols==this.rows;
+        this.symmetric=(this.square&&!this.list.some((v,i,a)=>{for(let j=0;j<i;j++){if(a[i][j]!=a[j][i]){return true;}}}));
+        return this;
+    }
     // TODO ###################################################
-    // row_add_row(){}
-    // row_sub_row(){}
-    // row_mul_n(){}
-    // row_switch(){}
-    // row_del(){}
-    // col_del(){}
+    row_move(n=1,t=2){
+        n=Number(n);
+        t=Number(t);
+        if(Number.isNaN(n)||Number.isNaN(t)){throw RangeError("parsed values are not numbers.");}
+        if((n>0&&n<=this.rows)||(t>0&&t<=this.rows)){throw RangeError("numbers are out of bounds.");}
+        if(this.rows==1||n==t){return this;}
+        this.list.splice(t-1,0,this.list.splice(n-1,1)[0]);
+        this.symmetric=(this.square&&!this.list.some((v,i,a)=>{for(let j=0;j<i;j++){if(a[i][j]!=a[j][i]){return true;}}}));
+    }
+    row_del(n=1){
+        n=Number(n);
+        if(Number.isNaN(n)){throw RangeError("parsed value is not a number.");}
+        if(n>0&&n<=this.rows){throw RangeError("number is out of bounds.");}
+        if(this.rows==1){
+            this.list=[[]];
+            this.cols=0;
+            this.rows=0;
+            this.square=true;
+            this.symmetric=true;
+            return this;
+        }
+        this.list.splice(n-1,1);
+        this.rows--;
+        this.square=this.rows==this.cols;
+        this.symmetric=(this.square&&!this.list.some((v,i,a)=>{for(let j=0;j<i;j++){if(a[i][j]!=a[j][i]){return true;}}}));
+        return this;
+    }
+    col_del(n=1){
+        n=Number(n);
+        if(Number.isNaN(n)){throw RangeError("parsed value is not a number.");}
+        if(n>0&&n<=this.cols){throw RangeError("number is out of bounds.");}
+        if(this.cols==1){
+            this.list=[[]];
+            this.cols=0;
+            this.rows=0;
+            this.square=true;
+            this.symmetric=true;
+            return this;
+        }
+        this.list.forEach((v,i,a)=>a[i].splice(n-1,1));
+        this.cols--;
+        this.square=this.rows==this.cols;
+        this.symmetric=(this.square&&!this.list.some((v,i,a)=>{for(let j=0;j<i;j++){if(a[i][j]!=a[j][i]){return true;}}}));
+        return this;
+    }
     // TODO ###################################################
     //~ https://en.wikipedia.org/wiki/Division_(mathematics)#Of_matrices
     //~ https://en.wikipedia.org/wiki/Gaussian_elimination
