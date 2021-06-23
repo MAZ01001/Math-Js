@@ -376,7 +376,7 @@ class Polynomial{
 // let f=new Polynomial(Polynomial.mkfromroots([1,2,3,4],5).fac);
 // console.log('\n3)\t%O\t%s%O',f.tostr(),f.findRoots()==null?"only found "+f.roots.length+" out of possible "+f.degree+" : ":"found all "+f.degree+" possible roots: ",f.roots);
 /*
-! float precision error !
+! js-float precision error !
 7.000000000000121 [-210.00000000000068,107.00000000000014,-18.00000000000001,1]
 7 [-210,107,-18,1]
 // let f=new Polynomial(Polynomial.mkfromroots([Math.PI,5,6,7]).fac);

@@ -41,14 +41,11 @@
 > ## Matrix.js
 >
 > >
-> > ### __*WIP*__
+> > ### __*ideas*__
 > >
 > > + row to row addition
 > > + row to row subtraction
 > > + row multiplied by constant
-> > + switching rows
-> > + delete row
-> > + delete column
 > >
 >
 > + make matrix directly/from string
@@ -64,14 +61,38 @@
 >   + divition
 > + matrix inversion (Gauß Bareiss)
 > + chainable methods
+> + row
+>   + move
+>   + delete
+> + col
+>   + delete
+> + check matrix stats
 >
 ----
 >
 > ## Vector.js
 >
 > >
-> > ### __*WIP*__
+> > ### __*Ideas*__
 > >
-> > + ...
+> > + make vector from string
+> > + printing to string
 > >
+>
+> + 1D, 2D or 3D vector
+> + calculate length
+> + calculate angle
+>   + to other vector
+>   + to X, Y, Z - axis
+>   + to XY, YZ, XZ - plane
+>   + to X, Y, Z - axis on XY, YZ, XZ - plane (2D>3D)
+> + static methods DEG to RAD and RAD to DEG conversion
+> + test if finite
+> + test if equal to other vector
+> + convert vector to unit-vector (length 1 same direction)
+> + vector
+>   + addition
+>   + subtraction
+>   + inversion
+>   + scale by constant (multiply number)
 >

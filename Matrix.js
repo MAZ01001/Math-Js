@@ -35,8 +35,8 @@ class Matrix{
             list.forEach((v,i,a)=>{a[i].forEach((v_,i_,a_)=>{a_[i_]=Number(v_);})});
             this.list=list;
         }
-        if(this.list.length==0){this.list[0]=[];this.rows=0;}
-        else if(this.list[0].length==0&&this.list.length==1){this.rows=0}
+        if(this.list.length===0){this.list[0]=[];this.rows=0;}
+        else if(this.list[0].length===0&&this.list.length===1){this.rows=0}
         else{this.rows=this.list.length;}
         /** @type {number[][]} __the matrix as array__ */
         this.list;
@@ -44,9 +44,9 @@ class Matrix{
         this.rows;
         /** @type {number} __number of columns in the matrix__ */
         this.cols=this.list[0].length;
-        /** @type {boolean} __true if the matrix is square__ _(cols==rows)_ */
-        this.square=this.cols==this.rows;
-        /** @type {boolean} __true if the matrix is symmetrical__ _(m[i,j]==m[j,i])_ */
+        /** @type {boolean} __true if the matrix is square__ _(cols===rows)_ */
+        this.square=this.cols===this.rows;
+        /** @type {boolean} __true if the matrix is symmetrical__ _(m[i,j]===m[j,i])_ */
         this.symmetric=(this.square&&!this.list.some((v,i,a)=>{for(let j=0;j<i;j++){if(a[i][j]!=a[j][i]){return true;}}}));
     }
     /**
@@ -61,7 +61,7 @@ class Matrix{
      * @returns {string} the formated string
      */
     tostr(a_t_=false,n_p_=4){
-        if(this.list.length==0){return "++\n||\n++";}
+        if(this.list.length===0){return "++\n||\n++";}
         n_p_=Math.abs(n_p_);
         if(n_p_>20){n_p_=20;}
         const print=this.list.map((v,i,a)=>{return v.map((v_,i_,a_)=>{
@@ -102,13 +102,13 @@ class Matrix{
      * ];
      */
     static mkIdentityMatrix(size=0){
-        if(size==0){return new Matrix();}
-        if(size==1){return new Matrix([[1]],false);}
+        if(size===0){return new Matrix();}
+        if(size===1){return new Matrix([[1]],false);}
         let nm=[];
         for(let i=0;i<size;i++){
             nm[i]=[];
             for(let j=0;j<size;j++){
-                nm[i][j]=(i==j?1:0);
+                nm[i][j]=(i===j?1:0);
             }
         }
         try{return new Matrix(nm,false);}
@@ -156,7 +156,7 @@ class Matrix{
             ||!Number.isFinite(cols)
         ){throw RangeError("can not make matrix with infinite size.");}
         if(Number.isNaN(Number(n))){throw TypeError("n is not a valid number.");}
-        if(rows==0||cols==0){return new Matrix();}
+        if(rows===0||cols===0){return new Matrix();}
         rows=Math.abs(rows);
         cols=Math.abs(cols);
         let mn=[];
@@ -208,8 +208,8 @@ class Matrix{
      * @throws {TypeError} if `m2` is not a matrix
      */
     isEq_m(m2=null){
-        if(m2==null||!(m2 instanceof Matrix)){throw TypeError("parsed value is not of type Matrix.");}
-        return (this.rows==m2.rows&&this.cols==m2.cols&&!this.list.some((v,i,a)=>v.some((v_,i_,a_)=>v_!=m2.list[i][i_])));
+        if(m2===null||!(m2 instanceof Matrix)){throw TypeError("parsed value is not of type Matrix.");}
+        return (this.rows===m2.rows&&this.cols===m2.cols&&!this.list.some((v,i,a)=>v.some((v_,i_,a_)=>v_!=m2.list[i][i_])));
     }
     /**
      * __checks if the current matrix has given value in every cell__
@@ -243,10 +243,10 @@ class Matrix{
             for(let i=this.rows-1;i>0;i--){
                 for(let j=i-1;j>=0;j--){
                     [this.list[i][j],this.list[j][i]]=[this.list[j][i],this.list[i][j]];
-                    if(this.list[j][i]==undefined){this.list[j].splice(i,1);}
-                    if(this.list[i][j]==undefined){this.list[i].splice(j,1);}
+                    if(this.list[j][i]===undefined){this.list[j].splice(i,1);}
+                    if(this.list[i][j]===undefined){this.list[i].splice(j,1);}
                 }
-                if(this.list[i].length==0){this.list.splice(i,1);}
+                if(this.list[i].length===0){this.list.splice(i,1);}
             }
         }
         return this;
@@ -259,7 +259,7 @@ class Matrix{
      * @description _matrix will only change if successful_
      */
     add_n(n=0){
-        if(n==0){return this;}
+        if(n===0){return this;}
         n=Number(n);
         if(Number.isNaN(n)){throw RangeError("parsed value is not a number.");}
         if(!this.square){throw Error("matrix is not square.");}
@@ -315,8 +315,8 @@ class Matrix{
      * @description _matrix will only change if successful_
      */
     add_m(m2=null){
-        if(m2==null||!(m2 instanceof Matrix)){throw TypeError("parsed value is not of type Matrix.");}
-        if(!(this.rows==m2.rows&&this.cols==m2.cols)){throw RangeError("Matrices are not the same size.");}
+        if(m2===null||!(m2 instanceof Matrix)){throw TypeError("parsed value is not of type Matrix.");}
+        if(!(this.rows===m2.rows&&this.cols===m2.cols)){throw RangeError("Matrices are not the same size.");}
         let t=this.list.map((v,i,a)=>v.map((v_,i_,a_)=>v_+m2[i][i_]));
         if(t.some(v=>v.some(v_=>Number.isNaN(v_)))){throw RangeError("matrix values not valid anymore.");}
         this.list.forEach((v,i,a)=>{a[i].forEach((v_,i_,a_)=>{a_[i_]=t[i][i_];});});
@@ -330,8 +330,8 @@ class Matrix{
      * @description _matrix will only change if successful_
      */
     sub_m(m2=null){
-        if(m2==null||!(m2 instanceof Matrix)){throw TypeError("parsed value is not of type Matrix.");}
-        if(!(this.rows==m2.rows&&this.cols==m2.cols)){throw RangeError("Matrices are not the same size.");}
+        if(m2===null||!(m2 instanceof Matrix)){throw TypeError("parsed value is not of type Matrix.");}
+        if(!(this.rows===m2.rows&&this.cols===m2.cols)){throw RangeError("Matrices are not the same size.");}
         try{return this.add_m(m2.mkCopy().mul_n(-1));}
         catch(err){throw Error("failed to subtract matrix from matrix: "+err);}
     }
@@ -347,7 +347,7 @@ class Matrix{
      * _matrix will only change if successful_
      */
     mul_m(m2=null,flip=false){
-        if(m2==null||!(m2 instanceof Matrix)){throw TypeError("parsed value is not of type Matrix.");}
+        if(m2===null||!(m2 instanceof Matrix)){throw TypeError("parsed value is not of type Matrix.");}
         if(flip){if(m2.cols!=this.rows){throw RangeError("number of columns of the parsed matrix does not match the number of rows of the current.");}}
         else{if(this.cols!=m2.rows){throw RangeError("number of rows of the parsed matrix does not match the number of columns of the current.");}}
         let mn=[];
@@ -386,10 +386,10 @@ class Matrix{
     inv_m_GB(){
         if(!this.square){throw Error("matrix is not square.");}
         let mc=this.list.map(v=>v.map(v_=>v_));
-        mc.forEach((v,i,a)=>{for(let j=this.cols;j<this.cols*2;j++){a[i][j]=(j==this.cols+i)?1:0;}});
+        mc.forEach((v,i,a)=>{for(let j=this.cols;j<this.cols*2;j++){a[i][j]=(j===this.cols+i)?1:0;}});
         for(let n=0,p=1;n<this.rows;n++){
             for(let i=this.rows-1;i>=0;i--){
-                if(i==n){continue;}
+                if(i===n){continue;}
                 for(let j=(this.cols*2)-1;j>=0;j--){
                     mc[i][j]=((
                         (mc[n][n]*mc[i][j])
@@ -398,7 +398,7 @@ class Matrix{
                 }
             }
             p=mc[n][n];
-            if(mc.some((v,i,a)=>(v.filter((v_,i_,a_)=>(i_<this.cols&&v_==0),this).length==this.cols),this)){throw Error("matrix is not invertible.");}
+            if(mc.some((v,i,a)=>(v.filter((v_,i_,a_)=>(i_<this.cols&&v_===0),this).length===this.cols),this)){throw Error("matrix is not invertible.");}
         }
         const n=mc[0][0];
         mc.forEach((v,i,a)=>{v.splice(0,this.cols);},this);
@@ -420,7 +420,7 @@ class Matrix{
      * @description _matrix will only change if successful_
      */
     div_m(m2=null,flip=false){
-        if(m2==null||!(m2 instanceof Matrix)){throw TypeError("parsed value is not of type Matrix.");}
+        if(m2===null||!(m2 instanceof Matrix)){throw TypeError("parsed value is not of type Matrix.");}
         try{return this.mul_m(m2.mkCopy().inv_m_GB(),flip);}
         catch(err){throw Error("matrix-matrix division failed: "+err);}
     }
@@ -438,29 +438,42 @@ class Matrix{
             if(v.some(v_=>Number.isNaN(Number(v_)))){throw TypeError("not every value, in every array, in list, is a valid number. expected [[<Number>,..],..].");}
         });
         this.list.forEach((v,i,a)=>{a[i].forEach((v_,i_,a_)=>{a_[i_]=Number(v_);})});
-        if(this.list.length==0){this.list[0]=[];this.rows=0;}
-        else if(this.list[0].length==0&&this.list.length==1){this.rows=0}
+        if(this.list.length===0){this.list[0]=[];this.rows=0;}
+        else if(this.list[0].length===0&&this.list.length===1){this.rows=0}
         else{this.rows=this.list.length;}
         this.cols=this.list[0].length;
-        this.square=this.cols==this.rows;
+        this.square=this.cols===this.rows;
         this.symmetric=(this.square&&!this.list.some((v,i,a)=>{for(let j=0;j<i;j++){if(a[i][j]!=a[j][i]){return true;}}}));
         return this;
     }
-    // TODO ###################################################
+    /**
+     * __moves a row to one-based-index and auto moves rest__
+     * @param {number} n "from" one-based row-index
+     * @param {number} t "to" one-based row-index
+     * @throws {TypeError|RangeError} if `n` or `t` are not numbers or are out-of-bounds
+     * @returns {Matrix} `this` matrix after successful transformation
+     */
     row_move(n=1,t=2){
         n=Number(n);
         t=Number(t);
-        if(Number.isNaN(n)||Number.isNaN(t)){throw RangeError("parsed values are not numbers.");}
-        if((n>0&&n<=this.rows)||(t>0&&t<=this.rows)){throw RangeError("numbers are out of bounds.");}
-        if(this.rows==1||n==t){return this;}
+        if(Number.isNaN(n)||Number.isNaN(t)){throw TypeError("parsed values are not numbers.");}
+        if((n<=0||n>this.rows)||(t<=0||t>this.rows)){throw RangeError("numbers are out of bounds.");}
+        if(this.rows===1||n===t){return this;}
         this.list.splice(t-1,0,this.list.splice(n-1,1)[0]);
         this.symmetric=(this.square&&!this.list.some((v,i,a)=>{for(let j=0;j<i;j++){if(a[i][j]!=a[j][i]){return true;}}}));
+        return this;
     }
+    /**
+     * __deletes a row at one-based-index and auto moves rest__
+     * @param {number} n one-based row-index
+     * @throws {TypeError|RangeError} if `n` is not a number or is out-of-bounds
+     * @returns {Matrix} `this` matrix after successful transformation
+     */
     row_del(n=1){
         n=Number(n);
-        if(Number.isNaN(n)){throw RangeError("parsed value is not a number.");}
-        if(n>0&&n<=this.rows){throw RangeError("number is out of bounds.");}
-        if(this.rows==1){
+        if(Number.isNaN(n)){throw TypeError("parsed value is not a number.");}
+        if(n<=0||n>this.rows){throw RangeError("number is out of bounds.");}
+        if(this.rows===1){
             this.list=[[]];
             this.cols=0;
             this.rows=0;
@@ -470,15 +483,21 @@ class Matrix{
         }
         this.list.splice(n-1,1);
         this.rows--;
-        this.square=this.rows==this.cols;
+        this.square=this.rows===this.cols;
         this.symmetric=(this.square&&!this.list.some((v,i,a)=>{for(let j=0;j<i;j++){if(a[i][j]!=a[j][i]){return true;}}}));
         return this;
     }
+    /**
+     * __deletes a column at one-based-index and auto moves rest__
+     * @param {number} n one-based col-index
+     * @throws {TypeError|RangeError} if `n` is not a number or is out-of-bounds
+     * @returns {Matrix} `this` matrix after successful transformation
+     */
     col_del(n=1){
         n=Number(n);
-        if(Number.isNaN(n)){throw RangeError("parsed value is not a number.");}
-        if(n>0&&n<=this.cols){throw RangeError("number is out of bounds.");}
-        if(this.cols==1){
+        if(Number.isNaN(n)){throw TypeError("parsed value is not a number.");}
+        if(n<=0||n>this.cols){throw RangeError("number is out of bounds.");}
+        if(this.cols===1){
             this.list=[[]];
             this.cols=0;
             this.rows=0;
@@ -488,26 +507,23 @@ class Matrix{
         }
         this.list.forEach((v,i,a)=>a[i].splice(n-1,1));
         this.cols--;
-        this.square=this.rows==this.cols;
+        this.square=this.rows===this.cols;
         this.symmetric=(this.square&&!this.list.some((v,i,a)=>{for(let j=0;j<i;j++){if(a[i][j]!=a[j][i]){return true;}}}));
         return this;
     }
-    // TODO ###################################################
     //~ https://en.wikipedia.org/wiki/Division_(mathematics)#Of_matrices
     //~ https://en.wikipedia.org/wiki/Gaussian_elimination
     //~ https://en.wikipedia.org/wiki/Matrix_(mathematics)
     //~ https://matrixcalc.org/en/
 };
-// const {performance} = require('perf_hooks');
-// const t1=performance.now();
-// const t2=performance.now()-t1;
-let m1=new Matrix([[2,2,3],[4,5,6],[7,8,9]],false);
+// let m1=new Matrix([[2,2,3],[4,5,6],[7,8,9]],false);
 // let m2=new Matrix([[10],[11],[12]],false);
 // let m3=new Matrix([[10,11,12]],false);
-try{
-    console.log(
-        "%s",
-        m1  .inv_m_GB()
-            .tostr(true,5)
-    );
-}catch(err){console.error(err);}
+// try{
+//     console.log(
+//         "%c%s",
+//         "font-family:monospace",
+//         m1  .inv_m_GB()
+//             .tostr(true,5)
+//     );
+// }catch(err){console.error(err);}
