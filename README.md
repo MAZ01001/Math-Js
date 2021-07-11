@@ -88,7 +88,7 @@
 >   + to X, Y, Z - axis on XY, YZ, XZ - plane (2D>3D)
 > + static methods DEG to RAD and RAD to DEG conversion
 > + test if finite
-> + test if equal to other vector
+> + test if equal to another vector
 > + convert vector to unit-vector (length 1 same direction)
 > + vector
 >   + addition
