@@ -6,6 +6,17 @@ class Vector{
      * @param  {number} Z - Z-value - default `NaN` ie none
      */
     constructor(X,Y=NaN,Z=NaN){
+        X=Number(X);
+        Y=Number(Y);
+        Z=Number(Z);
+        const _x=!Number.isNaN(X),
+            _y=!Number.isNaN(Y),
+            _z=!Number.isNaN(Z);
+        if(!_x&&!_y&&!_z){throw new RangeError('Vector needs at least one number.');}
+        else if(!_x&&_y&&!_z){[X,Y]=[Y,X];}
+        else if(!_x&&!_y&&_z){[X,Z]=[Z,X];}
+        else if(!_x&&_y&&_z){[X,Y,Z]=[Y,Z,X];}
+        else if(_x&&!_y&&_z){[Y,Z]=[Z,Y];}
         /** @type {number} X value of vector */
         this.X=+X;
         /** @type {number} Y value of vector */
@@ -172,6 +183,87 @@ class Vector{
         this.Z*=n;
         return this;
     }
+    /**
+     * __copies `this` vector and returns the copy__
+     * @returns {Vector} copy of `this` vector
+     */
+    copy(){return new Vector(this.X,this.Y,this.Z);}
+    /**
+     * __prints `this` vector as string__
+     * @param {boolean} line - print only one line _(if `false` prints multiline)_
+     * @param {boolean} unicode - if `true` print with unicode characters _(only for multiline)_
+     * @returns {string} formatted string
+     */
+    print(line=false,unicode=true){
+        if(line){
+            switch(this.dim){
+                case 1:return`( ${this.X} )`;
+                case 2:return`( ${this.X} / ${this.Y} )`;
+                case 3:return`( ${this.X} / ${this.Y} / ${this.Z} )`;
+                default:return'';
+            }
+        }else{
+            switch(this.dim){
+                case 1:return`( ${this.X} )`;
+                case 2:{
+                    const _x=this.X.toString(),
+                        _y=this.Y.toString(),
+                        ml=Math.max(
+                            _x.length,
+                            _y.length,
+                        );
+                    if(unicode){return`⎧ ${_x.padEnd(ml,' ')} ⎫\n⎩ ${_y.padEnd(ml,' ')} ⎭`;}
+                    else{return`/ ${_x.padEnd(ml,' ')} \\\n\\ ${_y.padEnd(ml,' ')} /`;}
+                }
+                case 3:{
+                    const _x=this.X.toString(),
+                        _y=this.Y.toString(),
+                        _z=this.Z.toString(),
+                        ml=Math.max(
+                            _x.length,
+                            _y.length,
+                            _z.length
+                        );
+                    if(unicode){return`⎧ ${_x.padEnd(ml,' ')} ⎫\n⎪ ${_y.padEnd(ml,' ')} ⎪\n⎩ ${_z.padEnd(ml,' ')} ⎭`;}
+                    else{return`/ ${_x.padEnd(ml,' ')} \\\n| ${_y.padEnd(ml,' ')} |\n\\ ${_z.padEnd(ml,' ')} /`;}
+                }
+                default:return'';
+            }
+        }
+    }
+    /**
+     * __makes a matrix/array from `this` vector and returns it__
+     * @returns {number[][]} vector as Matrix _`[[x],[y],[z]]`_
+     */
+    matrix(){
+        switch(this.dim){
+            case 1:return[[this.X]];
+            case 2:return[[this.X],[this.Y]];
+            case 3:return[[this.X],[this.Y],[this.Z]];
+            default:return[[]];
+        }
+    }
+    /**
+     * __tries to fix precision error for `this` vector__
+     * @returns {Vector} `this` vector after conversion
+     */
+    fixPrecision(){
+        switch(this.dim){
+            case 3:{
+                const _z=this.Z,z_=Math.round(this.Z);
+                if(_z-z_<Number.EPSILON||z_-_z<Number.EPSILON){this.Z=z_;}
+            }case 2:{
+                const _y=this.Y,y_=Math.round(this.Y);
+                if(_y-y_<Number.EPSILON||y_-_y<Number.EPSILON){this.Y=y_;}
+            }case 1:{
+                const _x=this.X,x_=Math.round(this.X);
+                if(_x-x_<Number.EPSILON||x_-_x<Number.EPSILON){this.X=x_;}
+            }default:return this;
+        }
+    }
 }
-// let a=new Vector(1,2,3).add_vec(new Vector(1,2,3)).mul_num(.123).sub_vec(new Vector(3,-1,2)).invert().convert_unit_vec();
-// console.log([[a.X],[a.Y],[a.Z]]);
+// let v=new Vector(2,3,4);
+// console.log(
+//     v.copy().convert_unit_vec().mul_num(v.calc_len()).print()+'\n'+
+//     v.copy().convert_unit_vec().mul_num(v.calc_len()).fixPrecision().print()
+// );
