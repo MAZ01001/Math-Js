@@ -113,7 +113,7 @@ class Fraction{
         if(md>0){
             if(f.toImproper().c>md){
                 let f2=Fraction.dectofrac(v,md);
-                {const _tmp=Math.floor(f2.b/f2.c);f2.t*=_tmp;f2.b-=_tmp*f2.c;}
+                {const _tmp=Math.floor(f2.b/f2.c);f2.b-=_tmp*f2.c;f2.t*=_tmp;}
                 f.neg=(f2.t<0);
                 f.a=Math.abs(f2.t);
                 f.b=f2.b;
