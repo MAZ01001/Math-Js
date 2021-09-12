@@ -96,3 +96,20 @@
 >   + inversion
 >   + scale by constant (multiply number)
 >
+----
+>
+> ## functions.js
+>
+> > some useful math functions _(also see `other-projects/useful.js`)_
+>
+> + `mapRange(n,x,y,x2,y2,limit=false);` map number from one range to another
+> + `roundDecimal(n,dec=0);` rounds number to decimal place
+> + `toPercent(n,x,y);` calculates percent of number in range ("progress")
+> + `deg2rad(deg);` DEG to RAD
+> + `rad2deg(rad);` RAD to DEG
+> + `gcd(A,B);` calculates greatest common divisor
+> + `dec2frac(dec,loop_last=0,max_den=0,max_iter=1e6);` estimates a decimal number with a fraction
+> + `padNum(n,first=0,last=0);` pad number in respect to the decimal point
+> + `euclideanModulo(a,b);` calculates the modulo of two whole numbers _(the euclidean way with only positive remainder)_
+> + `fixFloat(n);` an attempt of fixing float precision errors in JS _(without strings)_
+>
