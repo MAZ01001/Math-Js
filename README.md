@@ -34,6 +34,7 @@
 > + addition/multiplication/subtraction/divition with
 >   + a single integer
 >   + another fraction
+> + raise fraction to nth power
 > + chainable methods
 >
 ----

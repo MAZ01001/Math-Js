@@ -215,6 +215,32 @@ class Fraction{
         return this.toMixed();
     }
     /**
+     * __raises this fraction to the nth power__
+     * @param {number} n - Real-Integer _(can be negative)_
+     * @returns {Fraction} Fraction-Object
+     */
+    pow_n(n=1){
+        if(n===1){return this;}
+        if(n===0){
+            this.neg=false;
+            this.a=1;
+            this.b=0;
+            this.c=1;
+            return this;
+        }
+        if(n===-1){
+            this.toImproper();
+            [this.b,this.c]=[this.c,this.b];
+            return this.toMixed();
+        }
+        if(n%2===0){this.neg=false;}
+        if(n<-1){return this.pow_n(-1).pow_n(Math.abs(n));}
+        this.toImproper();
+        this.b**=n;
+        this.c**=n;
+        return this.toMixed();
+    }
+    /**
      * __divides a single integer from this fraction__
      * @param {number} n - Real-Integer _(can be negative)_
      * @returns {Fraction} Fraction-Object
