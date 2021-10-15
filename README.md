@@ -113,4 +113,6 @@
 > + `padNum(n,first=0,last=0);` pad number in respect to the decimal point
 > + `euclideanModulo(a,b);` calculates the modulo of two whole numbers _(the euclidean way with only positive remainder)_
 > + `fixFloat(n);` an attempt of fixing float precision errors in JS _(without strings)_
+> + `randomRange(min,max);` genarates a random number within given range _(including min and max)_
+> + `randomRangeInt(min,max);` genarates a random integer within given range _(including min and max)_
 >

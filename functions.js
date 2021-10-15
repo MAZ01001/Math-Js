@@ -292,3 +292,35 @@ function fixFloat(n){
     if((n.toString().match(/(?<=\.)([0-9]+([0-9]+)\2+[0-9]+)?$/)||[,''])[1].length>=16){return n-Number.EPSILON*n;}
     else{return n;}
 }
+/**
+ * __genarates a random number within given range__ \
+ * _(including `min` and `max`)_
+ * @param {number} min - lower bound
+ * @param {number} max - upper bound
+ * @returns {number} random number within range
+ */
+function randomRange(min,max){
+    min=Number(min);
+    if(Number.isNaN(min)){throw new TypeError('[min] is not a number.');}
+    max=Number(max);
+    if(Number.isNaN(max)){throw new TypeError('[max] is not a number.');}
+    if(min>max){[min,max]=[max,min];}
+    //~ NOTE: `Math.random();` includes 0 but not 1
+    return(Math.random()*(max-min))+min;
+}
+/**
+ * __genarates a random integer within given range__ \
+ * _(including `min` and `max`)_
+ * @param {number} min - lower bound
+ * @param {number} max - upper bound
+ * @returns {number} random integer within range
+ */
+function randomRangeInt(min,max){
+    min=Number(min);
+    if(Number.isSafeInteger(min)){throw new TypeError('[min] is not a save integer.');}
+    max=Number(max);
+    if(Number.isSafeInteger(max)){throw new TypeError('[max] is not a save integer.');}
+    if(min>max){[min,max]=[max,min];}
+    //~ NOTE: `Math.random();` includes 0 but not 1
+    return Math.floor(Math.random()*((++max)-min))+min;
+}
