@@ -99,6 +99,30 @@
 >
 ----
 >
+> ## ComplexNumber.js
+>
+> + make complex number directly/square rooting a negative number/with length and angle in radian or degree
+> + getter for
+>   + real part
+>   + imaginary part
+>   + angle (radian or degree)
+>   + length / absolute value
+>   + arc length (from 0r/0° to where the complex number is)
+> + chainable methods
+> + logging current value without braking method chain
+> + complex number
+>   + addition
+>   + subtraction
+>   + multiplication
+>   + division
+> + raising current complex number to nth power
+> + static values for
+>   + 2π
+>   + π/2
+>   + π/4
+>
+----
+>
 > ## functions.js
 >
 > > some useful math functions _(also see `other-projects/useful.js`)_
