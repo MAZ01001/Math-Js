@@ -12,7 +12,7 @@
  * @description copy of [P5.js map function](https://github.com/processing/p5.js/blob/main/src/math/calculation.js#:~:text=p5.prototype.map)
  * @example _number_mapRange(0.5,0,1,0,100);//=> 50
  */
- function mapRange(n,x,y,x2,y2,limit=false){
+function mapRange(n,x,y,x2,y2,limit=false){
     n=Number(n);
     if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
     x=Number(x);
@@ -262,14 +262,14 @@ function padNum(n,first=0,last=0){
  * @param {number} a first whole number
  * @param {number} b second whole number
  * @returns {number} remainder (always positive)
- * @throws {TypeError} if `a` or `b` are not whole numbers
+ * @throws {TypeError} if `a` or `b` are not save integers
  * @description `a-(|b|*floor(a/|b|))`
  */
 function euclideanModulo(a,b){
     a=Number(a);
-    if(Number.isNaN(a)||!Number.isInteger(a)){throw new TypeError('[a] is not a whole number.');}
+    if(Number.isNaN(a)||!Number.isSafeInteger(a)){throw new TypeError('[a] is not a save integer.');}
     b=Number(b);
-    if(Number.isNaN(b)||!Number.isInteger(b)){throw new TypeError('[b] is not a whole number.');}
+    if(Number.isNaN(b)||!Number.isSafeInteger(b)){throw new TypeError('[b] is not a save integer.');}
     return a-(Math.abs(b)*Math.floor(a/Math.abs(b)));
 }
 /**
