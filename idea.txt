@@ -1,0 +1,15 @@
+Make a class with everything ?!
+
+for each number a good library for big precision numbers like https://github.com/MikeMcl/big.js
+always use fractions (only integer numbers)
+and always complex numbers
+    except for special rational numbers like
+    PI E ln(2) sqrt(2) ... use special behavior ?
+
+the ultimate no runding error library basically xD
+
+num = {re:{n:1,a:1,b:2},im:{n:0,a:1,b:3}} => ( (1+(1/2)) + (1/3) i )
+
+num = {special:"E",formula:"sum{n=0}^{infinity}({1}/{n!})",jsAprox:Math.E,aprox100:"2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274"}
+
+something like that xD
