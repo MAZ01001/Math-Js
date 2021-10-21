@@ -139,4 +139,5 @@
 > + `fixFloat(n);` an attempt of fixing float precision errors in JS _(without strings)_
 > + `randomRange(min,max);` genarates a random number within given range _(including min and max)_
 > + `randomRangeInt(min,max);` genarates a random integer within given range _(including min and max)_
+> + `fixPrecision(n);` attempt of fixing (potential) js float precision errors _(with `Number.EPSILON`)_
 >

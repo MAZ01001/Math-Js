@@ -324,3 +324,21 @@ function randomRangeInt(min,max){
     //~ NOTE: `Math.random();` includes 0 but not 1
     return Math.floor(Math.random()*((++max)-min))+min;
 }
+/**
+ * __checks for js float inaccuracy in a number__ \
+ * _and attempts to fix the (potential) float precision error_
+ * @param {number} n - initial number
+ * @throws {TypeError} - if `n` is not a number
+ * @returns {number} the fixed number
+ * @description it checks if the difference of `n` and its nearest integer (`n` rounded) is smaller than EPSILON \
+ * (EPSILON is the difference between 1 and the smallest value greater than 1, which is representable as a number value) \
+ * and if it is, it returns this integer, else the initial number `n`
+ */
+function fixPrecision(n){
+    n=Number(n);
+    if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
+    if(Number.isInteger(n)){return n;}
+    if(Math.abs(n)<Number.EPSILON){return 0;}
+    const m=Math.round(n);
+    return Math.abs(Math.abs(m)-Math.abs(n))<Number.EPSILON?m:n;
+}
