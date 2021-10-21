@@ -60,7 +60,7 @@
 >   + subtraction
 >   + multiplication
 >   + divition
-> + matrix inversion (Gauß Bareiss)
+> + matrix inversion _(Gauß Bareiss)_
 > + chainable methods
 > + row
 >   + move
@@ -86,16 +86,16 @@
 >   + to other vector
 >   + to X, Y, Z - axis
 >   + to XY, YZ, XZ - plane
->   + to X, Y, Z - axis on XY, YZ, XZ - plane (2D>3D)
+>   + to X, Y, Z - axis on XY, YZ, XZ - plane _(2D>3D)_
 > + static methods DEG to RAD and RAD to DEG conversion
 > + test if finite
 > + test if equal to another vector
-> + convert vector to unit-vector (length 1 same direction)
+> + convert vector to unit-vector _(length 1 same direction)_
 > + vector
 >   + addition
 >   + subtraction
 >   + inversion
->   + scale by constant (multiply number)
+>   + scale by constant _(multiply number)_
 >
 ----
 >
@@ -140,7 +140,7 @@
 >
 > + `mapRange(n,x,y,x2,y2,limit=false);` map number from one range to another
 > + `roundDecimal(n,dec=0);` rounds number to decimal place
-> + `toPercent(n,x,y);` calculates percent of number in range ("progress")
+> + `toPercent(n,x,y);` calculates percent of number in range _("progress")_
 > + `deg2rad(deg);` DEG to RAD
 > + `rad2deg(rad);` RAD to DEG
 > + `gcd(A,B);` calculates greatest common divisor
