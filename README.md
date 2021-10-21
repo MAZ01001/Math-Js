@@ -101,15 +101,24 @@
 >
 > ## ComplexNumber.js
 >
-> + make complex number directly/square rooting a negative number/with length and angle in radian or degree
+> + make a complex number with
+>   + real and imaginary part
+>   + with length and angle
+>     + radian
+>     + degree
+>   + square rooting a negative number
+>   + raising e to i-times-n-th power _(`e^(i*n)`)_
+>   + raising n to power of i _(`n^i`)_
 > + getter for
 >   + real part
 >   + imaginary part
->   + angle (radian or degree)
+>   + angle _(radian or degree)_
 >   + length / absolute value
->   + arc length (from 0r/0° to where the complex number is)
+>   + arc length _(from `0r`/`0°` to where the complex number is)_
+> + check for equality
 > + chainable methods
 > + logging current value without braking method chain
+> + create a copy of the the current complex number and continue with it
 > + complex number
 >   + addition
 >   + subtraction
@@ -117,9 +126,11 @@
 >   + division
 > + raising current complex number to nth power
 > + static values for
->   + 2π
->   + π/2
->   + π/4
+>   + `2π`
+>   + `π/2`
+>   + `π/4`
+>   + `e^i`
+>   + `i^i`
 >
 ----
 >

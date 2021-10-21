@@ -6,10 +6,18 @@ class ComplexNumber{
     πr/180° --( )-- 0/2πr/360°
                |
           1.5πr/270°
+    (radians are always default)
     */
+    /**@type {number} - `2*PI`*/
     static twoPI=Math.PI*2;
+    /**@type {number} - `PI/2`*/
     static halfPI=Math.PI*.5;
+    /**@type {number} - `PI/4` */
     static quarterPI=Math.PI*.25;
+    /**@type {ComplexNumber} - `e^i` */
+    static e_i=new ComplexNumber(Math.cos(1),Math.sin(1));
+    /**@type {ComplexNumber} - `i^i` */
+    static i_i=new ComplexNumber(Math.E**-ComplexNumber.halfPI,0);
     /**
      * __constructs a complex number with a real and an imaginary part__
      * @param {number} real - real part of complex number - _default `0`_
@@ -78,17 +86,59 @@ class ComplexNumber{
         );
     }
     /**
-     * __calculates the root of `n`__
-     * @param {number} n - number
+     * __calculates the square root of `n`__
+     * @param {number} n - number - _default `0`_
      * @throws {TypeError} - if `n` is not a number
      * @returns {ComplexNumber} - complex number
      */
-    static sqrtN2complex(n){
+    static sqrtN(n=0){
         n=Number(n);
         if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
         if(n>=0){return new ComplexNumber(Math.sqrt(n),0);}
         return new ComplexNumber(0,Math.sqrt(Math.abs(n)));
     }
+    /**
+     * __computes `e^(i*(n))`__
+     * @param {number} n - number - _default `0`_
+     * @throws {TypeError} - if `n` is not a number
+     * @returns {ComplexNumber} result as complex number
+     */
+    static e_in(n=0){
+        n=Number(n);
+        if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
+        /**
+         * __copy of `fixPrecision` function from `./functions.js`__
+         * @param {number} n - initial number
+         * @returns {number} the fixed number
+         */
+        const fixNum=n=>{const m=Math.round(n);return(Math.abs(Math.abs(m)-Math.abs(n))<Number.EPSILON)?m:n;};
+        n=fixNum(n);
+        if(n===0){return new ComplexNumber(1,0);}
+        if(n===1){return ComplexNumber.e_i;}
+        return new ComplexNumber(fixNum(Math.cos(n)),fixNum(Math.sin(n)));
+    };
+    /**
+     * __computes `(n)^i`__
+     * @param {number} n - number - _default `1`_
+     * @throws {TypeError} - if `n` is not a number
+     * @throws {RangeError} - if `n` is `0`
+     * @returns {ComplexNumber} result as complex number
+     */
+    static n_i(n=1){
+        n=Number(n);
+        if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
+        /**
+         * __copy of `fixPrecision` function from `./functions.js`__
+         * @param {number} n - initial number
+         * @returns {number} the fixed number
+         */
+        const fixNum=n=>{const m=Math.round(n);return(Math.abs(Math.abs(m)-Math.abs(n))<Number.EPSILON)?m:n;};
+        n=fixNum(n);
+        if(n===0){throw new RangeError('can not compute 0^i.');}
+        let z=ComplexNumber.e_in(Math.log(Math.abs(n)));
+        if(n<0){z.mul(new ComplexNumber(Math.E**-Math.PI,0));}
+        return z;
+    };
     /**
      * __gets the real part of `this` complex number__
      * @returns {Number} real part of `this` complex number
@@ -127,53 +177,83 @@ class ComplexNumber{
      */
     getArcLength(){return this.getLength()*this.getAngle();}
     /**
+     * __compares `this` complex number with another one for equality__
+     * @param {ComplexNumber} complex - complex number
+     * @throws {TypeError} - if `complex` is not a `ComplexNumber`
+     * @returns {boolean} `true` if numbers are of equal value
+     */
+    isEq(complex){
+        if(!(complex instanceof ComplexNumber)){throw new TypeError('[complex] is not an instance of ComplexNumber.');}
+        /**
+         * @param {number} a - number
+         * @param {number} b - number
+         * @returns {boolean} `true` if equal
+         */
+        const close=(a,b)=>(a===b||Math.abs(Math.abs(a)-Math.abs(b))<Number.EPSILON);
+        return close(this.real,complex.getReal())&&close(this.imaginary,complex.getImaginary());
+    }
+    /**
+     * __makes a copy of `this` complex number__
+     * @returns {ComplexNumber} the copy
+     */
+    copyThis(){return new ComplexNumber(this.real,this.imaginary);}
+    /**
      * __logs the current value of `this` complex number to the console__
      * @returns {ComplexNumber} `this` complex number after logging to console
      */
-    logValue(){console.log('((%f) + i(%f)) = %f',this.real,this.imaginary,this.getAbsoluteValue());return this;}
+    logThis(){console.log('((%f) + i(%f)) = %f',this.real,this.imaginary,this.getAbsoluteValue());return this;}
+    /**
+     * __calculates the complex conjugate of `this` complex number__
+     * @returns {ComplexNumber} the complex conjugate
+     */
+    conj(){return new ComplexNumber(this.real,-this.imaginary);}
     /**
      * __adds another complex number to `this` one__
-     * @param {ComplexNumber} complex - other complex number for addition
+     * @param {ComplexNumber} complex - other complex number for addition - _default `(0+0i)`_
+     * @throws {TypeError} - if `complex` is not a `ComplexNumber`
      * @returns {ComplexNumber} `this` complex number after successful addition
      */
-    add(complex=ComplexNumber(0,0)){
+    add(complex=new ComplexNumber(0,0)){
         if(!(complex instanceof ComplexNumber)){throw new TypeError('[complex] is not an instance of ComplexNumber.');}
-        this.real+=complex.real;this.imaginary+=complex.imaginary;
+        this.real+=complex.getReal();this.imaginary+=complex.getImaginary();
         return this;
     }
     /**
      * __subtracts another complex number from `this` one__
-     * @param {ComplexNumber} complex - other complex number for subtraction
+     * @param {ComplexNumber} complex - other complex number for subtraction - _default `(0+0i)`_
+     * @throws {TypeError} - if `complex` is not a `ComplexNumber`
      * @returns {ComplexNumber} `this` complex number after successful subtraction
      */
-    sub(complex=ComplexNumber(0,0)){
+    sub(complex=new ComplexNumber(0,0)){
         if(!(complex instanceof ComplexNumber)){throw new TypeError('[complex] is not an instance of ComplexNumber.');}
-        this.real-=complex.real;this.imaginary-=complex.imaginary;
+        this.real-=complex.getReal();this.imaginary-=complex.getImaginary();
         return this;
     }
     /**
      * __mulitlies another complex number with `this` one__
-     * @param {ComplexNumber} complex - other complex number for multiplication
+     * @param {ComplexNumber} complex - other complex number for multiplication - _default `(1+0i)`_
+     * @throws {TypeError} - if `complex` is not a `ComplexNumber`
      * @returns {ComplexNumber} `this` complex number after successful multiplication
      */
-    mul(complex=ComplexNumber(1,0)){
+    mul(complex=new ComplexNumber(1,0)){
         if(!(complex instanceof ComplexNumber)){throw new TypeError('[complex] is not an instance of ComplexNumber.');}
         [this.real,this.imaginary]=[
-            (this.real*complex.real)-(this.imaginary*cmplex.imaginary),
-            (this.real*complex.imaginary)+(this.imaginary*complex.real)
+            (this.real*complex.getReal())-(this.imaginary*complex.getImaginary()),
+            (this.real*complex.getImaginary())+(this.imaginary*complex.getReal())
         ];
         return this;
     }
     /**
      * __divides `this` complex number by another__
-     * @param {ComplexNumber} complex - other complex number for division (denominator)
+     * @param {ComplexNumber} complex - other complex number for division (denominator) - _default `(1+0i)`_
+     * @throws {TypeError} - if `complex` is not a `ComplexNumber`
      * @returns {ComplexNumber} `this` complex number after successful division
      */
-    div(complex=ComplexNumber(1,0)){
+    div(complex=new ComplexNumber(1,0)){
         if(!(complex instanceof ComplexNumber)){throw new TypeError('[complex] is not an instance of ComplexNumber.');}
         [this.real,this.imaginary]=[
-            ((this.real*complex.real)+(this.imaginary*complex.imaginary))/((complex.real**2)+(complex.imaginary**2)),
-            ((this.imaginary*complex.real)-(this.real*complex.imaginary))/((complex.real**2)+(complex.imaginary**2))
+            ((this.real*complex.getReal())+(this.imaginary*complex.getImaginary()))/((complex.getReal()**2)+(complex.getImaginary()**2)),
+            ((this.imaginary*complex.getReal())-(this.real*complex.getImaginary()))/((complex.getReal()**2)+(complex.getImaginary()**2))
         ];
         return this;
     }
@@ -216,4 +296,6 @@ class ComplexNumber{
         }
         return this;
     }
+
+    // TODO pow with complex numbers ~ i^i
 }
