@@ -61,7 +61,7 @@ class Fraction{
         do{
             nint=Math.floor(ndec);
             if(max_den>0&&(ppden+(nint*pden))>max_den){return{t:sign,b:num,c:den,n:iter,l:'max_den'};}
-            if(!isFinite(ppnum+(nint*pnum))){return{t:sign,b:num,c:den,n:iter,l:'infinity'};}
+            if(!Number.isFinite(ppnum+(nint*pnum))){return{t:sign,b:num,c:den,n:iter,l:'infinity'};}
             num=ppnum+nint*pnum;
             den=ppden+nint*pden;
             // console.log(
@@ -90,23 +90,23 @@ class Fraction{
      */
     static fromdecimal(v=0.0,md=0,nl=false,fl=false){
         if(typeof(v)=='string'){
-            v=parseFloat(v);
+            v=Number.parseFloat(v);
             if(v==NaN){throw new Error("parsed string is not a number");}
         }
         if(v==0.0){return new Fraction();}
         let _az,f=new Fraction();
         if(v<0){f.neg=true;}
         [,f.a,_az]=[...Math.abs(v).toString().match(/(-?[0-9]+)(?:[,.]([0-9]+))?/)];
-        f.a=parseInt(f.a);
+        f.a=Number.parseInt(f.a);
         if(!_az){_az='0';}
         if(nl){
-            f.b=parseInt(_az);
+            f.b=Number.parseInt(_az);
             f.c=Math.pow(10,_az.length);
         }else{
             const r=/^((?<d>[0-9]+?)\k<d>*)$/;
             const _a=_az.match(r)[1],
                 _d=_az.match(r)[2];
-            f.b=parseInt(_d);
+            f.b=Number.parseInt(_d);
             f.c=Math.pow(10,_d.length);
             if(_a!=_d||_a.length==1||fl){f.c--;}
         }
@@ -150,7 +150,7 @@ class Fraction{
      */
     toImproper(){
         if(this.b%this.c==0){
-            this.b=this.computeValue();
+            this.b=this.a+(this.b/this.c);
             this.a=0;
             this.c=1;
             return this;
