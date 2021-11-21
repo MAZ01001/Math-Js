@@ -1,6 +1,6 @@
-# Math-Js
+# [Math-Js](https://github.com/MAZ01001/Math-Js)
 
-> ## Polynomial.js
+> ## [Polynomial.js](https://github.com/MAZ01001/Math-Js/blob/main/Polynomial.js)
 >
 > >
 > > ### __*WIP*__
@@ -22,7 +22,7 @@
 >
 ----
 >
-> ## Fraction.js
+> ## [Fraction.js](https://github.com/MAZ01001/Math-Js/blob/main/Fraction.js)
 >
 > + make fraction directly/from decimal/-string
 > + GCD & decimal to fraction algorithm as public static methods
@@ -39,7 +39,7 @@
 >
 ----
 >
-> ## Matrix.js
+> ## [Matrix.js](https://github.com/MAZ01001/Math-Js/blob/main/Matrix.js)
 >
 > >
 > > ### __*ideas*__
@@ -71,7 +71,7 @@
 >
 ----
 >
-> ## Vector.js
+> ## [Vector.js](https://github.com/MAZ01001/Math-Js/blob/main/Vector.js)
 >
 > >
 > > ### __*Ideas*__
@@ -99,7 +99,7 @@
 >
 ----
 >
-> ## ComplexNumber.js
+> ## [ComplexNumber.js](https://github.com/MAZ01001/Math-Js/blob/main/ComplexNumber.js)
 >
 > + make a complex number with
 >   + real and imaginary part
@@ -134,9 +134,21 @@
 >
 ----
 >
-> ## functions.js
+> ## [StringInteger.js](https://github.com/MAZ01001/Math-Js/blob/main/StringInteger.js)
 >
-> > some useful math functions _(also see `other-projects/useful.js`)_
+> WIP
+>
+----
+>
+> ## [PerfectComplex.js](https://github.com/MAZ01001/Math-Js/blob/main/PerfectComplex.js)
+>
+> WIP [idea: StringInteger > Fraction > ComplexNumber]
+>
+----
+>
+> ## [functions.js](https://github.com/MAZ01001/Math-Js/blob/main/functions.js)
+>
+> > some useful math functions _(also see [`other-projects/useful.js`](https://github.com/MAZ01001/other-projects/blob/main/useful.js))_
 >
 > + `mapRange(n,x,y,x2,y2,limit=false);` map number from one range to another
 > + `roundDecimal(n,dec=0);` rounds number to decimal place
