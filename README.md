@@ -148,7 +148,7 @@
 >
 > ## [functions.js](https://github.com/MAZ01001/Math-Js/blob/main/functions.js)
 >
-> > some useful math functions _(also see [`other-projects/useful.js`](https://github.com/MAZ01001/other-projects/blob/main/useful.js))_
+> > some useful math functions _(also see [`other-projects/useful.js`](https://github.com/MAZ01001/other-projects#usefuljs))_
 >
 > + `mapRange(n,x,y,x2,y2,limit=false);` map number from one range to another
 > + `roundDecimal(n,dec=0);` rounds number to decimal place
