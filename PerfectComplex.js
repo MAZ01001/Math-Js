@@ -20,6 +20,7 @@ class PerfectComplex{
     constructor(real="0",imaginary="0"){
         // if "0" / "10000" -> str_int => [str_int,"0","1"]
         // TODO update after StringInteger is "finished"
+        // TODO reject string go Uint8ClampedArray and normal Array for calculations
         const srt_int_format=/^[+-]?(?:0|[1-9][0-9]*)$/;
         this.sign=true;// true=positive
         if(Array.isArray(real)){
