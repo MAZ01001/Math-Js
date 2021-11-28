@@ -50,7 +50,7 @@ class BigIntType{
     add(n=new BigIntType()){
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
         const len=Math.max(this.digits.length,n.digits.length);
-        if(len>BigIntType.MAX_SIZE){throw new RangeError(`addition with [n] could result in a number bigger than MAX_SIZE (${BigIntType.MAX_SIZE})`);}
+        if(len+1>BigIntType.MAX_SIZE){throw new RangeError(`addition with [n] could result in a number bigger than MAX_SIZE (${BigIntType.MAX_SIZE})`);}
         let _tmp=[];
         // TODO : SIGN !!!
         for(let i=0;i<len;i++){
