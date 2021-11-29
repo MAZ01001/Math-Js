@@ -15,7 +15,7 @@ class BigIntType{
         n=String(n);
         if(n.length==0){throw new RangeError("[n] is an empty string");}
         if(!BigIntType.#REGEXP_STRINT.test(n)){throw new SyntaxError("[n] is not a whole number string (in format)");}
-        if(n.length>BigIntType.MAX_SIZE+(/^[+-]$/.test(n[0])?1:0)){throw new RangeError(`[n] is bigger than ${BigIntType.MAX_SIZE} [MAX_SIZE]`);}
+        if((n.length-(/^[+-]$/.test(n[0])?1:0))>BigIntType.MAX_SIZE){throw new RangeError(`[n] is bigger than ${BigIntType.MAX_SIZE} [MAX_SIZE]`);}
         // let uint8=((a,b)=>{let c=new Uint8Array(a.length+b.length);c.set(a,0);c.set(b,a.length);return c;})(Uint8Array.from("123"),Uint8Array.from("456"));
         /** @type {boolean} - sign of the number - `true` = positive */
         this.sign;
@@ -47,12 +47,30 @@ class BigIntType{
         );
         return this;
     }
-    add(n=new BigIntType()){
+    /**
+     * __makes a copy of `this` number__
+     * @returns {BigIntType} a copy of `this` number
+     */
+    copy(){
+        let _tmp=new BigIntType();
+        _tmp.sign=this.sign;
+        _tmp.digits=this.digits.slice();
+        return _tmp;
+        // return new BigIntType((this.sign?'+':'-')+this.digits.join(''));
+    }
+    /**
+     * __adds two numbers together (ignoring sign)__ \
+     * _modifies the original_
+     * @param {BigIntType} n - second number for addition
+     * @returns {BigIntType} `this` number after addition
+     * @throws {TypeError} - if [n] is not an instance of `BigIntType`
+     * @throws {RangeError} - if new number could be larger than `BigIntType.MAX_SIZE`
+     */
+    #calcAdd(n=new BigIntType()){
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
         const len=Math.max(this.digits.length,n.digits.length);
         if(len+1>BigIntType.MAX_SIZE){throw new RangeError(`addition with [n] could result in a number bigger than MAX_SIZE (${BigIntType.MAX_SIZE})`);}
         let _tmp=[];
-        // TODO : SIGN !!!
         for(let i=0;i<len;i++){
             _tmp[i]=((this.digits[i]||0)+(n.digits[i]|0))%10;
             _tmp[i+1]=Math.floor(((this.digits[i]||0)+(n.digits[i]||0))*.1);
@@ -61,13 +79,84 @@ class BigIntType{
         this.digits=Uint8ClampedArray.from(_tmp);
         return this;
     }
-    // #sub(n=BigIntType()){}
+    /**
+     * __subtracts two numbers from one another (ignoring sign)__ \
+     * _modifies the original_
+     * @param {BigIntType} n - second number for subtraction (subtrahend)
+     * @returns {BigIntType} `this` number after subtraction
+     * @throws {TypeError} - if [n] is not an instance of `BigIntType`
+     */
+    #calcSub(n=new BigIntType()){
+        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
+        const len=Math.max(this.digits.length,n.digits.length);
+        let first=len-1,sign=1,z,_tmp=[],j=1;
+        for(let i=len-1;i>=0;i--){
+            z=((this.digits[i]||0)-(n.digits[i]|0));
+            if(z===0){
+                if(i===first){first--;}
+                _tmp[i]=0;
+            }else if(z<0){
+                if(sign===-1){_tmp[i]=Math.abs(z);}
+                else if(i===first){
+                    sign=-1;
+                    _tmp[i]=Math.abs(z);
+                }else{
+                    _tmp[i]=z+10;
+                    j=1;
+                    while(_tmp[i+j]===0){_tmp[i+j++]=9;}
+                    _tmp[i+j]-=1;
+                    if(_tmp[i+j]===0&&i+j===first){first--;}
+                }
+            }else{
+                if(sign===-1){
+                    _tmp[i]=Math.abs(z-10);
+                    j=1;
+                    while(_tmp[i+j]===0){_tmp[i+j++]=9;}
+                    _tmp[i+j]-=1;
+                    if(_tmp[i+j]===0&&i+j===first){first--;}
+                }else{_tmp[i]=z;}
+            }
+        }
+        this.sign=sign===1;
+        this.digits=Uint8ClampedArray.from(_tmp.slice(0,(first+1)||1));
+        return this;
+    }
+    /**
+     * __adds another number to `this` one__ \
+     * _modifies the original_
+     * @param {BigIntType} n - second number for addition
+     * @returns {BigIntType} `this` number after addition
+     * @throws {TypeError} - if [n] is not an instance of `BigIntType`
+     * @throws {RangeError} - if new number could be larger than `BigIntType.MAX_SIZE`
+     */
+    add(n=new BigIntType()){
+        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
+        if(Math.max(this.digits.length,n.digits.length)+1>BigIntType.MAX_SIZE){throw new RangeError(`addition with [n] could result in a number bigger than MAX_SIZE (${BigIntType.MAX_SIZE})`);}
+        if(this.sign===n.sign){this.#calcAdd(n);}
+        else if(this.sign&&(!n.sign)){this.#calcSub(n);}
+        else if((!this.sign)&&n.sign){this=n.copy().#calcSub(this);}
+        return this;
+    }
+    /**
+     * __subtracts another number from `this` one__ \
+     * _modifies the original_
+     * @param {BigIntType} n - second number for subtraction (subtrahend)
+     * @returns {BigIntType} `this` number after subtraction
+     * @throws {TypeError} - if [n] is not an instance of `BigIntType`
+     */
+    sub(n=new BigIntType()){
+        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
+        if(this.sign!==n.sign){this.#calcAdd(n);}
+        else if(this.sign&&n.sign){this.#calcSub(n);}
+        else if((!this.sign)&&(!n.sign)){this=n.copy().#calcSub(this);}
+        return this;
+    }
     // #mul(n=BigIntType()){}
     // #div(n=BigIntType()){}
     /* TODO
-        get/set sign num_frac(a/b/c) to_string logger copy
+        get/set sign num_frac(a/b/c) to_string
         smaller_than bigger_than equal_to
-        add sub mul div modulo(euclidean) pow
+        mul div modulo(euclidean) pow
 
         log(x)(y)=z <-> (x^z=y) https://en.wikipedia.org/wiki/Logarithm#Change_of_base
 
@@ -83,9 +172,9 @@ class BigIntType{
     */
 }
 
-new BigIntType("+500")
+new BigIntType("499")
 .log()
-.add(
-    new BigIntType("+30")
+.sub(
+    new BigIntType("50")
     .log()
 ).log();
