@@ -121,6 +121,7 @@ class BigIntType{
         this.digits=Uint8ClampedArray.from(_tmp.slice(0,(first+1)||1));
         return this;
     }
+    // TODO add #clacSubReverse method - possibly convert to variables or update node to v14 !
     /**
      * __adds another number to `this` one__ \
      * _modifies the original_
