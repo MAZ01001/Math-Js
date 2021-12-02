@@ -88,7 +88,14 @@ class BigIntType{
      */
     #calcSub(n=new BigIntType()){
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
-        const len=Math.max(this.digits.length,n.digits.length);
+        const len=Math.max(this.digits.length,n.digits.length),
+            carry=(_tmp,i,j,first)=>{
+                j=1;
+                while(_tmp[i+j]===0){_tmp[i+j++]=9;}
+                _tmp[i+j]-=1;
+                if(_tmp[i+j]===0&&i+j===first){first--;}
+                return first;
+            };
         let first=len-1,sign=1,z,_tmp=[],j=1;
         for(let i=len-1;i>=0;i--){
             z=((this.digits[i]||0)-(n.digits[i]|0));
@@ -102,18 +109,12 @@ class BigIntType{
                     _tmp[i]=Math.abs(z);
                 }else{
                     _tmp[i]=z+10;
-                    j=1;
-                    while(_tmp[i+j]===0){_tmp[i+j++]=9;}
-                    _tmp[i+j]-=1;
-                    if(_tmp[i+j]===0&&i+j===first){first--;}
+                    first=carry(_tmp,i,j,first);
                 }
             }else{
                 if(sign===-1){
                     _tmp[i]=Math.abs(z-10);
-                    j=1;
-                    while(_tmp[i+j]===0){_tmp[i+j++]=9;}
-                    _tmp[i+j]-=1;
-                    if(_tmp[i+j]===0&&i+j===first){first--;}
+                    first=carry(_tmp,i,j,first);
                 }else{_tmp[i]=z;}
             }
         }
