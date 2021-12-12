@@ -32,7 +32,7 @@ class Vector{
      */
     calc_len(){
         switch(this.dim){
-            case 1:return this.X;
+            case 1:return Math.abs(this.X);
             case 2:return Math.sqrt(this.X**2+this.Y**2);
             case 3:return Math.sqrt(this.X**2+this.Y**2+this.Z**2);
             default:return NaN;
@@ -183,6 +183,15 @@ class Vector{
         this.Z*=n;
         return this;
     }
+    /*
+        TODO
+        dot product v,u=> v.x*u.x+v.y*u.y+v.z*u.z "..."
+        scalar projection v,ang=>||v||*cos(ang) "..."
+        cross product v,u=> "area of a parallelogram"
+        scalar triple product v,u,w=>abs(dot(v,cross(u,w))) "volume of a parallelepiped"
+        transform function → from world to local space using vectors...world to point vector,world to local vector,local rotation=>point-local and then dot() for the rotation...sth..
+        ...
+    */
     /**
      * __copies `this` vector and returns the copy__
      * @returns {Vector} copy of `this` vector
@@ -249,16 +258,16 @@ class Vector{
      */
     fixPrecision(){
         switch(this.dim){
-            case 3:{
+            case 3:
                 const _z=this.Z,z_=Math.round(this.Z);
                 if(_z-z_<Number.EPSILON||z_-_z<Number.EPSILON){this.Z=z_;}
-            }case 2:{
+            case 2:
                 const _y=this.Y,y_=Math.round(this.Y);
                 if(_y-y_<Number.EPSILON||y_-_y<Number.EPSILON){this.Y=y_;}
-            }case 1:{
+            case 1:
                 const _x=this.X,x_=Math.round(this.X);
                 if(_x-x_<Number.EPSILON||x_-_x<Number.EPSILON){this.X=x_;}
-            }default:return this;
+            default:return this;
         }
     }
 }
