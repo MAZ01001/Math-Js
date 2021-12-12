@@ -158,7 +158,9 @@ class BigIntType{
     /* TODO
         get/set sign num_frac(a/b/c) to_string
         smaller_than bigger_than equal_to
-        mul div modulo(euclidean) pow
+        mul div modulo(euclidean) pow roots
+
+        ( n-root(n,x) => pow(x,1/n) )
 
         log(x)(y)=z <-> (x^z=y) https://en.wikipedia.org/wiki/Logarithm#Change_of_base
 
