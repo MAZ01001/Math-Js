@@ -122,7 +122,6 @@ class BigIntType{
         this.digits=Uint8ClampedArray.from(_tmp.slice(0,(first+1)||1));
         return this;
     }
-    // TODO add #clacSubReverse method - possibly convert to variables or update node to v14 !
     /**
      * __adds another number to `this` one__ \
      * _modifies the original_
@@ -136,7 +135,7 @@ class BigIntType{
         if(Math.max(this.digits.length,n.digits.length)+1>BigIntType.MAX_SIZE){throw new RangeError(`addition with [n] could result in a number bigger than MAX_SIZE (${BigIntType.MAX_SIZE})`);}
         if(this.sign===n.sign){this.#calcAdd(n);}
         else if(this.sign&&(!n.sign)){this.#calcSub(n);}
-        else if((!this.sign)&&n.sign){this=n.copy().#calcSub(this);}
+        else if((!this.sign)&&n.sign){(_obj=>[this.sign,this.digits]=[_obj.sign,_obj.digits])(n.copy().#calcSub(this));}
         return this;
     }
     /**
@@ -150,7 +149,7 @@ class BigIntType{
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
         if(this.sign!==n.sign){this.#calcAdd(n);}
         else if(this.sign&&n.sign){this.#calcSub(n);}
-        else if((!this.sign)&&(!n.sign)){this=n.copy().#calcSub(this);}
+        else if((!this.sign)&&(!n.sign)){(_obj=>[this.sign,this.digits]=[_obj.sign,_obj.digits])(n.copy().#calcSub(this));}
         return this;
     }
     // #mul(n=BigIntType()){}
