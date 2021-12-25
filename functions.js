@@ -6,23 +6,17 @@
  * @param {number} y initial upper bound
  * @param {number} x2 new lower bound
  * @param {number} y2 new upper bound
- * @param {boolean} limit if `true` limits output to min `x2` and max `y2` - _default `false`_
+ * @param {boolean} limit if `true` clamps output at min(`x2`) and max(`y2`) - _default `false`_
  * @returns {number} calculated number
  * @throws {TypeError} if `n`, `x`, `y`, `x2` or `y2` are not numbers
- * @description copy of [P5.js map function](https://github.com/processing/p5.js/blob/main/src/math/calculation.js#:~:text=p5.prototype.map)
- * @example _number_mapRange(0.5,0,1,0,100);//=> 50
+ * @example mapRange(0.5,0,1,0,100);//=> 50
  */
 function mapRange(n,x,y,x2,y2,limit=false){
-    n=Number(n);
-    if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
-    x=Number(x);
-    if(Number.isNaN(x)){throw new TypeError('[x] is not a number.');}
-    y=Number(y);
-    if(Number.isNaN(y)){throw new TypeError('[y] is not a number.');}
-    x2=Number(x2);
-    if(Number.isNaN(x2)){throw new TypeError('[x2] is not a number.');}
-    y2=Number(y2);
-    if(Number.isNaN(y2)){throw new TypeError('[y2] is not a number.');}
+    n=Number(n);if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
+    x=Number(x);if(Number.isNaN(x)){throw new TypeError('[x] is not a number.');}
+    y=Number(y);if(Number.isNaN(y)){throw new TypeError('[y] is not a number.');}
+    x2=Number(x2);if(Number.isNaN(x2)){throw new TypeError('[x2] is not a number.');}
+    y2=Number(y2);if(Number.isNaN(y2)){throw new TypeError('[y2] is not a number.');}
     limit=!!limit;
     let o=((n-x)/(y-x))*(y2-x2)+x2;
     return limit?(
@@ -40,10 +34,8 @@ function mapRange(n,x,y,x2,y2,limit=false){
  * @description idea from [P5.js round function](https://github.com/processing/p5.js/blob/main/src/math/calculation.js#:~:text=p5.prototype.round)
  */
 function roundDecimal(n,dec=0){
-    n=Number(n);
-    if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
-    dec=Math.abs(Number(dec));
-    if(!Number.isFinite(dec)||!Number.isInteger(dec)){throw new TypeError('[dec] is not a whole finite number.');}
+    n=Number(n);if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
+    dec=Math.abs(Number(dec));if(!Number.isFinite(dec)||!Number.isInteger(dec)){throw new TypeError('[dec] is not a whole finite number.');}
     if(/[eE]/.test(n.toString())){
         let[,f,s,x]=[...n.toString().match(/^([+-]?[0-9]+(?:\.[0-9]+)?)[eE]([+-]?)([0-9]+)$/)];
         if(s!=='-'){
@@ -80,16 +72,13 @@ function roundDecimal(n,dec=0){
  * @param {number} y upper bound
  * @returns {number} percent as decimal number between 0 and 1
  * @throws {TypeError} if `n`, `x` or `y` are not numbers
- * @example _number_toPercent(150,100,200);//=> 0.5
- * @description _same as `_number_mapRange(n,x,y,0,1);`
+ * @example toPercent(150,100,200);//=> 0.5
+ * @description _same as `mapRange(n,x,y,0,1);`
  */
 function toPercent(n,x,y){
-    n=Number(n);
-    if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
-    x=Number(x);
-    if(Number.isNaN(x)){throw new TypeError('[x] is not a number.');}
-    y=Number(y);
-    if(Number.isNaN(y)){throw new TypeError('[y] is not a number.');}
+    n=Number(n);if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
+    x=Number(x);if(Number.isNaN(x)){throw new TypeError('[x] is not a number.');}
+    y=Number(y);if(Number.isNaN(y)){throw new TypeError('[y] is not a number.');}
     if(y>x){[x,y]=[y,x];}
     return (n-x)/(y-x);
 }
@@ -100,8 +89,7 @@ function toPercent(n,x,y){
  * @throws {TypeError} if `deg` is not a number
  */
 function deg2rad(deg){
-    deg=Number(deg);
-    if(Number.isNaN(deg)){throw new TypeError('[deg] is not a number.');}
+    deg=Number(deg);if(Number.isNaN(deg)){throw new TypeError('[deg] is not a number.');}
     return deg*(180/Math.PI);
 }
 /**
@@ -111,24 +99,21 @@ function deg2rad(deg){
  * @throws {TypeError} if `rad` is not a number
  */
 function rad2deg(rad){
-    rad=Number(rad);
-    if(Number.isNaN(rad)){throw new TypeError('[rad] is not a number.');}
+    rad=Number(rad);if(Number.isNaN(rad)){throw new TypeError('[rad] is not a number.');}
     return rad*(Math.PI/180);
 }
 /**
  * __computes the greatest-common-divisor of two whole numbers__
- * @param {number} A integer
- * @param {number} B integer
+ * @param {number} A unsigned integer
+ * @param {number} B unsigned integer
  * @returns {number} greatest-common-divisor (integer)
- * @throws {TypeError} if `A` or `B` are not whole numbers
- * @example _number_gcd(45,100);//=> 5 | (/5)>> 45/100 == 9/20
+ * @throws {TypeError} if `A` or `B` are not integers
+ * @example gcd(45,100);//=> 5 | (/5)>> 45/100 == 9/20
  * @description used to shorten fractions (see example)
  */
 function gcd(A,B){
-    A=Number(A);
-    if(Number.isInteger(A)){throw new TypeError('[A] is not a whole number.');}
-    B=Number(B);
-    if(Number.isInteger(B)){throw new TypeError('[B] is not a whole number.');}
+    A=Math.abs(Number(A));if(!Number.isInteger(A)){throw new TypeError('[A] is not a integer.');}
+    B=Math.abs(Number(B));if(!Number.isInteger(B)){throw new TypeError('[B] is not a integer.');}
     for([A,B]=A<B?[B,A]:[A,B];A%B>0;[A,B]=[B,A%B]);
     return B;
 }
@@ -146,18 +131,14 @@ function gcd(A,B){
  * + s : reason of exit (`'precision'`|`'infinity'`|`'max_den'`|`'max_iter'`)
  * + `dec = a + ( b / c )`
  * @throws {TypeError} if `dec` is not a finite number or `loop_last`, `max_den` or `max_iter` are not whole numbers
- * @example _number_dectofrac(.12,2);//=> a:0 b:4 c:33 = 4/33 = .121212121212...
+ * @example dec2frac(.12,2);//=> a:0 b:4 c:33 = 4/33 = .121212121212...
  */
 function dec2frac(dec,loop_last=0,max_den=0,max_iter=1e6){
-    dec=Number(dec);
-    if(!Number.isFinite(dec)){throw new TypeError('[dec] is not a finite number.');}
+    dec=Number(dec);if(!Number.isFinite(dec)){throw new TypeError('[dec] is not a finite number.');}
     if(Number.isInteger(dec)){return{a:dec,b:0,c:1,n:0,s:'precision'};}
-    loop_last=Math.abs(Number(loop_last));
-    if(!Number.isInteger(loop_last)){throw new TypeError('[loop_last] is not a whole number.');}
-    max_den=Math.abs(Number(max_den));
-    if(!Number.isInteger(max_den)){throw new TypeError('[max_den] is not a whole number.');}
-    max_iter=Math.abs(Number(max_iter));
-    if(!Number.isInteger(max_iter)){throw new TypeError('[max_iter] is not a whole number.');}
+    loop_last=Math.abs(Number(loop_last));if(!Number.isInteger(loop_last)){throw new TypeError('[loop_last] is not a whole number.');}
+    max_den=Math.abs(Number(max_den));if(!Number.isInteger(max_den)){throw new TypeError('[max_den] is not a whole number.');}
+    max_iter=Math.abs(Number(max_iter));if(!Number.isInteger(max_iter)){throw new TypeError('[max_iter] is not a whole number.');}
     let sign=(dec<0?-1:1),
         nint,ndec=Math.abs(dec),
         num,pnum=1,ppnum=0,
@@ -234,17 +215,14 @@ function dec2frac(dec,loop_last=0,max_den=0,max_iter=1e6){
  * @param {number} last - padding to length after decimal point
  * @returns {string} padded number as string
  * @throws {TypeError} if `n` is not a number or `first` or `last` are not whole numbers
- * @example _number_padNum(1.23e2,3,5);//=> '+  1.23000e2'
+ * @example padNum(1.23e2,3,5);//=> '+  1.23000e2'
  * @description
  * format:`[sign] [padded start ' '] [.] [padded end '0'] [e ~]`
 */
 function padNum(n,first=0,last=0){
-    n=Number(n);
-    if(Number.isNaN(n)){throw new TypeError('[n] is not a number.')}
-    first=Math.abs(Number(first));
-    if(Number.isNaN(first)){throw new TypeError('[first] is not a whole number.');}
-    last=Math.abs(Number(last));
-    if(Number.isNaN(last)){throw new TypeError('[last] is not a whole number.');}
+    n=Number(n);if(Number.isNaN(n)){throw new TypeError('[n] is not a number.')}
+    first=Math.abs(Number(first));if(Number.isNaN(first)){throw new TypeError('[first] is not a whole number.');}
+    last=Math.abs(Number(last));if(Number.isNaN(last)){throw new TypeError('[last] is not a whole number.');}
     if(/[eE]/.test(n.toString())){
         let [,s,i,d,x]=[...n.toString().match(/^([+-]?)([0-9]+)(?:\.([0-9]+))?([eE][+-]?[0-9]+)$/)];
         if(!d){d='0';}
@@ -259,17 +237,15 @@ function padNum(n,first=0,last=0){
 /**
  * __calculates the modulo of two whole numbers__ \
  * _the euclidean way with only positive remainder_
- * @param {number} a first whole number
- * @param {number} b second whole number
+ * @param {number} a first number
+ * @param {number} b second number
  * @returns {number} remainder (always positive)
- * @throws {TypeError} if `a` or `b` are not save integers
+ * @throws {TypeError} if `a` or `b` are not finite
  * @description `a-(|b|*floor(a/|b|))`
  */
 function euclideanModulo(a,b){
-    a=Number(a);
-    if(Number.isNaN(a)||!Number.isSafeInteger(a)){throw new TypeError('[a] is not a save integer.');}
-    b=Number(b);
-    if(Number.isNaN(b)||!Number.isSafeInteger(b)){throw new TypeError('[b] is not a save integer.');}
+    a=Number(a);if(!Number.isFinite(a)){throw new TypeError('[a] is not a finite number.');}
+    b=Number(b);if(!Number.isFinite(b)){throw new TypeError('[b] is not a finite number.');}
     return a-(Math.abs(b)*Math.floor(a/Math.abs(b)));
 }
 /**
@@ -287,8 +263,7 @@ function euclideanModulo(a,b){
  * fixFloat(.3-.4);//=> -0.10000000000000003 -> -0.1
  */
 function fixFloat(n){
-    n=Number(n);
-    if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
+    n=Number(n);if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
     if((n.toString().match(/(?<=\.)([0-9]+([0-9]+)\2+[0-9]+)?$/)||[,''])[1].length>=16){return n-Number.EPSILON*n;}
     else{return n;}
 }
@@ -298,15 +273,16 @@ function fixFloat(n){
  * @param {number} min - lower bound
  * @param {number} max - upper bound
  * @returns {number} random number within range
+ * @throws {TypeError} - if `min` or `max` are not numbers
  */
 function randomRange(min,max){
-    min=Number(min);
-    if(Number.isNaN(min)){throw new TypeError('[min] is not a number.');}
-    max=Number(max);
-    if(Number.isNaN(max)){throw new TypeError('[max] is not a number.');}
+    min=Number(min);if(Number.isNaN(min)){throw new TypeError('[min] is not a number.');}
+    max=Number(max);if(Number.isNaN(max)){throw new TypeError('[max] is not a number.');}
     if(min>max){[min,max]=[max,min];}
-    //~ NOTE: `Math.random();` includes 0 but not 1
-    return(Math.random()*(max-min))+min;
+    //~ NOTE: `Math.random();` includes 0 but not 1 !
+    //~       if we say it goes from 0 to (1-`Number.EPSILON`)
+    //~       then this is (in theory) true:
+    return((Math.random()*(1+Number.EPSILON))*(max-min))+min;
 }
 /**
  * __genarates a random integer within given range__ \
@@ -314,14 +290,13 @@ function randomRange(min,max){
  * @param {number} min - lower bound
  * @param {number} max - upper bound
  * @returns {number} random integer within range
+ * @throws {TypeError} - if `min` or `max` are not save integers
  */
 function randomRangeInt(min,max){
-    min=Number(min);
-    if(Number.isSafeInteger(min)){throw new TypeError('[min] is not a save integer.');}
-    max=Number(max);
-    if(Number.isSafeInteger(max)){throw new TypeError('[max] is not a save integer.');}
+    min=Number(min);if(Number.isSafeInteger(min)){throw new TypeError('[min] is not a save integer.');}
+    max=Number(max);if(Number.isSafeInteger(max)){throw new TypeError('[max] is not a save integer.');}
     if(min>max){[min,max]=[max,min];}
-    //~ NOTE: `Math.random();` includes 0 but not 1
+    //~ NOTE: `Math.random();` includes 0 but not 1 !
     return Math.floor(Math.random()*((++max)-min))+min;
 }
 /**
@@ -335,8 +310,7 @@ function randomRangeInt(min,max){
  * and if it is, it returns this integer, else the initial number `n`
  */
 function fixPrecision(n){
-    n=Number(n);
-    if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
+    n=Number(n);if(Number.isNaN(n)){throw new TypeError('[n] is not a number.');}
     if(Number.isInteger(n)){return n;}
     if(Math.abs(n)<Number.EPSILON){return 0;}
     const m=Math.round(n);
