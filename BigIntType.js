@@ -58,6 +58,10 @@ class BigIntType{
         return _tmp;
         // return new BigIntType((this.sign?'+':'-')+this.digits.join(''));
     }
+    // TODO !! best memory for temp array → Array.from(a,String) ← string uses only 2bytes each char! so "only" 2x as big as the Uint8ClampedArray which has 1byte each entry (and it's clamped)
+    //~ btw for true/false memory efficient it's null/undefined apparently xD
+    //~ and i recently found Object.is() :D
+    // TODO check for length after calc - so it will only throw IF it would be overflow rather than potentially overflow
     /**
      * __adds two numbers together (ignoring sign)__ \
      * _modifies the original_
@@ -154,10 +158,52 @@ class BigIntType{
     }
     // #mul(n=BigIntType()){}
     // #div(n=BigIntType()){}
+    /**
+     * __calculates the modulo of two numbers__ \
+     * TODO update to using BigIntType not number
+     * @param {number} A - first number - if `0` returns `A`
+     * @param {number} B - second number - if `0` returns `NaN`
+     * @param {string} type - _default `'e'`_
+     * - `'e'` or `"euclid"` for euclidean modulo remainder
+     * - `'t'` or `"trunc"` for truncated modulo remainder
+     * - `'f'` or `"floor"` for floored modulo remainder
+     * - `'c'` or `"ceil"` for ceiled modulo remainder
+     * - `'r'` or `"round"` for rounded modulo remainder
+     * @returns {number} the modulo according to `type` - retuns `NaN` if `B` is `0`
+     * @throws {TypeError} - if `A` or `B` are not finite numbers
+     * @throws {SyntaxError} - if `type` is not a valid option (see `type`s doc.)
+     */
+    static modulo(A,B,type='e'){//works perfectly fine just a few ms slower than js-s %operator xD (for each function call | no dif. if numbers scale up :D)
+        [A,B]=[A,B].map(Number);
+        if(!Number.isFinite(A)){throw new TypeError("[A] is not a finite number");}
+        if(!Number.isFinite(B)){throw new TypeError("[B] is not a finite number");}
+        if(B===0){return NaN;}
+        if(A===0){return A;}
+        type=String(type);
+        const [sign_A,sign_B]=[A>=0,B>=0],
+            [_A,_B]=[A,B].map(Math.abs);
+        let R;
+        if(_A<_B){R=_A;}
+        else if(_A===_B){R=0;}
+        else{
+            let n=_A;
+            for(;n>_B;n-=_B);//~ max O( ceil(A/B) ) i think
+            if(n===_B){R=0;}
+            else{R=n;}
+        }
+        switch(type){//~ more info @ https://en.wikipedia.org/wiki/Modulo_operation#Variants_of_the_definition here R would look like \|\|\|\./|/|/|/ (positve and the dot is 0 - in any case of the divisor)
+            case'e':case'euclid':return sign_A?R:_B-R;//default in number theory, so it's default here
+            case't':case'trunc':return sign_A?R:-R;//most used, but inferior...wikipedia/Daan Leijen in "Division and Modulus for Computer Scientists" 2001
+            case'f':case'floor':return sign_B?(sign_A?R:_B-R):(sign_A?R-_B:-R);//also "good" i heard
+            case'c':case'ceil':return sign_B?(sign_A?R-_B:-R):(sign_A?R:_B-R);
+            case'r':case'round':return sign_A?((R-(_B*.5))<0?R:R-_B):((R-(_B*.5))<0?-R:_B-R);//wood ?!
+            default:throw new SyntaxError("[type] is not a valid option");
+        }
+    }
     /* TODO
         get/set sign num_frac(a/b/c) to_string
         smaller_than bigger_than equal_to
-        mul div modulo(euclidean) pow roots
+        mul div (modulo) gcd pow roots
 
         ( n-root(n,x) => pow(x,1/n) )
 
