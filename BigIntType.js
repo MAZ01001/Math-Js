@@ -369,6 +369,26 @@ class BigIntType{
         }
     }
     /**
+     * __calculates double of `this` number__ \
+     * _modifies the original_
+     * @returns {BigIntType} `this` number after doubling
+     */
+    double(){
+        /**@type {string[]} - array for temporary storage */
+        let _tmp=[0],
+            /**@type {number} - last calculation */
+            z;
+        for(let i=0;i<this.digits.length;i++){
+            z=Number(_tmp[i])+(this.digits[i]*2);
+            _tmp[i]=String(z%10);
+            _tmp[i+1]=String(Math.floor(z*.1));
+        }
+        if(_tmp[_tmp.length-1]==='0'){_tmp.pop();}
+        this.sign=true;
+        this.digits=new Uint8ClampedArray(_tmp);
+        return this;
+    }
+    /**
      * __divides another number from `this` one__ \
      * _modifies the original_
      * @param {BigIntType} n - second number for division (divisor)
@@ -424,8 +444,53 @@ class BigIntType{
             case'r':case"round":if(n.biggerThan(this.copy().add(this))){return new BigIntType('0');}else{q=new BigIntType('1');q.sign=!(this.sign^n.sign);return q;}
         }
     }
-    #mul(n){
+    /**
+     * __Karazubas Multiplication Algorithm__
+     * _with recursion_
+     * @param {BigIntType} X - number for multiplication
+     * @param {BigIntType} Y - number for multiplication
+     * @description `X` and `Y` must be the same length numbers and the length must be a power of two (pad with `0` if needed)
+     */
+    static #karazubaMul(X,Y){
         // TODO
+        if(X.digits.length===1){return new BigIntType(String(X.digits[0]*Y.digits[0]));}
+        let Xh=new BigIntType('1'),Xl=new BigIntType('1');
+            Yh=new BigIntType('1'),Yl=new BigIntType('1');
+        Xh.digits=X.digits.slice(X.digits.length*.5);Xl.digits=X.digits.slice(0,X.digits.length*.5);
+        Yh.digits=Y.digits.slice(Y.digits.length*.5);Yl.digits=Y.digits.slice(0,Y.digits.length*.5);
+        let [P1,P2,P3]=[
+            BigIntType.#karazubaMul(Xh,Yh),
+            BigIntType.#karazubaMul(Xl,Yl),
+            BigIntType.#karazubaMul(Xh.copy().add(Xl),Yh.copy().add(Yl))
+        ];
+        // TODO pow → 10**____ !!!!
+        return P1.copy().mul(10**(Xh.digits.length*2)).add((P3.copy().sub(P1.copy().add(P2))).mul(10**Xh.digits.length)).add(P2);
+    }
+    // TODO
+    mul(n){
+        if(n.digits.length>1&&n.digits.every((v,i,a)=>(i===a.length-1&&v===1)||(i<a.length-1&&v===0))){
+            if((n.digits.length-1)+this.digits.length>BigIntType.MAX_SIZE){throw new RangeError(`multiplication with [n] would result in a number bigger than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
+            let _tmp=Array.from(this.digits,String);
+            for(let shift=0;shift<n.digits.length-1;shift++){_tmp.unshift('0');}
+            this.digits=new Uint8ClampedArray(_tmp);
+            this.sign=!(this.sign^n.sign);
+            return this;
+        }
+        // pad to length (power of 2) with 0 → BigIntType.#karazubaMul()
+    }
+    // TODO
+    #pow(n){
+        let result=new BigIntType('1'),
+            exp=n.copy();
+        for(;;){
+            if(exp.digits[0]&1){result.mul(this);}
+            exp.half('f');
+            if(exp.digits.length===1&&exp.digits[0]===0){break;}
+            this.mul(this);
+        }
+        this.digits=result.digits;
+        this.sign=result.sign;
+        return this;
     }
     /**
      * __calculates the modulo of two numbers__
@@ -443,28 +508,27 @@ class BigIntType{
      */
     modulo(n,type='e'){
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
-        /**@type {BigIntType} - `0` */
-        let zero=new BigIntType('0');
-        if(n.equalTo(zero)){throw new RangeError("[n] cannot divide by 0");}
-        if(this.equalTo(zero)){return zero;}
+        if(n.digits.length===1&&n.digits[0]===0){throw new RangeError("[n] cannot divide by 0");}
+        if((this.digits.length===1&&this.digits[0]===0)||(n.digits.length===1&&n.digits[0]===1)){this.digits=new Uint8ClampedArray([0]);return this;}
+        if(n.digits.length===1&&n.digits[0]===2){this.digits=new Uint8ClampedArray([this.digits[0]%2]);return this;}
         type=String(type);
         if(!/^(e|euclid|t|trunc|f|floor|c|ceil|r|round)$/.test(type)){throw new SyntaxError("[type] is not a valid option");}
         let[_A,_B]=[this.copy().abs(),n.copy().abs()];
         /**@type {BigIntType} - rest */
         let R;
         if(_A.smallerThan(_B)){R=_A}
-        else if(_A.equalTo(_B)){R=zero;}
+        else if(_A.equalTo(_B)){R=new BigIntType('0');}
         else{
-            for(;_A.biggerThan(_B);_A.sub(_B));//~ max O( ceil(this/n) ) i think
-            if(_A.equalTo(_B)){R=zero;}
+            for(;_A.biggerThan(_B);_A.sub(_B));//~ max O( ceil(this/n) ) i think, not that fluent in O-natation (yet)
+            if(_A.equalTo(_B)){R=new BigIntType('0');}
             else{R=_A;}
         }
         switch(type){
-            case'e':case"euclid":return this.sign?R:_B.sub(R);
-            case't':case"trunc":return this.sign?R:R.neg();
-            case'f':case"floor":return n.sign?(this.sign?R:_B.sub(R)):(this.sign?R.sub(_B):R.neg());
-            case'c':case"ceil":return n.sign?(this.sign?R.sub(_B):R.neg()):(this.sign?R:_B.sub(R));
-            case'r':case"round":return R.copy().sub(_B.copy().half('c')).smallerThan(zero)?(this.sign?R:R.neg()):(this.sign?R.sub(_B):_B.sub(R));
+            case'e':case"euclid":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(this.sign?R:_B.sub(R));return this;
+            case't':case"trunc":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(this.sign?R:R.neg());return this;
+            case'f':case"floor":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(n.sign?(this.sign?R:_B.sub(R)):(this.sign?R.sub(_B):R.neg()));return this;
+            case'c':case"ceil":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(n.sign?(this.sign?R.sub(_B):R.neg()):(this.sign?R:_B.sub(R)));return this;
+            case'r':case"round":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(R.copy().sub(_B.copy().half('c')).sign?(this.sign?R.sub(_B):_B.sub(R)):(this.sign?R:R.neg()));return this;
         }
     }
     /* TODO
@@ -494,4 +558,6 @@ new BigIntType("499").log()
 .inc().log()
 .sub(new BigIntType('24')).log()
 .dec().log()
-.div(new BigIntType('100')).log();
+.div(new BigIntType('10')).log()
+.dec().log()
+.double().log();
