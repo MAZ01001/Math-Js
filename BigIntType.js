@@ -13,6 +13,7 @@ class BigIntType{
     static set MAX_SIZE(n){
         // technically, max is 9007199254740991 (Number.MAX_SAFE_INTEGER) but with 1 Byte each digit that's 9 PetaBytes ! for ONE number
         // also, the temporary string arrays have 2 Bytes for each digit so 2x bigger than the TypeArray ! and there are quite a lot in these methods
+        // and, at least on my system in-browser, "only" arrays of size 2145386496(2**31-2**21) can be allocated !
         if(!Number.isInteger(n)||n<1||n>1048576){throw new RangeError("[MAX_SIZE] must be an integer in range [1-1048576]");}
         return BigIntType.#MAX_SIZE=n;
     }
@@ -26,6 +27,7 @@ class BigIntType{
      * + _(auto converts to string if not already of type string)_
      * @throws {RangeError} if `n` is an empty string
      * @throws {SyntaxError} if `n` is not a whole number string (in format)
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     constructor(n='1'){
         n=String(n);
@@ -51,6 +53,7 @@ class BigIntType{
      * + shows how many more there would have been (`123.. (+3 digit/s)`)
      * @returns {BigIntType} `this` with no changes
      * @throws {TypeError} - if `maxLen` is not a save integer
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     log(maxLen=100){
         maxLen=Number(maxLen);if(!Number.isSafeInteger(maxLen)){throw new TypeError("[maxlen] is not a save integer");}
@@ -69,6 +72,7 @@ class BigIntType{
     /**
      * __makes a copy of `this` number__
      * @returns {BigIntType} a copy of `this` number
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     copy(){
         let _tmp=new BigIntType();
@@ -176,6 +180,7 @@ class BigIntType{
      * _modifies the original_
      * @returns {BigIntType} `this` number after incrementing
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     #calcInc(){
         /**@type {string[]} - array for temporary storage*/
@@ -188,7 +193,7 @@ class BigIntType{
             }
         }
         if(_tmp.length>1&&_tmp[_tmp.length-1]==='0'){_tmp.pop();}
-        if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number bigger than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
+        if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
         this.digits=Uint8ClampedArray.from(_tmp);
         return this;
     }
@@ -197,6 +202,7 @@ class BigIntType{
      * _ignoring  initial sign_ \
      * _modifies the original_
      * @returns {BigIntType} `this` number after decrementing
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     #calcDec(){
         /**@type {number} - current index of the first digit */
@@ -228,6 +234,7 @@ class BigIntType{
      * _modifies the original_
      * @returns {BigIntType} `this` number after incrementing
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     inc(){return this.sign?this.#calcInc():this.#calcDec().neg();}
     /**
@@ -235,6 +242,7 @@ class BigIntType{
      * _modifies the original_
      * @returns {BigIntType} `this` number after decrementing
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     dec(){return this.sign?this.#calcDec():this.#calcAdd();}
     /**
@@ -245,6 +253,7 @@ class BigIntType{
      * @returns {BigIntType} `this` number after addition
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     #calcAdd(n){
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
@@ -260,7 +269,7 @@ class BigIntType{
             }
         }
         if(_tmp.length>1&&_tmp[_tmp.length-1]==='0'){_tmp.pop();}
-        if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number bigger than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
+        if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
         this.digits=Uint8ClampedArray.from(_tmp);
         return this;
     }
@@ -271,6 +280,7 @@ class BigIntType{
      * @param {BigIntType} n - second number for subtraction (subtrahend)
      * @returns {BigIntType} `this` number after subtraction
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     #calcSub(n){
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
@@ -316,6 +326,7 @@ class BigIntType{
      * @returns {BigIntType} `this` number after addition
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     add(n){
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
@@ -331,6 +342,7 @@ class BigIntType{
      * @returns {BigIntType} `this` number after subtraction
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     sub(n){
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
@@ -347,6 +359,7 @@ class BigIntType{
      * + `'f'` or `"floor"` for rounding down the result
      * @returns {BigIntType} `this` number after halving
      * @throws {SyntaxError} - if `rounding` is not a valid option (see `rounding`s doc.)
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     half(rounding='c'){
         rounding=String(rounding);if(!/^(c|ceil|f|floor)$/.test(rounding)){throw new SyntaxError("[rounding] is not a valid option");}
@@ -372,6 +385,8 @@ class BigIntType{
      * __calculates double of `this` number__ \
      * _modifies the original_
      * @returns {BigIntType} `this` number after doubling
+     * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     double(){
         /**@type {string[]} - array for temporary storage */
@@ -384,6 +399,7 @@ class BigIntType{
             _tmp[i+1]=String(Math.floor(z*.1));
         }
         if(_tmp[_tmp.length-1]==='0'){_tmp.pop();}
+        if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`doubling would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
         this.sign=true;
         this.digits=new Uint8ClampedArray(_tmp);
         return this;
@@ -400,6 +416,7 @@ class BigIntType{
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      * @throws {RangeError} - if `n` is `0`
      * @throws {SyntaxError} - if `rounding` is not a valid option (see `rounding`s doc.)
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     div(n,rounding='r'){
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
@@ -407,79 +424,143 @@ class BigIntType{
         // dividend / divisor = quotient + remainder / divisor
         if((n.digits.length===1&&n.digits[0]===0)){throw new RangeError("[n] is 0");}
         if((this.digits.length===1&&this.digits[0]===0)||(n.digits.length===1&&n.digits[0]===1)){return n.sign?this:this.neg();}
-        if(n.digits.length>1&&n.digits.every((v,i,a)=>(i===a.length-1&&v===1)||(i<a.length-1&&v===0))){
-            if(n.digits.length>this.digits.length){
+        if(n.digits.length>1&&n.digits.every((v,i,a)=>(i<a.length-1&&v===0)||(i===a.length-1&&v===1))){this.times10ToThePowerOf(-(n.digits.length-1),rounding);}
+        else if(this.smallerThan(n)){
+            switch(rounding){
+                case'c':case"ceil":this.digits=new Uint8ClampedArray([1]);break;
+                case'f':case"floor":this.digits=new Uint8ClampedArray([0]);break;
+                case'r':case"round":this.digits=new Uint8ClampedArray([n.biggerThan(this.copy().double())?0:1]);break;
+            }
+        }else if(this.equalTo(n)){this.digits=new Uint8ClampedArray([1]);}
+        else{
+            /**@type {BigIntType} - rest */
+            let r=this.copy(),
+                /**@type {BigIntType} - quotient */
+                q=new BigIntType('0');
+            for(;r.biggerThan(n);q.inc()){r.sub(n)};
+            if(r.equalTo(n)){r.sub(n);q.inc();}
+            if(!(r.digits.length===1&&r.digits[0]===0)){
                 switch(rounding){
-                    case'c':case"ceil":return new BigIntType('1');
-                    case'f':case"floor":return new BigIntType('0');
-                    case'r':case"round":return new BigIntType((n.digits.length-1)===this.digits.length?(this.digits[this.digits.length-1]<5?'0':'1'):'0');
+                    case'c':case"ceil":this.digits=new Uint8ClampedArray([1]);break;
+                    case'f':case"floor":this.digits=new Uint8ClampedArray([0]);break;
+                    case'r':case"round":this.digits=new Uint8ClampedArray([n.biggerThan(this.copy().double())?0:1]);break;
                 }
             }
-            let _tmp=[];
-            for(let shift=n.digits.length-1;shift<this.digits.length;_tmp.push(String(this.digits[shift++])));
-            this.digits=new Uint8ClampedArray(_tmp);
-            this.sign=!(this.sign^n.sign);
-            return this;
         }
-        /**@type {BigIntType} - temporary number */
-        let _tmp;
-        if(this.smallerThan(n)){
-            switch(rounding){
-                case'c':case"ceil":_tmp=new BigIntType('1');_tmp.sign=!(this.sign^n.sign);return _tmp;
-                case'f':case"floor":_tmp=new BigIntType('0');_tmp.sign=!(this.sign^n.sign);return _tmp;
-                case'r':case"round":if(n.biggerThan(this.copy().add(this))){_tmp=new BigIntType('0');_tmp.sign=!(this.sign^n.sign);return _tmp;}else{_tmp=new BigIntType('1');_tmp.sign=!(this.sign^n.sign);return _tmp;}
+        this.sign=!(this.sign^n.sign);
+        return this;
+    }
+    /**
+     * __multiplies `this` number with `10**x`__ \
+     * _shifts the digits by `x` amount, positive=left, with `rounding`_
+     * @param {number} x - exponent - save integer
+     * @param {string} rounding - how to round when digit-shifting right _default `'r'`_
+     * + `'r'` or `"round"` for rounded division result
+     * + `'f'` or `"floor"` for floored division result
+     * + `'c'` or `"ceil"` for ceiled division result
+     * @returns {BigIntType} - `this` number after multiplication/digit-shifts
+     * @throws {TypeError} - if `x` is not a save integer
+     * @throws {SyntaxError} - if `rounding` is not a valid option (see `rounding`s doc.)
+     * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    times10ToThePowerOf(x,rounding='r'){
+        x=Number(x);if(!Number.isSafeInteger(x)){throw new TypeError("[x] is not a save integer");}
+        rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[rounding] is not a valid option");}
+        //~ (X>=0) 10**X => new BigIntType(['1',...Array(X).fill('0')].join(''))
+        if(x>0){
+            if(x+this.digits.length>BigIntType.MAX_SIZE){throw new RangeError(`[n] digit-shifts would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
+            /**@type {string[]} - array for temporary storage */
+            let _tmp=Array.from(this.digits,String);
+            for(let shift=0;shift<x;shift++){_tmp.unshift('0');}
+            this.digits=new Uint8ClampedArray(_tmp);
+        }else if(x<0){
+            if(Math.abs(x)>this.digits.length){
+                switch(rounding){
+                    case'c':case"ceil":this.digits=new Uint8ClampedArray([1]);break;
+                    case'f':case"floor":this.digits=new Uint8ClampedArray([0]);break;
+                    case'r':case"round":this.digits=new Uint8ClampedArray([Math.abs(x)===this.digits.length?(this.digits[this.digits.length-1]<5?0:1):0]);break;
+                }
+            }else{
+                /**@type {string[]} - array for temporary storage */
+                let _tmp=[];
+                for(let shift=Math.abs(x);shift<this.digits.length;_tmp.push(String(this.digits[shift++])));
+                this.digits=new Uint8ClampedArray(_tmp);
             }
         }
-        if(this.equalTo(n)){_tmp=new BigIntType('1');_tmp.sign=!(this.sign^n.sign);return _tmp;}
-        /**@type {BigIntType} - rest */
-        let r=this.copy(),
-            /**@type {BigIntType} - quotient */
-            q=new BigIntType('0');
-        for(;r.biggerThan(n);q.inc()){r.sub(n)};
-        if(r.equalTo(n)){r.sub(n);q.inc();}
-        if(r.digits.length===1&&r.digits[0]===0){q.sign=!(this.sign^n.sign);return q;}
-        switch(rounding){
-            case'c':case"ceil":q=new BigIntType('1');q.sign=!(this.sign^n.sign);return q;
-            case'f':case"floor":q=new BigIntType('0');q.sign=!(this.sign^n.sign);return q;
-            case'r':case"round":if(n.biggerThan(this.copy().add(this))){return new BigIntType('0');}else{q=new BigIntType('1');q.sign=!(this.sign^n.sign);return q;}
-        }
+        return this;
     }
     /**
      * __Karazubas Multiplication Algorithm__
      * _with recursion_
      * @param {BigIntType} X - number for multiplication
      * @param {BigIntType} Y - number for multiplication
-     * @description `X` and `Y` must be the same length numbers and the length must be a power of two (pad with `0` if needed)
+     * @description [!!] `X` and `Y` must be of same length and the length must be a power of two (pad end with `0` if needed)
+     * @returns {BigIntType} result of `X`*`Y`
+     * @throws {TypeError} - if `X` or `Y` are not instances of `BigIntType`
+     * @throws {RangeError} - if some number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     static #karazubaMul(X,Y){
-        // TODO
+        if(!(X instanceof BigIntType)){throw new TypeError("[X] is not an instance of BigIntType");}
+        if(!(Y instanceof BigIntType)){throw new TypeError("[Y] is not an instance of BigIntType");}
+        if(X.digits.every(v=>v===0)||Y.digits.every(v=>v===0)){return new BigIntType('0');}
         if(X.digits.length===1){return new BigIntType(String(X.digits[0]*Y.digits[0]));}
-        let Xh=new BigIntType('1'),Xl=new BigIntType('1');
+        let Xh=new BigIntType('1'),Xl=new BigIntType('1'),
             Yh=new BigIntType('1'),Yl=new BigIntType('1');
         Xh.digits=X.digits.slice(X.digits.length*.5);Xl.digits=X.digits.slice(0,X.digits.length*.5);
         Yh.digits=Y.digits.slice(Y.digits.length*.5);Yl.digits=Y.digits.slice(0,Y.digits.length*.5);
         let [P1,P2,P3]=[
             BigIntType.#karazubaMul(Xh,Yh),
             BigIntType.#karazubaMul(Xl,Yl),
-            BigIntType.#karazubaMul(Xh.copy().add(Xl),Yh.copy().add(Yl))
+            Xh.copy().add(Xl).mul(Yh.copy().add(Yl))
         ];
-        // TODO pow → 10**____ !!!!
-        return P1.copy().mul(10**(Xh.digits.length*2)).add((P3.copy().sub(P1.copy().add(P2))).mul(10**Xh.digits.length)).add(P2);
+        return P1.copy().times10ToThePowerOf(X.digits.length).add((P3.copy().sub(P1.copy().add(P2))).times10ToThePowerOf(Xh.digits.length)).add(P2);
     }
-    // TODO
+    /**
+     * __multiplies `this` number by `n`__ \
+     * _using Karazubas Multiplication Algorithm_
+     * @param {BigIntType} n - second number
+     * @returns {BigIntType} `this` number after multiplication
+     * @throws {TypeError} - if `n` is not an instance of `BigIntType`
+     * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
     mul(n){
-        if(n.digits.length>1&&n.digits.every((v,i,a)=>(i===a.length-1&&v===1)||(i<a.length-1&&v===0))){
-            if((n.digits.length-1)+this.digits.length>BigIntType.MAX_SIZE){throw new RangeError(`multiplication with [n] would result in a number bigger than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
+        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
+        if(n.digits.length===1&&n.digits[0]===2){
+            try{this.double();}
+            catch(e){throw (e instanceof RangeError)?new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`):e;}
+        }else if(this.digits.length===1&&this.digits[0]===2){
+            try{this.digits=n.copy().double().digits;}
+            catch(e){throw (e instanceof RangeError)?new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`):e;}
+        }else if(n.digits.length>1&&n.digits.every((v,i,a)=>(i===a.length-1&&v===1)||(i<a.length-1&&v===0))){
+            if((n.digits.length-1)+this.digits.length>BigIntType.MAX_SIZE){throw new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
             let _tmp=Array.from(this.digits,String);
             for(let shift=0;shift<n.digits.length-1;shift++){_tmp.unshift('0');}
             this.digits=new Uint8ClampedArray(_tmp);
-            this.sign=!(this.sign^n.sign);
-            return this;
+        }else{
+            /**@type {number} - length (a power of 2) for karazuba-algorithm-numbers */
+            let len=1,
+            /**@type {string[][]} - arrays for temporary storage */
+            [X,Y]=[this.digits,n.digits].map(v=>Array.from(v,String));
+            for(;len<this.digits.length||len<n.digits.length;len<<=1);
+            for(;X.length<len;X.push('0'));
+            for(;Y.length<len;Y.push('0'));
+            /**@type {BigIntType[]} - converted to BigIntTypes */
+            [X,Y]=[X,Y].map(v=>{
+                let _t=new BigIntType('0');
+                _t.digits=new Uint8ClampedArray(v);
+                return _t;
+            });
+            try{this.digits=BigIntType.#karazubaMul(X,Y).digits;}
+            catch(e){throw (e instanceof RangeError)?new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`):e;}
         }
-        // pad to length (power of 2) with 0 → BigIntType.#karazubaMul()
+        this.sign=!(this.sign^n.sign);
+        return this;
     }
     // TODO
-    #pow(n){
+    #_pow(n){
         let result=new BigIntType('1'),
             exp=n.copy();
         for(;;){
@@ -505,6 +586,7 @@ class BigIntType{
      * @throws {TypeError} - if `n` is not a `BigIntType`
      * @throws {RangeError} - if `n` is `0`
      * @throws {SyntaxError} - if `type` is not a valid option (see `type`s doc.)
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     modulo(n,type='e'){
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
@@ -532,8 +614,8 @@ class BigIntType{
         }
     }
     /* TODO
-        num_frac(a/b/c)
-        mul gcd pow roots
+        <num_frac(a/b/c)>
+        gcd pow roots
 
         ( n-root(n,x) => pow(x,1/n) )
 
@@ -551,13 +633,7 @@ class BigIntType{
     */
 }
 
-new BigIntType("499").log()
-.add(
-    new BigIntType("525").log()
-).log()
-.inc().log()
-.sub(new BigIntType('24')).log()
-.dec().log()
-.div(new BigIntType('10')).log()
-.dec().log()
-.double().log();
+new BigIntType('456')
+.mul(new BigIntType('123'))
+.log()//=>56088 correct ╭( ･ㅂ･)و ̑̑
+;
