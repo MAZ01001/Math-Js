@@ -613,23 +613,24 @@ class BigIntType{
             case'r':case"round":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(R.copy().sub(_B.copy().half('c')).sign?(this.sign?R.sub(_B):_B.sub(R)):(this.sign?R:R.neg()));return this;
         }
     }
-    /* TODO
-        <num_frac(a/b/c)>
-        gcd pow roots
+    /* TODO's
+        gcd(a,b) pow(n) root(n) maprange(n,min1,max1,min2,max2,limit?) toString(padLen?,padChar?,maxLen?)
 
         ( n-root(n,x) => pow(x,1/n) )
 
         log(x)(y)=z <-> (x^z=y) https://en.wikipedia.org/wiki/Logarithm#Change_of_base
 
-        E PI sqrt2 ?! ~> e^() e^(()*PI) ...
-
-        Trigenomitry: https://en.wikipedia.org/wiki/Trigonometric_functions
-        Sine,Tangent,Secant https://upload.wikimedia.org/wikipedia/commons/e/ec/TrigFunctionDiagram.svg
-            +arc-*,co-*,hyperbolic-*,arc-co-*,co-hyperbolic-*,arc-hyperbolic-*,arc-co-hyperbolic-*
-        COS: https://wikimedia.org/api/rest_v1/media/math/render/svg/b81fe2f5f9ac74cbd88ec71d23baf9a1e39b8f04
-        SIN: https://wikimedia.org/api/rest_v1/media/math/render/svg/2d12b4b66e58abfcf03c1f452658b85f662ce228
+        randomInt(min,max) algorithm?Math.random()?function*(x){yield x++;}?
 
         (；￢＿￢)
+
+        <num_frac(a/b/c)>
+            E PI sqrt2 ?! ~> e^() e^(()*PI) ...
+            Trigenomitry: https://en.wikipedia.org/wiki/Trigonometric_functions
+            Sine,Tangent,Secant https://upload.wikimedia.org/wikipedia/commons/e/ec/TrigFunctionDiagram.svg
+            +arc-*,co-*,hyperbolic-*,arc-co-*,co-hyperbolic-*,arc-hyperbolic-*,arc-co-hyperbolic-*
+            COS: https://wikimedia.org/api/rest_v1/media/math/render/svg/b81fe2f5f9ac74cbd88ec71d23baf9a1e39b8f04
+            SIN: https://wikimedia.org/api/rest_v1/media/math/render/svg/2d12b4b66e58abfcf03c1f452658b85f662ce228
     */
 }
 
