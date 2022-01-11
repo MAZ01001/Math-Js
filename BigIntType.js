@@ -167,7 +167,7 @@ class BigIntType{
         return this.digits.every((value,index)=>value===n.digits[index]);
     }
     /**
-     * __makes the carry and returns new first-digit-index__
+     * __makes the carry and returns new first-digit-index__ \
      * _used in `#calcDec()` and `#calcSub()`_
      * @param {string[]} _tmp - the temporary string-array (original will be altered)
      * @param {number} i - current index
@@ -191,7 +191,7 @@ class BigIntType{
      */
     #calcInc(){//TODO base 256
         /**@type {string[]} - array for temporary storage */
-        let _tmp=[1];
+        let _tmp=['1'];
         for(let i=0;i<this.digits.length;i++){
             _tmp[i]=String((this.digits[i]||0)+(Number(_tmp[i])||0));
             if(Number(_tmp[i])>9){
@@ -301,7 +301,7 @@ class BigIntType{
             z,
             /**@type {string[]} - array for temporary storage */
             _tmp=[];
-        for(let i=len-1;i>=0;i--){
+        for(let i=first;i>=0;i--){
             z=((this.digits[i]||0)-(n.digits[i]||0));
             if(z===0){
                 if(i===first){first--;}
@@ -372,20 +372,21 @@ class BigIntType{
         rounding=String(rounding);if(!/^(c|ceil|f|floor)$/.test(rounding)){throw new SyntaxError("[rounding] is not a valid option");}
         if(this.digits.length===1&&this.digits[0]===0){return this;}
         /**@type {string[]} - array for temporary storage */
-        let _tmp=[],
-            /**@type {boolean} - if last digit had `.5` "carry" */
-            carry=false;
-        for(let i=this.digits.length-1;i>=0;i--){
-            _tmp[i]=String(Math.floor(this.digits[i]*.5));
-            if(carry){_tmp[i]=String(Number(_tmp[i])+5);carry=false;}
-            if(this.digits[i]%2===1){carry=true;}
+        let _tmp=['0'];
+        if(!(this.digits.length===1&&this.digits[0]===1)){
+            _tmp[this.digits.length-1]='0';
+            for(let i=this.digits.length-1;i>0;i--){
+                _tmp[i]=String(Number(_tmp[i])+(this.digits[i]>>>1));
+                _tmp[i-1]=Boolean(this.digits[i]&1)?'5':'0';
+            }
+            _tmp[0]=String(Number(_tmp[0])+(this.digits[0]>>>1));
+            for(;_tmp.length>1&&_tmp[_tmp.length-1]==='0';_tmp.pop());
         }
-        if(_tmp.length>1&&_tmp[_tmp.length-1]==='0'){_tmp.pop();}
         this.digits=new Uint8ClampedArray(_tmp);
         switch(rounding){
             case'f':case"floor":return this;
-            case'c':case"ceil":return carry?this.inc():this;
-            //~ here rounded is the same as ceil since it can only have `.5` as the final "carry" and thus would round up, like ceil
+            case'c':case"ceil":return Boolean(this.digits[0]&1)?this.inc():this;
+            //~ here rounded is the same as ceil since it can only have `.5` as the final "carry" and thus would round up
         }
     }
     /**
@@ -401,13 +402,12 @@ class BigIntType{
             /**@type {number} - last calculation */
             z;
         for(let i=0;i<this.digits.length;i++){
-            z=Number(_tmp[i])+(this.digits[i]*2);
-            _tmp[i]=String(z%this.#base);
-            _tmp[i+1]=String(Math.floor(z/this.#base));
+            z=Number(_tmp[i])+(this.digits[i]<<1);
+            _tmp[i]=String(z%10);
+            _tmp[i+1]=z>=10?'1':'0';
         }
         if(_tmp[_tmp.length-1]==='0'){_tmp.pop();}
         if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`doubling would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
-        this.sign=true;
         this.digits=new Uint8ClampedArray(_tmp);
         return this;
     }
@@ -432,26 +432,23 @@ class BigIntType{
         if((n.digits.length===1&&n.digits[0]===0)){throw new RangeError("[n] is 0");}
         if((this.digits.length===1&&this.digits[0]===0)||(n.digits.length===1&&n.digits[0]===1)){return n.sign?this:this.neg();}
         if(n.digits.length>1&&n.digits.every((v,i,a)=>(i<a.length-1&&v===0)||(i===a.length-1&&v===1))){this.#timesBaseToThePowerOf(1-n.digits.length,rounding);}
-        else if(this.smallerThan(n)){
+        else if(this.copy().abs().smallerThan(n.copy().abs())){
             switch(rounding){
                 case'c':case"ceil":this.digits=new Uint8ClampedArray([1]);break;
                 case'f':case"floor":this.digits=new Uint8ClampedArray([0]);break;
-                case'r':case"round":this.digits=new Uint8ClampedArray([n.biggerThan(this.copy().double())?0:1]);break;
+                case'r':case"round":this.digits=new Uint8ClampedArray([n.biggerThan(this.copy().abs().double())?0:1]);break;
             }
         }else if(this.equalTo(n)){this.digits=new Uint8ClampedArray([1]);}
         else{
             /**@type {BigIntType} - rest */
-            let r=this.copy(),
+            let r=this.copy().abs(),
                 /**@type {BigIntType} - quotient */
                 q=new BigIntType('0');
-            for(;r.biggerThan(n);q.inc()){r.sub(n)};
-            if(r.equalTo(n)){r.sub(n);q.inc();}
-            if(!(r.digits.length===1&&r.digits[0]===0)){
-                switch(rounding){
-                    case'c':case"ceil":this.digits=new Uint8ClampedArray([1]);break;
-                    case'f':case"floor":this.digits=new Uint8ClampedArray([0]);break;
-                    case'r':case"round":this.digits=new Uint8ClampedArray([n.biggerThan(this.copy().double())?0:1]);break;
-                }
+            for(;!(r.smallerThan(n));q.inc()){r.sub(n)};
+            switch(rounding){
+                case'c':case"ceil":this.digits=(r.digits.length===0&&r.digits[0]===0)?q.digits:q.inc().digits;break;
+                case'f':case"floor":this.digits=q.digits;break;
+                case'r':case"round":this.digits=r.double().smallerThan(q)?q.digits:((r.digits.length===0&&r.digits[0]===0)?q.digits:q.inc().digits);break;
             }
         }
         this.sign=!(this.sign^n.sign);
@@ -551,7 +548,7 @@ class BigIntType{
         if(!(X instanceof BigIntType)){throw new TypeError("[X] is not an instance of BigIntType");}
         if(!(Y instanceof BigIntType)){throw new TypeError("[Y] is not an instance of BigIntType");}
         if(X.digits.every(v=>v===0)||Y.digits.every(v=>v===0)){return new BigIntType('0');}
-        if(X.digits.length===1){return new BigIntType(String(X.digits[0]*Y.digits[0]));}//TODO base 256
+        if(X.digits.length===1){return new BigIntType(String(X.digits[0]*Y.digits[0]));}
         let Xh=new BigIntType('1'),Xl=new BigIntType('1'),
             Yh=new BigIntType('1'),Yl=new BigIntType('1');
         Xh.digits=X.digits.slice(X.digits.length>>>1);Xl.digits=X.digits.slice(0,X.digits.length>>>1);
@@ -588,8 +585,8 @@ class BigIntType{
         }else{
             /**@type {number} - length (a power of 2) for karazuba-algorithm-numbers */
             let len=1,
-            /**@type {string[][]} - arrays for temporary storage */
-            [X,Y]=[this.digits,n.digits].map(v=>Array.from(v,String));
+                /**@type {string[][]} - arrays for temporary storage */
+                [X,Y]=[this.digits,n.digits].map(v=>Array.from(v,String));
             for(;len<this.digits.length||len<n.digits.length;len<<=1);
             for(;X.length<len;X.push('0'));
             for(;Y.length<len;Y.push('0'));
@@ -647,17 +644,17 @@ class BigIntType{
         if(_A.smallerThan(_B)){R=_A}
         else if(_A.equalTo(_B)){R=new BigIntType('0');}
         else{
-            for(;_A.biggerThan(_B);_A.sub(_B));//~ max O( ceil(this/n) ) i think, not that fluent in O-natation (yet)
-            if(_A.equalTo(_B)){R=new BigIntType('0');}
-            else{R=_A;}
+            for(;!(_A.smallerThan(_B));_A.sub(_B));
+            R=_A;
         }
         switch(type){
-            case'e':case"euclid":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(this.sign?R:_B.sub(R));return this;
-            case't':case"trunc":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(this.sign?R:R.neg());return this;
-            case'f':case"floor":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(n.sign?(this.sign?R:_B.sub(R)):(this.sign?R.sub(_B):R.neg()));return this;
-            case'c':case"ceil":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(n.sign?(this.sign?R.sub(_B):R.neg()):(this.sign?R:_B.sub(R)));return this;
-            case'r':case"round":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(R.copy().sub(_B.copy().half('c')).sign?(this.sign?R.sub(_B):_B.sub(R)):(this.sign?R:R.neg()));return this;
+            case'e':case"euclid":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(this.sign?R:_B.sub(R));break;
+            case't':case"trunc":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(this.sign?R:R.neg());break;
+            case'f':case"floor":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(n.sign?(this.sign?R:_B.sub(R)):(this.sign?R.sub(_B):R.neg()));break;
+            case'c':case"ceil":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(n.sign?(this.sign?R.sub(_B):R.neg()):(this.sign?R:_B.sub(R)));break;
+            case'r':case"round":(_obj=>{this.digits=_obj.digits;this.sign=_obj.sign;})(R.copy().sub(_B.copy().half('c')).sign?(this.sign?R.sub(_B):_B.sub(R)):(this.sign?R:R.neg()));break;
         }
+        return this;
     }
     /* TODO's
 
