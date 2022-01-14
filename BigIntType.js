@@ -551,8 +551,8 @@ class BigIntType{
         if(X.digits.length===1){return new BigIntType(String(X.digits[0]*Y.digits[0]));}
         let Xh=new BigIntType('1'),Xl=new BigIntType('1'),
             Yh=new BigIntType('1'),Yl=new BigIntType('1');
-        Xh.digits=X.digits.slice(X.digits.length>>>1);Xl.digits=X.digits.slice(0,X.digits.length>>>1);
-        Yh.digits=Y.digits.slice(Y.digits.length>>>1);Yl.digits=Y.digits.slice(0,Y.digits.length>>>1);
+        Xh.digits=X.digits.slice(Math.floor(X.digits.length*.5));Xl.digits=X.digits.slice(0,Math.floor(X.digits.length*.5));
+        Yh.digits=Y.digits.slice(Math.floor(Y.digits.length*.5));Yl.digits=Y.digits.slice(0,Math.floor(Y.digits.length*.5));
         let [P1,P2,P3]=[
             BigIntType.#karazubaMul(Xh,Yh),
             BigIntType.#karazubaMul(Xl,Yl),
@@ -587,7 +587,7 @@ class BigIntType{
             let len=1,
                 /**@type {string[][]} - arrays for temporary storage */
                 [X,Y]=[this.digits,n.digits].map(v=>Array.from(v,String));
-            for(;len<this.digits.length||len<n.digits.length;len<<=1);
+            for(;len<this.digits.length||len<n.digits.length;len*=2);
             for(;X.length<len;X.push('0'));
             for(;Y.length<len;Y.push('0'));
             /**@type {BigIntType[]} - converted to BigIntTypes */
