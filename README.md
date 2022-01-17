@@ -1,5 +1,14 @@
 # [Math-Js](https://github.com/MAZ01001/Math-Js)
 
+- [[Polynomial.js]](#polynomialjs)
+- [[Fraction.js]](#fractionjs)
+- [[Matrix.js]](#matrixjs)
+- [[Vector.js]](#vectorjs)
+- [[ComplexNumber.js]](#complexnumberjs)
+- [[BigIntType.js]](#stringintegerjs)
+- [[PerfectComplex.js]](#perfectcomplexjs)
+- [[functions.js]](#functionsjs)
+
 > ## [Polynomial.js](https://github.com/MAZ01001/Math-Js/blob/main/Polynomial.js)
 >
 > >
@@ -134,7 +143,7 @@
 >
 ----
 >
-> ## [StringInteger.js](https://github.com/MAZ01001/Math-Js/blob/main/StringInteger.js)
+> ## [BigIntType.js](https://github.com/MAZ01001/Math-Js/blob/main/BigIntType.js)
 >
 > WIP
 >
@@ -142,7 +151,7 @@
 >
 > ## [PerfectComplex.js](https://github.com/MAZ01001/Math-Js/blob/main/PerfectComplex.js)
 >
-> WIP [idea: StringInteger > Fraction > ComplexNumber]
+> WIP [idea: BigIntType > Fraction > ComplexNumber]
 >
 ----
 >
