@@ -694,6 +694,7 @@ new BigIntType('456')//=> [200,1]
 // TODO implement this to that
 // TODO             ↓
 
+// TODO maxLen for strings !
 /**
  * __converts from base 10 to base 256__
  * @param {string} base10 - base 10 integer
@@ -866,6 +867,9 @@ function decString2byte(base10='1'){// 360 digit base 10 string to 150 digit bas
     bytenum[0]=Number(n.reverse().join(''));
     return bytenum;
 }
+// TODO
+// TODO     byte2decString(){}//for ().log();
+// TODO
 /**
  * __converts from base 256 to base 16__
  * @param {Uint8Array} bytenum - base 256 integer
