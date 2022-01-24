@@ -1,4 +1,5 @@
 class BigIntType{
+    //~ property/method names starting with '#' are private - see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_class_fields for details
     //TODO base 256 ~size in RAM ?
     /** @type {number} - maximum possible length of a number _(excluding sign)_ - originally `500` = 0.5KB in RAM */
     static #MAX_SIZE=500;
@@ -282,6 +283,37 @@ class BigIntType{
         if(_tmp.length>1&&_tmp[_tmp.length-1]==='0'){_tmp.pop();}
         if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
         this.digits=Uint8Array.from(_tmp);
+        return this;
+    }
+    /**
+     * __adds two numbers together__ \
+     * _ignoring initial sign_ \
+     * __for base 10 numbers__ \
+     * _modifies the original_
+     * @param {BigIntType} n - second number for addition
+     * @returns {BigIntType} `this` number after addition
+     * @throws {TypeError} - if `n` is not an instance of `BigIntType`
+     * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    #base10Add(n){
+        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
+        /**@type {number} - length of the longer number */
+        const len=Math.max(this.digits.length,n.digits.length);
+        /**@type {Uint8Array} - new digit array*/
+        let _tmp=new Uint8Array(len+1),
+            /**@type {number} - last calculation*/
+            z=0;
+        for(let i=0;i<len;i++){
+            z=(this.digits[i]||0)+(n.digits[i]||0)+_tmp[i];
+            _tmp[i]=z%10;
+            if(z>=10){_tmp[i+1]=1;}
+        }
+        /**@type {number} - index of last non-zero digit*/
+        let last=_tmp.length-1;
+        for(;_tmp.length>1&&_tmp[last--]===0;);
+        if(++last>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
+        this.digits=_tmp.slice(0,last);
         return this;
     }
     /**
@@ -695,6 +727,7 @@ new BigIntType('456')//=> [200,1]
 // TODO             ↓
 
 // TODO maxLen for strings !
+// TODO typedarrays instead of string arrays
 /**
  * __converts from base 10 to base 256__
  * @param {string} base10 - base 10 integer
@@ -922,7 +955,7 @@ function brailleString2byte(braillestring){
 function hexString2byte(hexstring){
     //! /^[0-9A-F]+$/
     if(hexstring.length%2){hexstring='0'+hexstring;}
-    let bytenum=new Uint8Array(hexstring.length>>>1);
+    let bytenum=new Uint8Array(Math.floor(hexstring.length*.5));
     for(let i=hexstring.length,j=0;i>0;i-=2){bytenum[j++]=Number.parseInt(hexstring.substring(i-2,i),16);}
     return bytenum;
 }
@@ -933,8 +966,8 @@ function hexString2byte(hexstring){
  */
 function binString2byte(binstring){
     //! /^[01]+$/
-    if(binstring.length%8>0){binstring='0'.repeat(8-(binstring.length%8));}
-    let bytenum=new Uint8Array(binstring.length>>>3);
+    if(binstring.length%8>0){binstring='0'.repeat(8-(binstring.length%8))+binstring;}
+    let bytenum=new Uint8Array(Math.floor(binstring.length/8));
     for(let i=binstring.length,j=0;i>0;i-=8){bytenum[j++]=Number.parseInt(binstring.substring(i-8,i),2);}
     return bytenum;
 }
@@ -975,15 +1008,16 @@ function byteBitshiftL(bytenum){
     if(overflow){bytenum=new Uint8Array([...bytenum,1]);}
     return bytenum;
 }
-let n="436729674572064657437120754629846156489361856481958973465873915437856350436729674572064657437120754629846156489361856481958973465873915437856350436729674572064657437120754629846156489361856481958973465873915437856350436729674572064657437120754629846156489361856481958973465873915437856350436729674572064657437120754629846156489361856481958973465873915437856350";
+let n="123456789";
 let a=decString2byte(n);
 console.log(
-    "number: %s\nbyte: %s\nchars: %O\nhex: %s\nbin: %s\nhalf: %s\ndouble: %s",
+    "number: %s\nbyte: %s\nchars: %O\nhex: %s\nbin: %s\nhalf: %s\ndouble: %s\n%s",
     n,
     a.slice().reverse().join(' '),
     byte2brailleString(a),
     byte2hexString(a),
     byte2binString(a),
     byteBitshiftR(a.slice()).reverse().join(' '),
-    byteBitshiftL(a.slice()).reverse().join(' ')
+    byteBitshiftL(a.slice()).reverse().join(' '),
+    byte2brailleString(hexString2byte("6747EF41C740C740CF470000B9016747EF415F85EF41"))
 );
