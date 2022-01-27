@@ -309,11 +309,11 @@ class BigIntType{
             _tmp[i]=z%10;
             if(z>=10){_tmp[i+1]=1;}
         }
-        /**@type {number} - index of last non-zero digit*/
-        let last=_tmp.length-1;
-        for(;_tmp.length>1&&_tmp[last--]===0;);
-        if(++last>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
-        this.digits=_tmp.slice(0,last);
+        /**@type {number} - index of first non-zero digit (from left)*/
+        let first=_tmp.length-1;
+        for(;_tmp.length>1&&_tmp[first--]===0;);
+        if(++first>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
+        this.digits=_tmp.slice(0,first);
         return this;
     }
     /**
@@ -694,6 +694,8 @@ class BigIntType{
     }
     /* TODO's
 
+        baseConvert method (private) from base [2/10/16/256] as [Uint8Array/string] to base [2/10/16/256] as [Uint8Array/string] (base 256 string = braille)
+
         numbers base to 256 - Uint8 [0-255]
         1234 base 10 → [4,3,2,1] base 10 !→ [210,4] base 256 (210+(4*256=1024))
 
@@ -735,13 +737,13 @@ new BigIntType('456')//=> [200,1]
  */
 function decString2byte(base10='1'){// 360 digit base 10 string to 150 digit base 256 array in 3.125sec ~ not that bad
     //! /^(?:0|[1-9][0-9]*)$/
-    /**@type {string[]} - initial base 10 number */
-    let n=String(base10).split('').reverse();
+    /**@type {Uint8Array} - initial base 10 number (the ones place has the index 0)*/
+    let n=new Uint8Array([...base10]).reverse();
     const smallerThan=
     /**
      * __test if `a` is smaller than `b`__
-     * @param {string[]} a
-     * @param {string[]} b
+     * @param {Uint8Array} a
+     * @param {Uint8Array} b
      * @returns {boolean} `a < b`
      */
     (a,b)=>{
@@ -755,84 +757,83 @@ function decString2byte(base10='1'){// 360 digit base 10 string to 150 digit bas
     },sub=
     /**
      * __subtracts `b` from `a`__
-     * @param {string[]} a - minuend
-     * @param {string[]} b - subtrahend
-     * @returns {string[]} `a - b`
+     * @param {Uint8Array} a - minuend
+     * @param {Uint8Array} b - subtrahend
+     * @returns {Uint8Array} `a - b`
      */
     (a,b)=>{
         /**@type {number} - length of the longer number */
         const len=Math.max(a.length,b.length),
             /**
              * __makes the carry and returns new first-digit-index__
-             * @param {string[]} _tmp - the temporary string-array (original will be altered)
+             * @param {Uint8Array} num - the number (original will be altered)
              * @param {number} i - current index
              * @param {number} first - current index of the first digit
              * @returns {number} new index for first digit
              */
-            minusCarry=(_tmp,i,first)=>{
+            minusCarry=(num,i,first)=>{
                 let j=1;
-                while(_tmp[i+j]==='0'){_tmp[i+j++]='9';}
-                _tmp[i+j]=String(Number(_tmp[i+j])-1);
-                if(_tmp[i+j]==='0'&&i+j===first){first--;}
+                while(num[i+j]===0){num[i+j++]=9;}
+                num[i+j]--;
+                if(num[i+j]===0&&i+j===first){first--;}
                 return first;
             };
-        /**@type {string[]} - array for temporary storage */
-        let _tmp=['0'],
+        /**@type {Uint8Array} - new number */
+        let _tmp=new Uint8Array(len),
             /**@type {number} - last calculation */
             z,
             /**@type {number} - index of first digit */
             first=len-1;
         for(let i=first;i>=0;i--){
-            z=(Number(a[i]||0)-Number(b[i]||0));
+            z=((a[i]||0)-(b[i]||0));
             if(z===0){
                 if(i===first){first--;}
-                _tmp[i]='0';
+                _tmp[i]=0;
             }else if(z<0){
-                if(i===first){return['0'];}
-                _tmp[i]=String(z+10);
+                if(i===first){return new Uint8Array(1);}
+                _tmp[i]=z+10;
                 first=minusCarry(_tmp,i,first);
-            }else{_tmp[i]=String(z);}
+            }else{_tmp[i]=z;}
         }
-        for(;_tmp[_tmp.length-1]==='0';_tmp.pop());
-        return _tmp;
+        for(first=_tmp.length-1;first>0&&_tmp[first]===0;first--);
+        return _tmp.slice(0,first+1);
     },add=
     /**
      * __adds `b` to `a`__
-     * @param {string[]} a - augend
-     * @param {string[]} b - addend
-     * @returns {string[]} `a + b`
+     * @param {Uint8Array} a - augend
+     * @param {Uint8Array} b - addend
+     * @returns {Uint8Array} `a + b`
      */
     (a,b)=>{
-        /**@type {string[]} - array for temporary storage*/
-        let _tmp=[],
-            /**@type {number} - last calculation */
-            z;
         /**@type {number} - length of the longer number */
         const len=Math.max(a.length,b.length);
+        /**@type {Uint8Array} - new number */
+        let _tmp=new Uint8Array(len+1),
+            /**@type {number} - last calculation */
+            z;
         for(let i=0;i<len;i++){
-            z=Number(a[i]||0)+Number(b[i]||0)+Number(_tmp[i]||0);
+            z=(a[i]||0)+(b[i]||0)+_tmp[i];
             if(z>=10){
-                _tmp[i]=String(z%10);
-                _tmp[i+1]='1';
-            }else{_tmp[i]=String(z);}
+                _tmp[i]=z%10;
+                _tmp[i+1]=1;
+            }else{_tmp[i]=z;}
         }
-        for(;_tmp[_tmp.length-1]==='0';_tmp.pop());
+        /**@type {number} - index of first non-zero digit (from left)*/
+        let first=_tmp.length-1;
+        for(;first>0&&_tmp[first]===0;first--);
         //! check max size
-        return _tmp;
+        return _tmp.slice(0,first+1);
     },digitShiftLeft=
     /**
      * __shifts the digits of a number to the left__
-     * @param {string[]} a - initial number
+     * @param {Uint8Array} a - initial number
      * @param {number} x - amount of digit shifts to the left - (positive only)
-     * @returns {string[]} `a * (base ** x)`
+     * @returns {Uint8Array} `a * (base ** x)`
      */
     (a,x)=>{
         //! check max size
-        /**@type {string[]} - array for temporary storage*/
-        let _tmp=a.slice();
-        for(let shift=0;shift<x;shift++){_tmp.unshift('0');}
-        return _tmp;
-    },karazubaMul=
+        return new Uint8Array([...a,new Uint8Array(x)]);
+    },karazubaMul=//TODO <↓> string[] → Uint8Array <↓>
     /**
      * __multiplies `X` and `Y`__
      * @param {string[]} X - first number
@@ -887,11 +888,11 @@ function decString2byte(base10='1'){// 360 digit base 10 string to 150 digit bas
         }
         return result;
     };
-    /**@type {string[]} - const 256 */
-    const base256=['6','5','2'];
+    /**@type {Uint8Array} - const 256 - base 10 - the ones place has the index 0 */
+    const base256=new Uint8Array([6,5,2]);
     /**@type {number} - exponent for _tmp */
     let exp=1,
-        /**@type {string[]} - power of 256 */
+        /**@type {Uint8Array} - power of 256 */
         _tmp=base256.slice();
     for(;smallerThan(_tmp,n);_tmp=mul(_tmp,base256)){exp++;}
     /**@type {Uint8Array} - final base 256 number */
