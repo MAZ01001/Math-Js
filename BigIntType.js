@@ -739,7 +739,19 @@ function decString2byte(base10='1'){// 360 digit base 10 string to 150 digit bas
     //! /^(?:0|[1-9][0-9]*)$/
     /**@type {Uint8Array} - initial base 10 number (the ones place has the index 0)*/
     let n=new Uint8Array([...base10]).reverse();
-    const smallerThan=
+    const removeLeadingZeros=
+    /**
+     * __removes (unnecessary) leading zeros from a number__
+     * @param {Uint8Array} num - number
+     * @returns {Uint8Array} - new number
+     */
+    num=>{
+        /**@type {number} - index of first non-zero digit (from left)*/
+        let first=num.length-1;
+        for(;first>0&&num[first]===0;first--);
+        return num.slice(0,first+1);
+    },
+    smallerThan=
     /**
      * __test if `a` is smaller than `b`__
      * @param {Uint8Array} a
@@ -795,8 +807,7 @@ function decString2byte(base10='1'){// 360 digit base 10 string to 150 digit bas
                 first=minusCarry(_tmp,i,first);
             }else{_tmp[i]=z;}
         }
-        for(first=_tmp.length-1;first>0&&_tmp[first]===0;first--);
-        return _tmp.slice(0,first+1);
+        return removeLeadingZeros(_tmp);
     },add=
     /**
      * __adds `b` to `a`__
@@ -818,11 +829,9 @@ function decString2byte(base10='1'){// 360 digit base 10 string to 150 digit bas
                 _tmp[i+1]=1;
             }else{_tmp[i]=z;}
         }
-        /**@type {number} - index of first non-zero digit (from left)*/
-        let first=_tmp.length-1;
-        for(;first>0&&_tmp[first]===0;first--);
+        _tmp=removeLeadingZeros(_tmp);
         //! check max size
-        return _tmp.slice(0,first+1);
+        return _tmp;
     },digitShiftLeft=
     /**
      * __shifts the digits of a number to the left__
@@ -832,18 +841,18 @@ function decString2byte(base10='1'){// 360 digit base 10 string to 150 digit bas
      */
     (a,x)=>{
         //! check max size
-        return new Uint8Array([...a,new Uint8Array(x)]);
-    },karazubaMul=//TODO <↓> string[] → Uint8Array <↓>
+        return new Uint8Array([...new Uint8Array(x),...a]);
+    },karazubaMul=
     /**
      * __multiplies `X` and `Y`__
-     * @param {string[]} X - first number
-     * @param {string[]} Y - second number
+     * @param {Uint8Array} X - first number
+     * @param {Uint8Array} Y - second number
      * @description __[!]__ `X` and `Y` must be the same length and that length must be a power of 2 _(end-padded with `'0'`)_ __[!]__
-     * @returns {string[]} `X * Y`
+     * @returns {Uint8Array} `X * Y`
      */
     (X,Y)=>{
-        if(X.every(v=>v==='0')||Y.every(v=>v==='0')){return['0'];}
-        if(X.length===1){return String(Number(X[0])*Number(Y[0])).split('').reverse();}
+        if(X.every(v=>v===0)||Y.every(v=>v===0)){return new Uint8Array([0]);}
+        if(X.length===1){return new Uint8Array([...String(X[0]*Y[0])]).reverse();}
         let [Xh,Xl,Yh,Yl]=[
             X.slice(Math.floor(X.length*.5)),X.slice(0,Math.floor(X.length*.5)),
             Y.slice(Math.floor(Y.length*.5)),Y.slice(0,Math.floor(Y.length*.5))
@@ -859,34 +868,39 @@ function decString2byte(base10='1'){// 360 digit base 10 string to 150 digit bas
     /**
      * __multiplies two numbers__ \
      * _using karazubas multiplication algorithm_
-     * @param {string[]} a - number
-     * @param {string[]} b - number
-     * @returns {string[]} `a * b`
+     * @param {Uint8Array} a - number
+     * @param {Uint8Array} b - number
+     * @returns {Uint8Array} `a * b`
      */
     (a,b)=>{
-        /**@type {number} - power of 2 to end-pad `a` and `b` to a power of 2 length */
-        let len=1;
-        for(;len<Math.max(a.length,b.length);len*=2);//~ len increase power of 2 until at least max(a length, b length)
-        for(;a.length<len;a.push('0'));//~ pad end of a with '0' until length equals len
-        for(;b.length<len;b.push('0'));//~ pad end of b with '0' until length equals len
-        return (arr=>{for(;arr[arr.length-1]==='0';arr.pop());return arr;})(karazubaMul(a,b).slice());//! check max size
+        /**@type {number} - power of 2 for pading `a` and `b` to a length that's a power of 2 */
+        const len=(()=>{let n=1;for(;n<Math.max(a.length,b.length);n*=2);return n;})();
+        /**@type {Uint8Array} - new number */
+        let _tmp=karazubaMul(
+            new Uint8Array([...a,...new Uint8Array(len-a.length)]),
+            new Uint8Array([...b,...new Uint8Array(len-b.length)])
+        );
+        //! check max size
+        return _tmp;
     },pow256=
     /**
      * __make 256 to the power of x__
      * @param {number} exp - exponent
-     * @returns {string[]} `256 ** x`
+     * @returns {Uint8Array} `256 ** x`
      */
     exp=>{
-        let base=['6','5','2'],
-            result=['1'];
-        if(exp%2){result=mul(result,base);}
+        /**@type {Uint8Array} - starting base (256) */
+        let base=new Uint8Array([6,5,2]),
+            /**@type {Uint8Array} - new number */
+            _tmp=new Uint8Array([1]);
+        if(exp%2){_tmp=mul(_tmp,base);}
         exp=Math.floor(exp*.5);
         while(exp!==0){
             base=mul(base,base);
-            if(exp%2){result=mul(base,result);}
+            if(exp%2){_tmp=mul(base,_tmp);}
             exp=Math.floor(exp*.5);
         }
-        return result;
+        return _tmp;
     };
     /**@type {Uint8Array} - const 256 - base 10 - the ones place has the index 0 */
     const base256=new Uint8Array([6,5,2]);
