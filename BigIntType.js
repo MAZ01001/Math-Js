@@ -694,6 +694,9 @@ class BigIntType{
     }
     /* TODO's
 
+        ! - new attribute "base" ?! usually 256 but for start and log could be 10 ~ instead for base10add / sub / etc methods ?!
+        ! - _tmp array from string[] to Uint8Array !
+
         baseConvert method (private) from base [2/10/16/256] as [Uint8Array/string] to base [2/10/16/256] as [Uint8Array/string] (base 256 string = braille)
 
         numbers base to 256 - Uint8 [0-255]
@@ -709,7 +712,8 @@ class BigIntType{
 
         (；￢＿￢)
 
-        <num_frac(a/b/c)>
+        <num_frac([a+(b/c)])>
+            frac2decString => [PowerShell]> $b=1234;$c=5678;$n=3;'0.'+([string][math]::floor(($b*[math]::pow(10,$n))/$c)).PadLeft($n,'0') >> '0,217' :D ($n=number of decimal points)
             E PI sqrt2 ?! ~> e^() e^(()*PI) ...
             Trigenomitry: https://en.wikipedia.org/wiki/Trigonometric_functions
             Sine,Tangent,Secant https://upload.wikimedia.org/wikipedia/commons/e/ec/TrigFunctionDiagram.svg
@@ -728,7 +732,7 @@ new BigIntType('456')//=> [200,1]
 // TODO implement this to that
 // TODO             ↓
 
-// TODO maxLen for strings !
+// TODO maxLen for output strings !
 // TODO typedarrays instead of string arrays
 /**
  * __converts from base 10 to base 256__
@@ -750,8 +754,7 @@ function decString2byte(base10='1'){// 360 digit base 10 string to 150 digit bas
         let first=num.length-1;
         for(;first>0&&num[first]===0;first--);
         return num.slice(0,first+1);
-    },
-    smallerThan=
+    },smallerThan=
     /**
      * __test if `a` is smaller than `b`__
      * @param {Uint8Array} a
@@ -915,9 +918,17 @@ function decString2byte(base10='1'){// 360 digit base 10 string to 150 digit bas
     bytenum[0]=Number(n.reverse().join(''));
     return bytenum;
 }
-// TODO
-// TODO     byte2decString(){}//for ().log();
-// TODO
+/**
+ * __converts from base 256 to base 10__
+ * @param {Uint8Array} bytenum - base 256 integer
+ * @returns {string} - base 10 (decimal) integer (string)
+ */
+function byte2decString(bytenum){
+    //! arrayLike ~ Uint8Array
+    // TODO
+    // mul/karazuba & add & pow256
+    // bytenum forEach bytechar decnum=add(decnum,mul(bytechar,pow256(i)))
+}
 /**
  * __converts from base 256 to base 16__
  * @param {Uint8Array} bytenum - base 256 integer
