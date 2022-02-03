@@ -1,58 +1,83 @@
 class BigIntType{
     //~ property/method names starting with '#' are private - see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_class_fields for details
-    //TODO base 256 ~size in RAM ?
-    /** @type {number} - maximum possible length of a number _(excluding sign)_ - originally `500` = 0.5KB in RAM */
+    //TODO base 256 max value in base 10 ?
+    /**@type {number} - maximum possible length of a number _(excluding sign)_ - originally `500` = 0.5KB in RAM */
     static #MAX_SIZE=500;
-    /**
-     * @description
-     * + equals max size of Bytes in RAM
-     * + temporary string arrays are 2x bigger in RAM \
-     *   _(and they're used frequently)_
-     * @returns {number} _current_ maximum possible length of a number _(excluding sign)_
-     */
+    /**@returns {number} _current_ maximum possible length of a number _(excluding sign)_ */
     static get MAX_SIZE(){return BigIntType.#MAX_SIZE;}
-    /**@throws {RangeError} - if setting this to a number that is not an integer in range `[1-1048576]` - _( `1048576 = 2**20` = 1MB in RAM )_ */
+    /**@throws {RangeError} - if setting this to a number that is not an integer in range `[1-1048576]` - _( `1048576` = 1MiB in RAM )_ */
     static set MAX_SIZE(n){
-        // technically, max is 9007199254740991 (Number.MAX_SAFE_INTEGER) but with 1 Byte each digit that's 9 PetaBytes ! for ONE number
-        // also, the temporary string arrays have 2 Bytes for each digit so 2x bigger than the TypeArray ! and there are quite a lot in these methods
-        // and, at least on my system in-browser, "only" arrays of size 2145386496(2**31-2**21) can be allocated !
+        // technically, max is 9007199254740991 (Number.MAX_SAFE_INTEGER) but with 1 Byte each entry that's almost 8PiB ! for ONE number
+        // and chrome browser will only create typed arrays up to 2GiB
         if(!Number.isInteger(n)||n<1||n>1048576){throw new RangeError("[MAX_SIZE] must be an integer in range [1-1048576]");}
         return BigIntType.#MAX_SIZE=n;
     }
-    /**@type {RegExp} - regular expression for matching base 10 integer string with optional sign _(minimum one digit - if more than one, the first must be non-zero)_ */
-    static #REGEXP_base10_STRING=/^([+-]?)([1-9][0-9]+|[0-9])$/;
-    /**@type {RegExp} - regular expression for matching base 16 integer string with optional sign _(minimum one digit - if more than one, the first must be non-zero)_ */
-    static #REGEXP_base16_STRING=/^([+-]?)(0|[1-9A-F][0-9A-F]*])$/;
-    /**@type {RegExp} - regular expression for matching base 2 integer string with optional sign _(minimum one digit - if more than one, the first must be non-zero)_ */
-    static #REGEXP_base2_STRING=/^([+-]?)(0|1[01]*)$/;
+    /**@type {Readonly<{2:RegExp;10:RegExp;16:RegExp;256:RegExp;}>} - regular expressions for matching strings in specific base with optional sign, minimum one digit and no leading zeros */
+    static #REGEXP_STRING=Object.freeze({
+        2:/^([+-]?)(0|1[01]*)$/,
+        10:/^([+-]?)(0|[1-9][0-9]*)$/,
+        16:/^([+-]?)(0|[1-9A-F][0-9A-F]*])$/,
+        256:/^([+-]?)(\u2800|[\u2801-\u28FF][\u2800-\u28FF]*])$/u
+    });
     /**
      * __constructs a BigIntType__
-     * @param {string} n - a _(signed)_ integer _(base 10)_ as string - _default=`'1'`_
-     * + minimum one digit and if more, than the first must be non-zero
-     * + no scientific notation
-     * + _(auto converts to string if not already of type string)_
-     * @throws {RangeError} if `n` is an empty string
-     * @throws {SyntaxError} if `n` is not a whole number string (in format)
+     * @param {string|number[]|string[]|Uint8Array} num - a signed integer - _default `'1'`_
+     * + can either be a number string(see below) or an array(unsigned) with characters(see below) or numbers(0 to `base`-1) or a Uint8Array with numbers(0 to `base`-1)
+     * + a string and `base` 2   → only `0` or `1`
+     * + a string and `base` 10  → only `0` to `9`
+     * + a string and `base` 16  → only `0` to `9` and `A` to `F`
+     * + a string and `base` 256 → only `⠀` to `⣿` (Braille `0x2800` to `0x28FF`)
+     * @param {string|number} base - base of `num` as a number or string - _default `'d'`_
+     * + base 2 can be `'b'`, `"bin"`, `"binary"` or `'2'`
+     * + base 10 can be `'d'`, `"dec"`, `"decimal"` or `"10"`
+     * + base 16 can be `'h'`, `"hex"`, `"hexadecimal"` or `"16"`
+     * + base 256 can be `"byte"` or `"256"`
+     * @throws {SyntaxError} - if `base` is not an available option
+     * @throws {SyntaxError} - if `num` has leading zeros
+     * @throws {RangeError} - if `num` has length `0`
+     * @throws {SyntaxError} - if `num` is a string and does not have the correct format for this `base`
+     * @throws {RangeError} - if `num` exceedes `MAX_SIZE` (after conversion in base 256)
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    constructor(n='1'){//TODO base 256
-        n=String(n);
-        if(n.length==0){throw new RangeError("[n] is an empty string");}
-        if(!BigIntType.#REGEXP_base10_STRING.test(n)){throw new SyntaxError("[n] is not a whole number string (in format)");}
-        if((n.length-(/^[+-]$/.test(n[0])?1:0))>BigIntType.MAX_SIZE){throw new RangeError(`[n] is bigger than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
-        //~ let uint8=((a,b)=>{let c=new Uint8Array(a.length+b.length);c.set(a,0);c.set(b,a.length);return c;})(Uint8Array.from("123"),Uint8Array.from("456"));
+    constructor(num='1',base='d'){//TODO base 256
+        /** @type {number} - the base of the number */
+        this.base;
         /** @type {boolean} - sign of the number - `true` = positive */
-        this.sign;
-        /** @type {Uint8Array} - the number as unsigned 8bit integer array - index 0 has the right most number from the original string */
+        this.sign=true;
+        /** @type {Uint8Array} - the number as unsigned 8bit integer array - index 0 is the 0st-digit of the number */
         this.digits;
-        /**@type {string[]} - array for temporary storage */
-        let _tmp=[];
-        (m=>{
-            this.sign=m[1]!=='-';
-            _tmp=Array.from(m[2],String).reverse();
-        })(n.match(BigIntType.#REGEXP_base10_STRING));
-        //TODO base convert
-        this.digits=new Uint8Array(_tmp);
+        //~ let uint8=((a,b)=>{let c=new Uint8Array(a.length+b.length);c.set(a,0);c.set(b,a.length);return c;})(Uint8Array.from("123"),Uint8Array.from("456"));
+        if(num.length===0){//TODO add more cases that result in 0
+            this.base=256;
+            this.digits=new Uint8Array(1);
+            return;
+        }
+        switch(String(base).toLowerCase()){
+            case'b':case"bin":case"binary":case'2':this.base=2;break;
+            case'd':case"dec":case"decimal":case"10":this.base=10;break;
+            case'h':case"hex":case"hexadecimal":case"16":this.base=16;break;
+            case"byte":case"256":this.base=256;break;
+            default:throw new SyntaxError("[base] is not an available option");
+        }
+        if(Array.isArray(num)){
+            // TODO remove leading zeros
+            switch(this.base){
+                case 2:
+                    num=[...num,...new Array(num.length%8).fill('0')];
+                    this.digits=new Uint8Array(Math.floor(num.length/8));
+                    for(let i=0;i<this.digits.length;i++){this.digits[i]=Number.parseInt(num.slice(i*8,(i+1)*8).reverse().join(''),2);}
+                    break;
+                // TODO base 10/16/256
+            }
+        }else if(num instanceof Uint8Array){
+            if(num.length===0){throw new RangeError("[num] is an empty Uint8Array");}
+            // TODO same as above but immutable...
+        }else{
+            num=String(num);
+            if(BigIntType.#REGEXP_STRING[this.base].test(num)){throw new SyntaxError("[num] does not have the correct format for this base");}
+            // TODO same as above but signed
+        }
+        //TODO check final length in base 256 → throw new RangeError(`[num] is bigger than [MAX_SIZE]`);
     }
     /**@type {number} - current base of `this` number _(private)_ */
     #base=256;
