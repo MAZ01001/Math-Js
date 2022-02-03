@@ -22,7 +22,7 @@ class BigIntType{
     /**
      * __constructs a BigIntType__
      * @param {string|number[]|string[]|Uint8Array} num - a signed integer - _default `'1'`_
-     * + can either be a number string(see below) or an array(unsigned) with characters(see below) or numbers(0 to `base`-1) or a Uint8Array with numbers(0 to `base`-1)
+     * + can either be a number string(see below) or an array(unsigned index 0 = 0th-digit) with characters(see below) or numbers(0 to `base`-1) or a Uint8Array with numbers(0 to `base`-1)
      * + a string and `base` 2   → only `0` or `1`
      * + a string and `base` 10  → only `0` to `9`
      * + a string and `base` 16  → only `0` to `9` and `A` to `F`
@@ -36,51 +36,83 @@ class BigIntType{
      * @throws {SyntaxError} - if `num` has leading zeros
      * @throws {RangeError} - if `num` has length `0`
      * @throws {SyntaxError} - if `num` is a string and does not have the correct format for this `base`
+     * @throws {SyntaxError} - if `base` is `256` and `num` is a string array with numbers and braille mixed (not one or the other)
      * @throws {RangeError} - if `num` exceedes `MAX_SIZE` (after conversion in base 256)
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     constructor(num='1',base='d'){//TODO base 256
-        /** @type {number} - the base of the number */
-        this.base;
+        /** @type {number} - the current base of `this` number */
+        this.#base;
         /** @type {boolean} - sign of the number - `true` = positive */
         this.sign=true;
         /** @type {Uint8Array} - the number as unsigned 8bit integer array - index 0 is the 0st-digit of the number */
         this.digits;
         //~ let uint8=((a,b)=>{let c=new Uint8Array(a.length+b.length);c.set(a,0);c.set(b,a.length);return c;})(Uint8Array.from("123"),Uint8Array.from("456"));
-        if(num.length===0){//TODO add more cases that result in 0
-            this.base=256;
+        if(num.length===0||(Array.from(num).every(v=>String(v)==='0'))){
+            this.#base=256;
             this.digits=new Uint8Array(1);
             return;
         }
         switch(String(base).toLowerCase()){
-            case'b':case"bin":case"binary":case'2':this.base=2;break;
-            case'd':case"dec":case"decimal":case"10":this.base=10;break;
-            case'h':case"hex":case"hexadecimal":case"16":this.base=16;break;
-            case"byte":case"256":this.base=256;break;
+            case'b':case"bin":case"binary":case'2':this.#base=2;break;
+            case'd':case"dec":case"decimal":case"10":this.#base=10;break;
+            case'h':case"hex":case"hexadecimal":case"16":this.#base=16;break;
+            case"byte":case"256":this.#base=256;break;
             default:throw new SyntaxError("[base] is not an available option");
         }
         if(Array.isArray(num)){
-            // TODO remove leading zeros
-            switch(this.base){
+            {
+                /**@type {number} - index of first non-zero digit */
+                let first=num.length-1;
+                for(;String(num[first])==='0'||String(num[first])==='\u2800';first--);
+                num=num.slice(0,first+1);
+            }
+            switch(this.#base){
                 case 2:
-                    num=[...num,...new Array(num.length%8).fill('0')];
                     this.digits=new Uint8Array(Math.floor(num.length/8));
                     for(let i=0;i<this.digits.length;i++){this.digits[i]=Number.parseInt(num.slice(i*8,(i+1)*8).reverse().join(''),2);}
                     break;
-                // TODO base 10/16/256
+                case 10:
+                    // TODO
+                    //HK__## 10 to 256 ##
+                    //HK__  /**@type {Uint8Array} - const 256 - base 10 - the ones place has the index 0 */
+                    //HK__  const base256=new Uint8Array([6,5,2]);
+                    //HK__  /**@type {number} - exponent for _tmp */
+                    //HK__  let exp=1,
+                    //HK__      /**@type {Uint8Array} - power of 256 */
+                    //HK__      _tmp=base256.slice();
+                    //HK__  for(;smallerThan(_tmp,n);_tmp=mul(_tmp,base256)){exp++;}
+                    //HK__  /**@type {Uint8Array} - final base 256 number */
+                    //HK__  let bytenum=new Uint8Array(exp);
+                    //HK__  for(_tmp=pow256(--exp);exp>0;_tmp=pow256(--exp)){for(;!smallerThan(n,_tmp);n=sub(n,_tmp)){bytenum[exp]++;}}
+                    //HK__  bytenum[0]=Number(n.reverse().join(''));
+                    //HK__  return bytenum;
+                    // TODO
+                    break;
+                case 16:
+                    this.digits=new Uint8Array(Math.floor(num.length/2));
+                    for(let i=0;i<this.digits.length;i++){this.digits[i]=Number.parseInt(num.slice(i*2,(i+1)*2).reverse().join(''),2);}
+                    break;
+                case 256:
+                    if(/^[\u2800\u28FF]$/u.test(num[0])){
+                        if(!(num.every(v=>/^[\u2800\u28FF]$/u.test(v)))){throw new SyntaxError("[num] array has mixed values for base 256");}
+                        this.digits=new Uint8Array(num.map(v=>String(v.charCodeAt(0)-10240)));
+                    }else{
+                        if(!(num.every(v=>/^[0-9]$/.test(v)))){throw new SyntaxError("[num] array has mixed values for base 256");}
+                        this.digits=new Uint8Array(num);
+                    }
+                    break;
             }
         }else if(num instanceof Uint8Array){
             if(num.length===0){throw new RangeError("[num] is an empty Uint8Array");}
-            // TODO same as above but immutable...
+            // TODO same as above but Uint8Array
         }else{
             num=String(num);
-            if(BigIntType.#REGEXP_STRING[this.base].test(num)){throw new SyntaxError("[num] does not have the correct format for this base");}
-            // TODO same as above but signed
+            if(BigIntType.#REGEXP_STRING[this.#base].test(num)){throw new SyntaxError("[num] does not have the correct format for this base");}
+            // TODO same as above but signed string
         }
-        //TODO check final length in base 256 → throw new RangeError(`[num] is bigger than [MAX_SIZE]`);
+        if(this.digits.length>BigIntType.MAX_SIZE){throw new RangeError(`[num] would be longer than [MAX_SIZE]`);}
     }
-    /**@type {number} - current base of `this` number _(private)_ */
-    #base=256;
     /**
      * __logs number to console and returns itself (`this`)__
      * @param {number} maxLen - max digits to display - _default `100`_
@@ -92,7 +124,7 @@ class BigIntType{
      * @throws {TypeError} - if `maxLen` is not a save integer
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    log(maxLen=100){//TODO base 256
+    log(maxLen=100){//TODO multi base
         maxLen=Number(maxLen);if(!Number.isSafeInteger(maxLen)){throw new TypeError("[maxlen] is not a save integer");}
         if(maxLen>this.digits.length||maxLen===0){maxLen=this.digits.length;}
         else if(maxLen<1){maxLen=1;}
@@ -114,6 +146,7 @@ class BigIntType{
     copy(){
         let _tmp=new BigIntType();
         _tmp.sign=this.sign;
+        _tmp.#base=this.#base;
         _tmp.digits=this.digits.slice();//~ unlinked copy
         return _tmp;
         //// return new BigIntType((this.sign?'+':'-')+this.digits.join(''));
@@ -204,7 +237,7 @@ class BigIntType{
      * @param {number} first - current index of the first digit
      * @returns {number} new index for first digit
      */
-    static #minusCarry(_tmp,i,first){//TODO base 256
+    static #minusCarry(_tmp,i,first){//TODO multi base
         let j=1;
         while(_tmp[i+j]==='0'){_tmp[i+j++]='9';}
         _tmp[i+j]=String(Number(_tmp[i+j])-1);
@@ -219,7 +252,7 @@ class BigIntType{
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    #calcInc(){//TODO base 256
+    #calcInc(){//TODO multi base
         /**@type {string[]} - array for temporary storage */
         let _tmp=['1'];
         for(let i=0;i<this.digits.length;i++){
@@ -241,7 +274,7 @@ class BigIntType{
      * @returns {BigIntType} `this` number after decrementing
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    #calcDec(){//TODO base 256
+    #calcDec(){//TODO multi base
         /**@type {number} - current index of the first digit */
         let first=this.digits.length-1,
             /**@type {boolean} - current sign of number */
@@ -292,7 +325,7 @@ class BigIntType{
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    #calcAdd(n){//TODO base 256
+    #calcAdd(n){//TODO multi base
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
         /**@type {string[]} - array for temporary storage*/
         let _tmp=[];
@@ -311,37 +344,6 @@ class BigIntType{
         return this;
     }
     /**
-     * __adds two numbers together__ \
-     * _ignoring initial sign_ \
-     * __for base 10 numbers__ \
-     * _modifies the original_
-     * @param {BigIntType} n - second number for addition
-     * @returns {BigIntType} `this` number after addition
-     * @throws {TypeError} - if `n` is not an instance of `BigIntType`
-     * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    #base10Add(n){
-        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
-        /**@type {number} - length of the longer number */
-        const len=Math.max(this.digits.length,n.digits.length);
-        /**@type {Uint8Array} - new digit array*/
-        let _tmp=new Uint8Array(len+1),
-            /**@type {number} - last calculation*/
-            z=0;
-        for(let i=0;i<len;i++){
-            z=(this.digits[i]||0)+(n.digits[i]||0)+_tmp[i];
-            _tmp[i]=z%10;
-            if(z>=10){_tmp[i+1]=1;}
-        }
-        /**@type {number} - index of first non-zero digit (from left)*/
-        let first=_tmp.length-1;
-        for(;_tmp.length>1&&_tmp[first--]===0;);
-        if(++first>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
-        this.digits=_tmp.slice(0,first);
-        return this;
-    }
-    /**
      * __subtracts two numbers from one another__ \
      * _ignoring initial sign_ \
      * _modifies the original_
@@ -350,7 +352,7 @@ class BigIntType{
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    #calcSub(n){//TODO base 256
+    #calcSub(n){//TODO multi base
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
         /**@type {number} - length of the longer number */
         const len=Math.max(this.digits.length,n.digits.length);
@@ -429,7 +431,7 @@ class BigIntType{
      * @throws {SyntaxError} - if `rounding` is not a valid option (see `rounding`s doc.)
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    half(rounding='c'){//TODO base 256
+    half(rounding='c'){//TODO multi base
         rounding=String(rounding);if(!/^(c|ceil|f|floor)$/.test(rounding)){throw new SyntaxError("[rounding] is not a valid option");}
         if(this.digits.length===1&&this.digits[0]===0){return this;}
         /**@type {string[]} - array for temporary storage */
@@ -457,7 +459,7 @@ class BigIntType{
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    double(){//TODO base 256
+    double(){//TODO multi base
         /**@type {string[]} - array for temporary storage */
         let _tmp=['0'],
             /**@type {number} - last calculation */
@@ -486,7 +488,7 @@ class BigIntType{
      * @throws {SyntaxError} - if `rounding` is not a valid option (see `rounding`s doc.)
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    div(n,rounding='r'){//TODO base 256
+    div(n,rounding='r'){//TODO multi base
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
         rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[rounding] is not a valid option");}
         // dividend / divisor = quotient + remainder / divisor
@@ -528,7 +530,7 @@ class BigIntType{
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    times10ToThePowerOf(x,rounding='r'){//TODO base 256
+    times10ToThePowerOf(x,rounding='r'){//TODO multi base?
         x=Number(x);if(!Number.isSafeInteger(x)){throw new TypeError("[x] is not a save integer");}
         rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[rounding] is not a valid option");}
         //~ (X>=0) 10**X => new BigIntType(['1',...Array(X).fill('0')].join(''))
@@ -568,7 +570,7 @@ class BigIntType{
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    #timesBaseToThePowerOf(x,rounding='r'){
+    #timesBaseToThePowerOf(x,rounding='r'){//TODO global?
         x=Number(x);if(!Number.isSafeInteger(x)){throw new TypeError("[x] is not a save integer");}
         rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[rounding] is not a valid option");}
         //~ (X>=0) 256**X => new BigIntType(['1',...Array(X).fill('0')].join(''))
@@ -605,7 +607,7 @@ class BigIntType{
      * @throws {RangeError} - if some number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    static #karazubaMul(X,Y){//TODO base 256
+    static #karazubaMul(X,Y){//TODO multi base?
         if(!(X instanceof BigIntType)){throw new TypeError("[X] is not an instance of BigIntType");}
         if(!(Y instanceof BigIntType)){throw new TypeError("[Y] is not an instance of BigIntType");}
         if(X.digits.every(v=>v===0)||Y.digits.every(v=>v===0)){return new BigIntType('0');}
@@ -630,7 +632,7 @@ class BigIntType{
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    mul(n){//TODO base 256
+    mul(n){//TODO multi base
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
         if(n.digits.length===1&&n.digits[0]===2){
             try{this.double();}
@@ -692,7 +694,7 @@ class BigIntType{
      * @throws {SyntaxError} - if `type` is not a valid option (see `type`s doc.)
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    modulo(n,type='e'){//TODO base 256
+    modulo(n,type='e'){//TODO multi base
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
         if(n.digits.length===1&&n.digits[0]===0){throw new RangeError("[n] cannot divide by 0");}
         if((this.digits.length===1&&this.digits[0]===0)||(n.digits.length===1&&n.digits[0]===1)){this.digits=new Uint8Array([0]);return this;}
