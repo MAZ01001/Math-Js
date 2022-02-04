@@ -17,39 +17,36 @@ class BigIntType{
         2:/^([+-]?)(0|1[01]*)$/,
         10:/^([+-]?)(0|[1-9][0-9]*)$/,
         16:/^([+-]?)(0|[1-9A-F][0-9A-F]*])$/,
-        256:/^([+-]?)(\u2800|[\u2801-\u28FF][\u2800-\u28FF]*])$/u
+        256:/^([+-]?)(\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)$/u
     });
+    /** @type {number} - the current base of `this` number - normaly `256` - should only ever be `2`, `10`, `16` or `256` */
+    #base=256;
     /**
      * __constructs a BigIntType__
-     * @param {string|number[]|string[]|Uint8Array} num - a signed integer - _default `'1'`_
+     * @param {string|number[]|boolean[]|string[]|Uint8Array} num - a signed integer - _default `'1'`_
      * + can either be a number string(see below) or an array(unsigned index 0 = 0th-digit) with characters(see below) or numbers(0 to `base`-1) or a Uint8Array with numbers(0 to `base`-1)
-     * + a string and `base` 2   → only `0` or `1`
-     * + a string and `base` 10  → only `0` to `9`
-     * + a string and `base` 16  → only `0` to `9` and `A` to `F`
-     * + a string and `base` 256 → only `⠀` to `⣿` (Braille `0x2800` to `0x28FF`)
+     * + `base` 2   → as string or number `0` and `1` or as bool array `true` and `false`
+     * + `base` 10  → as string or number `0` to `9`
+     * + `base` 16  → as string `0` to `9` and `A` to `F` or as number array `0` to `16`
+     * + `base` 256 → as string `⠀` to `⣿` (Braille `0x2800` to `0x28FF`) or as number array `0` to `256`
      * @param {string|number} base - base of `num` as a number or string - _default `'d'`_
      * + base 2 can be `'b'`, `"bin"`, `"binary"` or `'2'`
      * + base 10 can be `'d'`, `"dec"`, `"decimal"` or `"10"`
      * + base 16 can be `'h'`, `"hex"`, `"hexadecimal"` or `"16"`
      * + base 256 can be `"byte"` or `"256"`
      * @throws {SyntaxError} - if `base` is not an available option
-     * @throws {SyntaxError} - if `num` has leading zeros
-     * @throws {RangeError} - if `num` has length `0`
-     * @throws {SyntaxError} - if `num` is a string and does not have the correct format for this `base`
-     * @throws {SyntaxError} - if `base` is `256` and `num` is a string array with numbers and braille mixed (not one or the other)
+     * @throws {SyntaxError} - if `num` does not have the correct format for this `base`
      * @throws {RangeError} - if `num` exceedes `MAX_SIZE` (after conversion in base 256)
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    constructor(num='1',base='d'){//TODO base 256
-        /** @type {number} - the current base of `this` number */
-        this.#base;
+    constructor(num='1',base='d'){//TODO multi base
+        this.#base=256;
         /** @type {boolean} - sign of the number - `true` = positive */
         this.sign=true;
         /** @type {Uint8Array} - the number as unsigned 8bit integer array - index 0 is the 0st-digit of the number */
         this.digits;
         //~ let uint8=((a,b)=>{let c=new Uint8Array(a.length+b.length);c.set(a,0);c.set(b,a.length);return c;})(Uint8Array.from("123"),Uint8Array.from("456"));
         if(num.length===0||(Array.from(num).every(v=>String(v)==='0'))){
-            this.#base=256;
             this.digits=new Uint8Array(1);
             return;
         }
@@ -67,12 +64,14 @@ class BigIntType{
                 for(;String(num[first])==='0'||String(num[first])==='\u2800';first--);
                 num=num.slice(0,first+1);
             }
-            switch(this.#base){
+            switch(this.#base){//TODO checks for incorrect values !
                 case 2:
+                    if(!(num.every(v=>Number(v)===0||Number(v)===1))){throw new SyntaxError("[num] array has incorrect values for base 2");}
                     this.digits=new Uint8Array(Math.floor(num.length/8));
                     for(let i=0;i<this.digits.length;i++){this.digits[i]=Number.parseInt(num.slice(i*8,(i+1)*8).reverse().join(''),2);}
                     break;
                 case 10:
+                    if(!(num.every(v=>Number(v)>=0&&Number(v)<10))){throw new SyntaxError("[num] array has incorrect values for base 10");}
                     // TODO
                     //HK__## 10 to 256 ##
                     //HK__  /**@type {Uint8Array} - const 256 - base 10 - the ones place has the index 0 */
@@ -90,6 +89,7 @@ class BigIntType{
                     // TODO
                     break;
                 case 16:
+                    if(!(num.every(v=>/^[0-9A-F]$/.test(String(v)))||num.every(v=>Number(v)>=0&&Number(v)<16))){throw new SyntaxError("[num] array has incorrect values for base 16");}
                     this.digits=new Uint8Array(Math.floor(num.length/2));
                     for(let i=0;i<this.digits.length;i++){this.digits[i]=Number.parseInt(num.slice(i*2,(i+1)*2).reverse().join(''),2);}
                     break;
@@ -98,7 +98,7 @@ class BigIntType{
                         if(!(num.every(v=>/^[\u2800\u28FF]$/u.test(v)))){throw new SyntaxError("[num] array has mixed values for base 256");}
                         this.digits=new Uint8Array(num.map(v=>String(v.charCodeAt(0)-10240)));
                     }else{
-                        if(!(num.every(v=>/^[0-9]$/.test(v)))){throw new SyntaxError("[num] array has mixed values for base 256");}
+                        if(!(num.every(v=>Number(v)>=0&&Number(v)<256&&Number.isInteger(Number(v))))){throw new SyntaxError("[num] array has mixed values for base 256");}
                         this.digits=new Uint8Array(num);
                     }
                     break;
