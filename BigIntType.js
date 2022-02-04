@@ -24,7 +24,7 @@ class BigIntType{
     /**
      * __constructs a BigIntType__
      * @param {string|number[]|boolean[]|string[]|Uint8Array} num - a signed integer - _default `'1'`_
-     * + can either be a number string(see below) or an array(unsigned index 0 = 0th-digit) with characters(see below) or numbers(0 to `base`-1) or a Uint8Array with numbers(0 to `base`-1)
+     * + can either be a number string(see below) or an array(unsigned index 0 = 0th-digit) with characters(see below) or numbers(0 to `base`-1) (only one character/number peer entry) or a Uint8Array with numbers(0 to `base`-1)
      * + `base` 2   → as string or number `0` and `1` or as bool array `true` and `false`
      * + `base` 10  → as string or number `0` to `9`
      * + `base` 16  → as string `0` to `9` and `A` to `F` or as number array `0` to `16`
@@ -86,6 +86,8 @@ class BigIntType{
                     //HK__  for(_tmp=pow256(--exp);exp>0;_tmp=pow256(--exp)){for(;!smallerThan(n,_tmp);n=sub(n,_tmp)){bytenum[exp]++;}}
                     //HK__  bytenum[0]=Number(n.reverse().join(''));
                     //HK__  return bytenum;
+                    this.#base=10;
+                    this.digits;
                     // TODO
                     break;
                 case 16:
