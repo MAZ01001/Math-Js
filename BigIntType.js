@@ -257,8 +257,6 @@ class BigIntType{
         this.digits=this.digits.slice(0,first+1);
         return this;
     }
-    // TODO
-    // TODO
     /**
      * __makes the carry and returns new first-digit-index__ \
      * specifically for conversion from base 10 to base 256
@@ -303,66 +301,59 @@ class BigIntType{
         this.digits=num;
         return this.#removeLeadingZeros();
     }
-    
+    /**
+     * __adds `n` to `this` number__ \
+     * specifically for conversion from base 10 to base 256
+     * @param {BigIntType} n - addend
+     * @returns {BigIntType} `this + n`
+     */
+    #base10Add(n){
+        /**@type {number} - length of the longer number */
+        const len=Math.max(this.digits.length,n.digits.length);
+        /**@type {Uint8Array} - new digits */
+        let num=new Uint8Array(len+1),
+            /**@type {number} - last calculation */
+            z;
+        for(let i=0;i<len;i++){
+            z=(this.digits[i]||0)+(n.digits[i]||0)+num[i];
+            if(z>=10){
+                num[i]=z%10;
+                num[i+1]=1;
+            }else{num[i]=z;}
+        }
+        this.digits=num;
+        this.#removeLeadingZeros();
+        if(this.digits.length.length>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE]`);}
+        return this;
+    }
+    // TODO
     // TODO
 
-    // add=
-    // /**
-    //  * __adds `b` to `a`__
-    //  * @param {Uint8Array} a - augend
-    //  * @param {Uint8Array} b - addend
-    //  * @returns {Uint8Array} `a + b`
-    //  */
-    // (a,b)=>{
-    //     /**@type {number} - length of the longer number */
-    //     const len=Math.max(a.length,b.length);
-    //     /**@type {Uint8Array} - new number */
-    //     let _tmp=new Uint8Array(len+1),
-    //         /**@type {number} - last calculation */
-    //         z;
-    //     for(let i=0;i<len;i++){
-    //         z=(a[i]||0)+(b[i]||0)+_tmp[i];
-    //         if(z>=10){
-    //             _tmp[i]=z%10;
-    //             _tmp[i+1]=1;
-    //         }else{_tmp[i]=z;}
-    //     }
-    //     _tmp=removeLeadingZeros(_tmp);
-    //     //! check max size
-    //     return _tmp;
-    // },digitShiftLeft=
-    // /**
-    //  * __shifts the digits of a number to the left__
-    //  * @param {Uint8Array} a - initial number
-    //  * @param {number} x - amount of digit shifts to the left - (positive only)
-    //  * @returns {Uint8Array} `a * (base ** x)`
-    //  */
-    // (a,x)=>{
-    //     //! check max size
-    //     return new Uint8Array([...new Uint8Array(x),...a]);
-    // },karazubaMul=
-    // /**
-    //  * __multiplies `X` and `Y`__
-    //  * @param {Uint8Array} X - first number
-    //  * @param {Uint8Array} Y - second number
-    //  * @description __[!]__ `X` and `Y` must be the same length and that length must be a power of 2 _(end-padded with `'0'`)_ __[!]__
-    //  * @returns {Uint8Array} `X * Y`
-    //  */
-    // (X,Y)=>{
-    //     if(X.every(v=>v===0)||Y.every(v=>v===0)){return new Uint8Array([0]);}
-    //     if(X.length===1){return new Uint8Array([...String(X[0]*Y[0])]).reverse();}
-    //     let [Xh,Xl,Yh,Yl]=[
-    //         X.slice(Math.floor(X.length*.5)),X.slice(0,Math.floor(X.length*.5)),
-    //         Y.slice(Math.floor(Y.length*.5)),Y.slice(0,Math.floor(Y.length*.5))
-    //     ];
-    //     let [P1,P2,P3]=[
-    //         karazubaMul(Xh,Yh),
-    //         karazubaMul(Xl,Yl),
-    //         mul(add(Xh,Xl),add(Yh,Yl))
-    //     ];
-    //     //~ X * Y == (P1 * b**(2*n)) + (P3 - (P1 + P2)) * b**n + P2 | **=power b=base n=digit-length of Xh/Yh/Xl/Yl or half of X/Y
-    //     return add(add(digitShiftLeft(P1,X.length),digitShiftLeft(sub(P3,add(P1,P2)),Xh.length)),P2);
-    // },mul=
+    //! times256ToThePowerOf(x,'f');
+
+    /**
+     * __multiplies `this` and `n`__ \
+     * specifically for conversion from base 10 to base 256
+     * @param {BigIntType} n - second number
+     * @description __[!]__ `this` and `n` must be the same length and that length must be a power of 2 _(end-padded with `'0'`)_ __[!]__
+     * @returns {BigIntType} `this * n`
+     */
+    #base10KarazubaMul(n){
+        if(this.digits.every(v=>v===0)||n.digits.every(v=>v===0)){return new BigIntType('0');}
+        if(this.digits.length===1){return new BigIntType(new Uint8Array([...String(this[0]*n[0])]).reverse(),"256");}
+        let [Xh,Xl,Yh,Yl]=[
+            this.digits.slice(Math.floor(this.digits.length*.5)),this.digits.slice(0,Math.floor(this.digits.length*.5)),
+            n.digits.slice(Math.floor(n.digits.length*.5)),n.digits.slice(0,Math.floor(n.digits.length*.5))
+        ].map(v=>new BigIntType(v,"256"));
+        let [P1,P2,P3]=[
+            Xh.#base10KarazubaMul(Yh),
+            Xl.#base10KarazubaMul(Yl),
+            //! mul(add(Xh,Xl),add(Yh,Yl))
+        ];
+        //~ this * n == (P1 * b**(2*n)) + (P3 - (P1 + P2)) * b**n + P2 | **=power b=base n=digit-length of Xh/Yh/Xl/Yl or half of this/n
+        //! return add(add(digitShiftLeft(P1,this.length),digitShiftLeft(sub(P3,add(P1,P2)),Xh.length)),P2);
+    }
+    // mul=
     // /**
     //  * __multiplies two numbers__ \
     //  * _using karazubas multiplication algorithm_
@@ -438,7 +429,7 @@ class BigIntType{
             }
         }
         if(_tmp.length>1&&_tmp[_tmp.length-1]==='0'){_tmp.pop();}
-        if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
+        if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE]`);}
         this.digits=Uint8Array.from(_tmp);
         return this;
     }
@@ -514,7 +505,7 @@ class BigIntType{
             }
         }
         if(_tmp.length>1&&_tmp[_tmp.length-1]==='0'){_tmp.pop();}
-        if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
+        if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE]`);}
         this.digits=Uint8Array.from(_tmp);
         return this;
     }
@@ -645,7 +636,7 @@ class BigIntType{
             _tmp[i+1]=z>=10?'1':'0';
         }
         if(_tmp[_tmp.length-1]==='0'){_tmp.pop();}
-        if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`doubling would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
+        if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`doubling would result in a number longer than [MAX_SIZE]`);}
         this.digits=new Uint8Array(_tmp);
         return this;
     }
@@ -728,7 +719,7 @@ class BigIntType{
         rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[rounding] is not a valid option");}
         if(this.digits.length===1&&this.digits[0]===0){return this;}
         if(x>0){
-            if(x+this.digits.length>BigIntType.MAX_SIZE){throw new RangeError(`[n] digit-shifts would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
+            if(x+this.digits.length>BigIntType.MAX_SIZE){throw new RangeError(`[n] digit-shifts would result in a number longer than [MAX_SIZE]`);}
             this.digits=new Uint8Array([...new Uint8Array(x),...this.digits]);
         }else if(x<0){
             x=Math.abs(x);
@@ -788,12 +779,12 @@ class BigIntType{
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
         if(n.digits.length===1&&n.digits[0]===2){
             try{this.double();}
-            catch(e){throw (e instanceof RangeError)?new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`):e;}
+            catch(e){throw (e instanceof RangeError)?new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE]`):e;}
         }else if(this.digits.length===1&&this.digits[0]===2){
             try{this.digits=n.copy().double().digits;}
-            catch(e){throw (e instanceof RangeError)?new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`):e;}
+            catch(e){throw (e instanceof RangeError)?new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE]`):e;}
         }else if(n.digits.length>1&&n.digits.every((v,i,a)=>(i<a.length-1&&v===0)||(i===a.length-1&&v===1))){
-            if((n.digits.length-1)+this.digits.length>BigIntType.MAX_SIZE){throw new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`);}
+            if((n.digits.length-1)+this.digits.length>BigIntType.MAX_SIZE){throw new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE]`);}
             this.digits=new Uint8Array([...new Uint8Array(n.digits.length-1),...this.digits]);
         }else{
             /**@type {number} - length (a power of 2) for karazuba-algorithm-numbers */
@@ -804,7 +795,7 @@ class BigIntType{
             X.digits=new Uint8Array([...this.digits,...new Uint8Array(len-this.digits.length)]);
             Y.digits=new Uint8Array([...n.digits,...new Uint8Array(len-n.digits.length)]);
             try{this.digits=BigIntType.#karazubaMul(X,Y).digits;}
-            catch(e){throw(e instanceof RangeError)?new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE] (${BigIntType.MAX_SIZE})`):e;}
+            catch(e){throw(e instanceof RangeError)?new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE]`):e;}
         }
         this.sign=this.sign===n.sign;
         return this;
