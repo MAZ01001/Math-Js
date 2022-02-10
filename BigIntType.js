@@ -101,15 +101,24 @@ class BigIntType{
             case 10:// TODO
                 if(!(num.every(v=>v>=0&&v<10))){throw new SyntaxError("[num] (Uint8Array) has incorrect values for base 10");}
                 //HK__## 10 to 256 ##
+                // TODO
                 // TODO private base10 mul, pow256, sub, add ~
+                // TODO
                 //! this.digits;
                 /**@type {number} - exponent for _pow256 */
                 let _exp=1,
                     /**@type {BigIntType} - power of 256 */
-                    _pow256=new BigIntType(new Uint8Array([6,5,2]),256);
+                    _pow256=new BigIntType(new Uint8Array([6,5,2]),"256"),
+                    /**@type {BigIntType} - `BigIntType` number from digits `num` */
+                    _num=new BigIntType('0');
                 /**@type {BigIntType} - const 256 */
                 const _only256=_pow256.copy();
-                //! while _pow256<this loop _pow256++ then if _pow256!=this _pow256-- 1x
+                for(_num.digits=num.slice();_pow256.smallerThan(this);_exp++){_pow256.#base10Mul(_only256);}
+                if(!(_pow256.equalTo(this))){_pow256=BigIntType.#base10Pow256(--_exp);}
+                // TODO
+                // TODO
+                // TODO
+                // this.digits
                 //! exp→0 loop (loop decrease num by _pow256 and save the times in exp-index of new number) and decrease _pow256 by one power (div 256 or calc new pow) then add rest of num to 0 index of new number
                 break;
             case 16:
@@ -305,7 +314,7 @@ class BigIntType{
      * __adds `n` to `this` number__ \
      * specifically for conversion from base 10 to base 256
      * @param {BigIntType} n - addend
-     * @returns {BigIntType} `this + n`
+     * @returns {BigIntType} `this + n` (base 10)
      */
     #base10Add(n){
         /**@type {number} - length of the longer number */
@@ -323,78 +332,58 @@ class BigIntType{
         }
         this.digits=num;
         this.#removeLeadingZeros();
-        if(this.digits.length.length>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE]`);}
+        if(this.digits.length>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE]`);}
         return this;
     }
-    // TODO
-    // TODO
-
-    //! times256ToThePowerOf(x,'f');
-
     /**
-     * __multiplies `this` and `n`__ \
+     * __multiplies two numbers__ \
+     * _using karazubas multiplication algorithm_ \
      * specifically for conversion from base 10 to base 256
      * @param {BigIntType} n - second number
-     * @description __[!]__ `this` and `n` must be the same length and that length must be a power of 2 _(end-padded with `'0'`)_ __[!]__
-     * @returns {BigIntType} `this * n`
+     * @returns {BigIntType} `this * n` (base 10)
      */
-    #base10KarazubaMul(n){
+    #base10Mul(n){
         if(this.digits.every(v=>v===0)||n.digits.every(v=>v===0)){return new BigIntType('0');}
-        if(this.digits.length===1){return new BigIntType(new Uint8Array([...String(this[0]*n[0])]).reverse(),"256");}
+        /**@type {number} - power of 2 for pading `this.digits` and `n.digits` to a length that's a power of 2 */
+        const len=(()=>{let n=1;for(;n<Math.max(this.digits.length,n.digits.length);n*=2);return n;})();
+        const[X,Y]=[
+            new Uint8Array([...this.digits,...new Uint8Array(len-this.digits.length)]),
+            new Uint8Array([...n.digits,...new Uint8Array(len-n.digits.length)])
+        ];
+        if(X.length===1){return new BigIntType(new Uint8Array([...String(X[0]*Y[0])]).reverse(),"256");}
         let [Xh,Xl,Yh,Yl]=[
-            this.digits.slice(Math.floor(this.digits.length*.5)),this.digits.slice(0,Math.floor(this.digits.length*.5)),
-            n.digits.slice(Math.floor(n.digits.length*.5)),n.digits.slice(0,Math.floor(n.digits.length*.5))
+            X.slice(Math.floor(X.length*.5)),X.slice(0,Math.floor(X.length*.5)),
+            Y.slice(Math.floor(Y.length*.5)),Y.slice(0,Math.floor(Y.length*.5))
         ].map(v=>new BigIntType(v,"256"));
         let [P1,P2,P3]=[
-            Xh.#base10KarazubaMul(Yh),
-            Xl.#base10KarazubaMul(Yl),
-            //! mul(add(Xh,Xl),add(Yh,Yl))
+            Xh.#base10Mul(Yh),
+            Xl.#base10Mul(Yl),
+            Xh.#base10Add(Xl).#base10Mul(Yh.#base10Add(Yl))
         ];
         //~ this * n == (P1 * b**(2*n)) + (P3 - (P1 + P2)) * b**n + P2 | **=power b=base n=digit-length of Xh/Yh/Xl/Yl or half of this/n
-        //! return add(add(digitShiftLeft(P1,this.length),digitShiftLeft(sub(P3,add(P1,P2)),Xh.length)),P2);
+        return P1.times256ToThePowerOf(X.length,'f').#base10Add(P3.#base10Sub(P1.#base10Add(P2)).times256ToThePowerOf(Xh.length,'f')).#base10Add(P2);
     }
-    // mul=
-    // /**
-    //  * __multiplies two numbers__ \
-    //  * _using karazubas multiplication algorithm_
-    //  * @param {Uint8Array} a - number
-    //  * @param {Uint8Array} b - number
-    //  * @returns {Uint8Array} `a * b`
-    //  */
-    // (a,b)=>{
-    //     /**@type {number} - power of 2 for pading `a` and `b` to a length that's a power of 2 */
-    //     const len=(()=>{let n=1;for(;n<Math.max(a.length,b.length);n*=2);return n;})();
-    //     /**@type {Uint8Array} - new number */
-    //     let _tmp=karazubaMul(
-    //         new Uint8Array([...a,...new Uint8Array(len-a.length)]),
-    //         new Uint8Array([...b,...new Uint8Array(len-b.length)])
-    //     );
-    //     //! check max size
-    //     return _tmp;
-    // },pow256=
-    // /**
-    //  * __make 256 to the power of x__
-    //  * @param {number} exp - exponent
-    //  * @returns {Uint8Array} `256 ** x`
-    //  */
-    // exp=>{
-    //     /**@type {Uint8Array} - starting base (256) */
-    //     let base=new Uint8Array([6,5,2]),
-    //         /**@type {Uint8Array} - new number */
-    //         _tmp=new Uint8Array([1]);
-    //     if(exp%2){_tmp=mul(_tmp,base);}
-    //     exp=Math.floor(exp*.5);
-    //     while(exp!==0){
-    //         base=mul(base,base);
-    //         if(exp%2){_tmp=mul(base,_tmp);}
-    //         exp=Math.floor(exp*.5);
-    //     }
-    //     return _tmp;
-    // };
-
-    // TODO
-    // TODO
-
+    /**
+     * __make 256 to the power of `exp`__ \
+     * specifically for conversion from base 10 to base 256
+     * @param {number} exp - exponent
+     * @returns {BigIntType} `256 ** exp` (base 10)
+     */
+    static #base10Pow256(exp){
+        /**@type {BigIntType} - starting base (256) */
+        let base=new BigIntType(new Uint8Array[6,5,2],"256"),
+            /**@type {BigIntType} - new number */
+            num=new BigIntType(new Uint8Array[1],"256");
+        if(exp%2){num=num.#base10Mul(base);}
+        exp=Math.floor(exp*.5);
+        while(exp!==0){
+            base=base.#base10Mul(base);
+            if(exp%2){num=base.#base10Mul(num);}
+            exp=Math.floor(exp*.5);
+        }
+        if(num.digits.length>BigIntType.MAX_SIZE){throw new RangeError(`making [exp] power of 256 (for conversion from base 10 to base 256) would result in a number longer than [MAX_SIZE]`);}
+        return num;
+    };
     /**
      * __makes the carry and returns new first-digit-index__ \
      * _used in `#calcDec()` and `#calcSub()`_
