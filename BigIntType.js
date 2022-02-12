@@ -103,17 +103,24 @@ class BigIntType{
                 if(!(num.every(v=>v>=0&&v<10))){throw new SyntaxError("[num] (Uint8Array) has incorrect values for base 10");}
                 /**@type {number} - exponent for pow256 */
                 let exp=1,
-                    /**@type {BigIntType} - power of 256 */
-                    pow256=new BigIntType(new Uint8Array([6,5,2]),"256"),
-                    /**@type {BigIntType} - `BigIntType` number from digits `num` */
-                    b10Num=new BigIntType('0');
-                /**@type {BigIntType} - const 256 */
-                const only256=pow256.copy();
-                for(b10Num.digits=num.slice();pow256.smallerThan(b10Num);exp++){pow256.#base10Mul(only256);}
+                    /**@type {Uint8Array} - power of 256 */
+                    pow256=new Uint8Array([6,5,2]);
+                /**@type {Uint8Array} - const 256 */
+                const only256=pow256.slice();
+                //~ ↓ for astronomically large numbers this may be faster ?!
+                //~ for(;BigIntType.#base10.lessThan(pow256,num);exp*=2){pow256=BigIntType.#base10.mul(pow256,pow256);}
+                //~ for(;BigIntType.#base10.lessThan(num,pow256);pow256=BigIntType.#base10.pow256(exp*=.5));
+                //~ for(;BigIntType.#base10.lessThan(pow256,num);pow256=BigIntType.#base10.pow256(++exp));
+                //~ if(BigIntType.#base10.lessThan(num,pow256)){pow256=BigIntType.#base10.pow256(--exp);}
+                //~ exp++;
+                //~ ↑ instead of this one for loop ↓
+                for(;BigIntType.#base10.lessThan(pow256,num);exp++){pow256=BigIntType.#base10.mul(pow256,only256);}exp--;
                 this.digits=new Uint8Array(exp);
-                if(!(pow256.equalTo(b10Num))){pow256=BigIntType.#base10Pow256(--exp);}
-                for(;exp>0;pow256=BigIntType.#base10Pow256(--exp)){for(;!(b10Num.smallerThan(pow256));b10Num.#base10Sub(pow256)){this.digits[exp]++;}}
-                this.digits[0]=Number(b10Num.digits.reverse().join(''));
+                pow256=BigIntType.#base10.pow256(--exp);
+                for(;exp>0;pow256=BigIntType.#base10.pow256(--exp)){
+                    for(;!(BigIntType.#base10.lessThan(num,pow256));num=BigIntType.#base10.sub(num,pow256)){this.digits[exp]++;}
+                }
+                this.digits[0]=Number(num.reverse().join(''));
                 break;
             case 16:
                 if(!(num.every(v=>v>=0&&v<16))){throw new SyntaxError("[num] (Uint8Array) has incorrect values for base 16");}
@@ -254,196 +261,185 @@ class BigIntType{
         this.digits=this.digits.slice(0,first+1);
         return this;
     }
-    // TODO ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-    // TODO base 10 | BigIntType objects → Uint8Array only ! (sign not needed)
-    /**
-     * __makes the carry and returns new first-digit-index__ \
-     * specifically for conversion from base 10 to base 256
-     * @param {Uint8Array} num - number (original will be altered)
-     * @param {number} i - current index
-     * @param {number} first - current index of the first digit
-     * @returns {number} new index for first digit
-     */
-    static #base10MinusCarry(num,i,first){
-        let j=1;
-        while(num[i+j]===0){num[i+j++]=9;}
-        num[i+j]=num[i+j]-1;
-        if(num[i+j]===0&&i+j===first){first--;}
-        return first;
-    }
-    /**
-     * __subtracts `n` from `this` number__ \
-     * _ignoring initial sign_ \
-     * specifically for conversion from base 10 to base 256
-     * @param {BigIntType} n - subtrahend
-     * @returns {BigIntType} `this - n` (base 10)
-     */
-    #base10CalcSub(n){
-        /**@type {number} - length of the longer number */
-        const len=Math.max(this.digits.length,n.digits.length);
-        /**@type {Uint8Array} - new digits */
-        let num=new Uint8Array(len),
-            /**@type {number} - last calculation */
-            z,
-            /**@type {number} - index of first digit */
-            first=len-1,
-            /**@type {boolean} - current sign of number */
-            sign=true;
-        for(let i=first;i>=0;i--){
-            z=((this.digits[i]||0)-(n.digits[i]||0));
-            if(z===0){
-                if(i===first){first--;}
-                num[i]=0;
-            }else if(z<0){
-                if(!sign){num[i]=Math.abs(z);}
-                else if(i===first){
-                    sign=false;
-                    num[i]=Math.abs(z);
-                }else{
+    /**@description __functions specifically for conversion from base 10 to base 256__ */
+    static #base10=Object.freeze({
+        lessThan:
+        /**
+         * __check if `A` is less than `B`__ \
+         * specifically for conversion from base 10 to base 256
+         * @param {Uint8Array} A - first number
+         * @param {Uint8Array} B - second number
+         * @returns {boolean} `A < B` (base 10)
+         */
+        (A,B)=>{
+            if(A.length<B.length){return true;}
+            if(A.length>B.length){return false;}
+            for(let i=A.length-1;i>=0;i--){
+                if(A[i]<B[i]){return true;}
+                if(A[i]>B[i]){return false;}
+            }
+            return false;
+        },
+        minusCarry:
+        /**
+         * __makes the carry and returns new first-digit-index__ \
+         * specifically for conversion from base 10 to base 256
+         * @param {Uint8Array} num - number (original will be altered)
+         * @param {number} i - current index
+         * @param {number} first - current index of the first digit
+         * @returns {number} new index for first digit
+         */
+        (num,i,first)=>{
+            let j=1;
+            while(num[i+j]===0){num[i+j++]=9;}
+            num[i+j]=num[i+j]-1;
+            if(num[i+j]===0&&i+j===first){first--;}
+            return first;
+        },
+        sub:
+        /**
+         * __calculates subtraction `A - B`__ \
+         * specifically for conversion from base 10 to base 256
+         * @param {Uint8Array} A - minuend
+         * @param {Uint8Array} B - subtrahend
+         * @returns {Uint8Array} `A - B` (base 10)
+         */
+        (A,B)=>{
+            /**@type {number} - length of the longer number */
+            const len=Math.max(A.length,B.length);
+            /**@type {Uint8Array} - new digits */
+            let num=new Uint8Array(len),
+                /**@type {number} - last calculation */
+                z,
+                /**@type {number} - index of first digit */
+                first=len-1;
+            for(let i=first;i>=0;i--){
+                z=((A[i]||0)-(B[i]||0));
+                if(z===0){
+                    if(i===first){first--;}
+                    num[i]=0;
+                }else if(z<0){
                     num[i]=z+10;
-                    first=BigIntType.#base10MinusCarry(num,i,first);
-                }
-            }else{
-                if(!sign){
-                    num[i]=Math.abs(z-10);
-                    first=BigIntType.#base10MinusCarry(num,i,first);
+                    first=BigIntType.#base10.minusCarry(num,i,first);
                 }else{num[i]=z;}
             }
-        }
-        this.sign=sign;
-        this.digits=num.slice(0,(first+1)||1);
-        return this.#removeLeadingZeros();
-    }
-    /**
-     * __adds `n` to `this` number__ \
-     * _ignoring initial sign_ \
-     * specifically for conversion from base 10 to base 256
-     * @param {BigIntType} n - addend
-     * @returns {BigIntType} `this + n` (base 10)
-     */
-    #base10CalcAdd(n){
-        /**@type {number} - length of the longer number */
-        const len=Math.max(this.digits.length,n.digits.length);
-        /**@type {Uint8Array} - new digits */
-        let num=new Uint8Array(len+1),
-            /**@type {number} - last calculation */
-            z;
-        for(let i=0;i<len;i++){
-            z=(this.digits[i]||0)+(n.digits[i]||0)+num[i];
-            if(z>=10){
-                num[i]=z%10;
-                num[i+1]=1;
-            }else{num[i]=z;}
-        }
-        this.digits=num;
-        return this.#removeLeadingZeros();
-    }
-    /**
-     * __subtracts `n` from `this` number__ \
-     * specifically for conversion from base 10 to base 256
-     * @param {BigIntType} n - subtrahend
-     * @returns {BigIntType} `this - n` (base 10)
-     */
-    #base10Sub(n){
-        if(this.sign&&!n.sign){return this.#base10CalcAdd(n);}
-        if(!this.sign&&n.sign){
-            return(_obj=>{
-                this.digits=_obj.digits;
-                this.sign=_obj.sign;
-                return this;
-            })(n.copy().#base10CalcAdd(this));
-        }
-        if(!this.sign&&!n.sign){
-            return(_obj=>{
-                this.digits=_obj.digits;
-                this.sign=_obj.sign;
-                return this;
-            })(n.copy().#base10CalcSub(this));
-        }
-        return this.#base10CalcSub(n);
-    }
-    /**
-     * __adds `n` to `this` number__ \
-     * specifically for conversion from base 10 to base 256
-     * @param {BigIntType} n - addend
-     * @returns {BigIntType} `this + n` (base 10)
-     */
-    #base10Add(n){
-        if(this.sign&&!n.sign){return this.#base10CalcSub(n);}
-        if(!this.sign&&n.sign){
-            return(_obj=>{
-                this.digits=_obj.digits;
-                this.sign=_obj.sign;
-                return this;
-            })(n.copy().#base10CalcSub(this));
-        }
-        return this.#base10CalcAdd(n);
-    }
-    /**
-     * __karazuba multiplication of two numbers__ \
-     * specifically for conversion from base 10 to base 256
-     * @param {BigIntType} X - first number
-     * @param {BigIntType} Y - second number
-     * @description [!!] `X` and `Y` must be of same length and the length must be a power of 2 (pad end with `0` if needed)
-     * @returns {BigIntType} - `X * Y` (base10)
-     */
-    static #base10KarazubaMul(X,Y){
-        if(X.digits.every(v=>v===0)||Y.digits.every(v=>v===0)){return new BigIntType('0');}
-        if(X.digits.length===1){return new BigIntType(new Uint8Array([...String(X.digits[0]*Y.digits[0])].reverse()),"256");}
-        let [Xh,Xl,Yh,Yl]=[
-            X.digits.slice(Math.floor(X.digits.length*.5)),X.digits.slice(0,Math.floor(X.digits.length*.5)),
-            Y.digits.slice(Math.floor(Y.digits.length*.5)),Y.digits.slice(0,Math.floor(Y.digits.length*.5))
-        ].map(v=>new BigIntType(v,"256"));
-        let [P1,P2,P3]=[
-            BigIntType.#base10KarazubaMul(Xh,Yh),
-            BigIntType.#base10KarazubaMul(Xl,Yl),
-            Xh.copy().#base10Add(Xl).copy().#base10Mul(Yh.copy().#base10Add(Yl))
-        ];
-        //~ this * n == (P1 * b**(2*n)) + (P3 - (P1 + P2)) * b**n + P2 | **=power b=base n=digit-length of Xh/Yh/Xl/Yl or half of this/n
-        return P1.copy().times256ToThePowerOf(X.digits.length,'f').#base10Add(P3.#base10Sub(P1.copy().#base10Add(P2)).times256ToThePowerOf(Xh.digits.length,'f')).#base10Add(P2);
-    }
-    /**
-     * __multiplies two numbers__ \
-     * _using karazubas multiplication algorithm_ \
-     * specifically for conversion from base 10 to base 256
-     * @param {BigIntType} n - second number
-     * @returns {BigIntType} `this * n` (base 10)
-     */
-    #base10Mul(n){
-        if(this.digits.every(v=>v===0)||n.digits.every(v=>v===0)){this.digits=new Uint8Array(1);}
-        else{
-            /**@type {number} - power of 2 for pading `this.digits` and `n.digits` to a length that's a power of 2 */
-            const len=(()=>{let newLen=1;for(;newLen<Math.max(this.digits.length,n.digits.length);newLen*=2);return newLen;})();
-            this.digits=BigIntType.#base10KarazubaMul(
-                new BigIntType(new Uint8Array([...this.digits,...new Uint8Array(len-this.digits.length)]),"256"),
-                new BigIntType(new Uint8Array([...n.digits,...new Uint8Array(len-n.digits.length)]),"256")
-            ).digits;
-        }
-        this.sign=this.sign===n.sign;
-        return this;
-    }
-    /**
-     * __make 256 to the power of `exp`__ \
-     * specifically for conversion from base 10 to base 256
-     * @param {number} exp - exponent
-     * @returns {BigIntType} `256 ** exp` (base 10)
-     */
-    static #base10Pow256(exp){
-        /**@type {BigIntType} - starting base (256) */
-        let base=new BigIntType(new Uint8Array([6,5,2]),"256"),
-            /**@type {BigIntType} - new number */
-            num=new BigIntType('1');
-        if(exp%2){num.#base10Mul(base);}
-        exp=Math.floor(exp*.5);
-        while(exp!==0){
-            base.#base10Mul(base);
-            if(exp%2){num.#base10Mul(base);}
+            return BigIntType.#base10.removeLeadingZeros(num.slice(0,(first+1)||1));
+        },
+        add:
+        /**
+         * __calculates addition `A + B`__ \
+         * specifically for conversion from base 10 to base 256
+         * @param {Uint8Array} A - addend
+         * @param {Uint8Array} B - addend
+         * @returns {Uint8Array} `A + B` (base 10)
+         */
+        (A,B)=>{
+            /**@type {number} - length of the longer number */
+            const len=Math.max(A.length,B.length);
+            /**@type {Uint8Array} - new digits */
+            let num=new Uint8Array(len+1),
+                /**@type {number} - last calculation */
+                z;
+            for(let i=0;i<len;i++){
+                z=(A[i]||0)+(B[i]||0)+num[i];
+                if(z>=10){
+                    num[i]=z%10;
+                    num[i+1]=1;
+                }else{num[i]=z;}
+            }
+            return BigIntType.#base10.removeLeadingZeros(num);
+        },
+        zeroPad:
+        /**
+         * __pad `A` with zeros - `x` positive means pad end (digit shift left)__ \
+         * specifically for conversion from base 10 to base 256
+         * @param {Uint8Array} A - base 10 number as Uint8Array
+         * @param {number} x - amount to shift left
+         * @returns {Uint8Array} `A` with |`x`| amount of zeros on the (`x`>0?right:left) side (base 10)
+         */
+        (A,x)=>{
+            if(x>0){return new Uint8Array([...new Uint8Array(x),...A]);}
+            if(x<0){return new Uint8Array([...A,...new Uint8Array(Math.abs(x))]);}
+            return A;
+        },
+        removeLeadingZeros:
+        /**
+         * __removes leading zeros from `A`__ \
+         * specifically for conversion from base 10 to base 256
+         * @param {Uint8Array} A - base 10 number as Uint8Array
+         * @returns {Uint8Array} `A` without leading zeros (base 10)
+         */
+        (A)=>{
+            /**@type {number} - index of first non-zero digit */
+            let first=A.length-1;
+            for(;first>0&&A[first]===0;first--);
+            return A.slice(0,first+1);
+        },
+        karazubaMul:
+        /**
+         * __karazuba multiplication of two numbers__ \
+         * specifically for conversion from base 10 to base 256
+         * @param {Uint8Array} X - multiplicand
+         * @param {Uint8Array} Y - multiplicator
+         * @description [!!] `X` and `Y` must be of same length and the length must be a power of 2 (pad end with `0` if needed)
+         * @returns {Uint8Array} - `X * Y` (base10)
+         */
+        (X,Y)=>{
+            if(X.every(v=>v===0)||Y.every(v=>v===0)){return new Uint8Array(1);}
+            if(X.length===1){return new Uint8Array([...String(X[0]*Y[0])]).reverse();}
+            let[Xh,Xl,Yh,Yl]=[
+                X.slice(Math.floor(X.length*.5)),X.slice(0,Math.floor(X.length*.5)),
+                Y.slice(Math.floor(Y.length*.5)),Y.slice(0,Math.floor(Y.length*.5))
+            ];
+            let[P1,P2,P3]=[
+                BigIntType.#base10.karazubaMul(Xh,Yh),
+                BigIntType.#base10.karazubaMul(Xl,Yl),
+                BigIntType.#base10.mul(BigIntType.#base10.add(Xh,Xl),BigIntType.#base10.add(Yh,Yl))
+            ];
+            //~ A * B == (P1 * b**(2*n)) + (P3 - (P1 + P2)) * b**n + P2 | **=power b=base n=digit-length of Xh/Yh/Xl/Yl or half of A/B
+            return BigIntType.#base10.add(BigIntType.#base10.add(BigIntType.#base10.zeroPad(P1,X.length),BigIntType.#base10.zeroPad(BigIntType.#base10.sub(P3,BigIntType.#base10.add(P1,P2)),Xh.length)),P2);
+        },
+        mul:
+        /**
+         * __multiplies two numbers__ \
+         * _using karazubas multiplication algorithm_ \
+         * specifically for conversion from base 10 to base 256
+         * @param {Uint8Array} A - multiplicand
+         * @param {Uint8Array} B - multiplicator
+         * @returns {Uint8Array} `A * B` (base 10)
+         */
+        (A,B)=>{
+            if(A.every(v=>v===0)||B.every(v=>v===0)){return new Uint8Array(1);}
+            /**@type {number} - power of 2 for pading `A` and `B` to a length that's a power of 2 */
+            let len=1;
+            for(;len<Math.max(A.length,B.length);len*=2);
+            return BigIntType.#base10.removeLeadingZeros(BigIntType.#base10.karazubaMul(
+                BigIntType.#base10.zeroPad(A,A.length-len),
+                BigIntType.#base10.zeroPad(B,B.length-len)
+            ));
+        },
+        pow256:
+        /**
+         * __calculates 256 to the power of `exp`__ \
+         * specifically for conversion from base 10 to base 256
+         * @param {number} exp - exponent
+         * @returns {Uint8Array} `256 ** exp` (base 10)
+         */
+        (exp)=>{
+            /**@type {Uint8Array} - starting base (256) */
+            let base=new Uint8Array([6,5,2]),
+                /**@type {Uint8Array} - new number */
+                num=new Uint8Array([1]);
+            if(exp%2){num=BigIntType.#base10.mul(num,base);}
             exp=Math.floor(exp*.5);
-        }
-        return num;
-    };
-    // TODO base 10 | BigIntType objects → Uint8Array only ! (sign not needed)
-    // TODO ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+            while(exp!==0){
+                base=BigIntType.#base10.mul(base,base);
+                if(exp%2){num=BigIntType.#base10.mul(num,base);}
+                exp=Math.floor(exp*.5);
+            }
+            return num;
+        },
+    });
     /**
      * __makes the carry and returns new first-digit-index__ \
      * _used in `#calcDec()` and `#calcSub()`_
@@ -924,8 +920,7 @@ class BigIntType{
     }
     /* TODO's
 
-        numbers base to 256 - Uint8 [0-255] (not clamped)
-        1234 → [4,3,2,1] base 10 to [210,4] base 256 | (210+(4*256=1024))=1234 base 10
+        ~ discovered that using string[] is faster than Uint8Array despite being larger in Memory | probably js-engine dependent | I'm not changing it back tho...
 
         gcd(a,b) pow(n) root(n) maprange(n,min1,max1,min2,max2,limit?) toString(padLen?,padChar?,maxLen?)
 
@@ -949,7 +944,9 @@ class BigIntType{
 }
 
 // console.log(new BigIntType("-123456789"));//=> BigIntType { sign: false, digits: Uint8Array(4) [ 21, 205, 91, 7 ] } 79ms
-console.log(new BigIntType("74897516468423184612318345618186106160861068168168168168410681605153105610681018561608101604810616486012318751648674165401651084610168018561067818013013800086153168451614610"));
+// 519 digit base 10 string to base 256 Uint8Array in 14551ms ~ok-ish :/
+let a=Date.now();
+console.log(new BigIntType("748975164684231846123183456181861061608610681681681681684106816051531056106810185616081016048106164860123187516486741654016510846101680185610678180130138000861531684516146107489751646842318461231834561818610616086106816816816816841068160515310561068101856160810160481061648601231875164867416540165108461016801856106781801301380008615316845161461074897516468423184612318345618186106160861068168168168168410681605153105610681018561608101604810616486012318751648674165401651084610168018561067818013013800086153168451614610"),Date.now()-a);
 
 // new BigIntType('456').log()//=> [200,1]
 // .mul(new BigIntType('123').log())//=> [123]
