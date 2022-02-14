@@ -59,9 +59,14 @@ class BigIntType{
      */
     static get MAX_VALUE(){return new BigIntType(new Uint8Array(BigIntType.MAX_SIZE).fill(255),"256");}
     /* TODO
-        Uint8Array → string[] (faster but bigger in RAM)
+        reject Uint8Array go string[] (faster but bigger in RAM) - for #calc.. methods
+        more #calc methods
         need to check that second number is smaller for dec/sub and length+1 for inc/add
         maybe one hidden string[] as static attribute for calculations only ? ...
+        for karazubMul - method for padding to pow2 length P2=mul(...padPow2(A,B)) (padPow2(string[],string[]):string[2][] ~ [string[],string[]])
+        # TODO
+        outside is using BigIntType and public methods Uint8Array and with connection to inner hidden #calc methods that may use themselves also string[] 'cause it's faster...quite alot
+        also #calc methods throws are a little vaguer in information but are catched by the public methods and thrown again with more detailed information for outside debugging...
     TODO */
     /**
      * __constructs a BigIntType number__
