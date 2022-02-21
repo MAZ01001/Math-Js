@@ -49,7 +49,7 @@ class BigIntType{
     /**@type {Uint8Array} - the number as unsigned 8bit integer array (base 256) - index 0 is the 0st-digit of the number */
     #digits=new Uint8Array(1);
     /**
-     * @returns {Uint8Array} a copy of the number as unsigned 8bit integer array (base 256) - index 0 is the 0st-digit of the number
+     * @returns {Uint8Array} a copy of the digits as an unsigned 8bit integer array (base 256) - index 0 is the 0st-digit of the number
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     get digits(){return this.#digits.slice();}
@@ -58,6 +58,12 @@ class BigIntType{
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     static get MAX_VALUE(){return new BigIntType(new Uint8Array(BigIntType.MAX_SIZE).fill(255),"256");}
+    /**
+     * __print as Braille string to see why this is funny__
+     * @returns {BigIntType} some random funny number
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static get HelloThere(){return new BigIntType(new Uint8Array([0,1,0,0,0,1,0,0,1,3,0,0,0,1,0,1,0,1,0,1,0,0]),"256");}
     /**
      * __constructs a BigIntType number__
      * @param {string|boolean[]|Uint8Array} num - an integer - _default `'1'`_
@@ -177,6 +183,19 @@ class BigIntType{
         })(new BigIntType(this.digits,"256"));
     }
     /**
+     * __set `this` number equal to `n`__
+     * @param {BigIntType} n - number to set equal to (copy values from)
+     * @returns {BigIntType} `this = n`
+     * @throws {TypeError} - if `n` is not an instance of `BigIntType`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    setEqualTo(n){
+        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
+        this.#digits=n.digits;
+        this.#sign=n.sign;
+        return this;
+    }
+    /**
      * __sets `this` sign positive__
      * @returns {BigIntType} `this` number
      */
@@ -187,9 +206,9 @@ class BigIntType{
      */
     neg(){this.#sign=!this.#sign;return this;}
     /**
-     * __determines if `this` number is smaller than another number__
-     * @param {BigIntType} n - the other number to compare to
-     * @returns {boolean} if `this` number is smaller than `n` or not
+     * __determines if `this` number is smaller than `n`__
+     * @param {BigIntType} n - the second number for comparison
+     * @returns {boolean} `this < n`
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      */
     smallerThan(n){
@@ -215,9 +234,9 @@ class BigIntType{
         }
     }
     /**
-     * __determines if `this` number is bigger than another number__
-     * @param {BigIntType} n - the other number to compare to
-     * @returns {boolean} if `this` number is bigger than `n` or not
+     * __determines if `this` number is bigger than `n`__
+     * @param {BigIntType} n - the second number for comparison
+     * @returns {boolean} `this > n`
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      */
     biggerThan(n){
@@ -243,9 +262,9 @@ class BigIntType{
         }
     }
     /**
-     * __determines if `this` number is equal to another number__
-     * @param {BigIntType} n - the other number to compare to
-     * @returns {boolean} if `this` number is equal to `n` or not
+     * __determines if `this` number is equal to `n`__
+     * @param {BigIntType} n - the second number for comparison
+     * @returns {boolean} `this == n`
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      */
     equalTo(n){
@@ -255,15 +274,36 @@ class BigIntType{
         return this.#digits.every((value,index)=>value===n.#digits[index]);
     }
     /**
-     * __removes (unnecessary) leading zeros from `this` number__
-     * @returns {BigIntType} - `this` number after removing all leading zeros
+     * __determines if `this` number is bigger or equal to `n`__
+     * @param {BigIntType} n - the second number for comparison
+     * @returns {boolean} `this >= n`
+     * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      */
-    #removeLeadingZeros(){
+    biggerOrEqualTo(n){
+        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
+        return !(this.smallerThan(n));
+    }
+    /**
+     * __determines if `this` number is smaller or equal to `n`__
+     * @param {BigIntType} n - the second number for comparison
+     * @returns {boolean} `this <= n`
+     * @throws {TypeError} - if `n` is not an instance of `BigIntType`
+     */
+    smallerOrEqualTo(n){
+        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
+        return !(this.biggerThan(n));
+    }
+    /**
+     * __removes (unnecessary) leading zeros from `digits`__
+     * @param {string[]} digits - digits-array (original will be altered)
+     * @returns {string[]} `digits` after removing all leading zeros
+     */
+    static #removeLeadingZeros(digits){
         /**@type {number} - index of first non-zero digit (from left)*/
-        let first=this.#digits.length-1;
-        for(;first>0&&this.#digits[first]===0;first--);
-        this.#digits=this.#digits.slice(0,first+1);
-        return this;
+        let first=digits.length-1;
+        for(;first>0&&digits[first]==='0';first--);
+        digits.splice(first+1);
+        return digits;
     }
     /**@description __functions specifically for the conversion from base 10 to base 256__ */
     static #base10=Object.freeze({
@@ -306,90 +346,98 @@ class BigIntType{
     });
     /**
      * __applies the negative carry and returns new first-digit-index__ \
-     * _used in `#calcDec()` and `#calcSub()`_
-     * @param {Uint8Array} num - digits-array (original will be altered)
+     * _used in `#calcDec()` and `#calcSub()`_ \
+     * does not remove leading zeros
+     * @param {string[]} digits - digits-array (original will be altered)
      * @param {number} i - current index
      * @param {number} first - current index of the first digit
      * @returns {number} new index for first digit
      */
-    static #minusCarry(num,i,first){
+    static #minusCarry(digits,i,first){
         let j=1;
-        for(;num[i+j]===0;num[i+j++]=255);//~ technically --num[i+j++] would work 'cause the Uint8Array loops from 0 back to 255
-        return(--num[i+j]===0&&i+j===first)?--first:first;
+        for(;digits[i+j]==='0';digits[i+j++]="255");
+        digits[i+j]=String(Number(digits[i+j])-1);
+        return(digits[i+j]==='0'&&i+j===first)?--first:first;
     }
     /**
-     * __increment `this` number by `1`__ \
+     * __increment `digits` once__ \
      * _ignoring  initial sign_ \
-     * _modifies the original_
-     * @returns {BigIntType} `this` number after incrementing
-     * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     * does not remove leading zeros
+     * @param {string[]} digits - digits-array (original will be altered)
+     * @returns {string[]} digits-array after incrementing
      */
-    #calcInc(){
-        /**@type {Uint8Array} - array for temporary storage */
-        let num=new Uint8Array(this.#digits.length+1),
-            /**@type {number} - last calculation */
-            z;
-        num[0]++;
-        for(let i=0;i<this.#digits.length;i++){
-            z=this.#digits[i]+num[i];
-            if(z>=256){
-                num[i]=z%256;
-                num[i+1]=1;
-            }else{num[i]=z;}
+    static #calcInc(digits){
+        digits[0]=String(Number(digits[0])+1);
+        for(let i=0;i<digits.length;i++){
+            if(Number(digits[i])>=256){
+                digits[i]=String(Number(digits[i])%256);
+                digits[i+1]='1';
+            }else{break;}
         }
-        if(num.length>1&&num.length-(num[num.length-1]===0?1:0)>BigIntType.MAX_SIZE){throw new RangeError(`incrementing [n] would result in a number longer than [MAX_SIZE]`);}
-        this.#digits=num[num.length-1]===0?num.slice(-1):num;
-        return this;
+        return digits;
     }
     /**
      * __decrement `this` number by `1`__ \
      * _ignoring  initial sign_ \
+     * does not remove leading zeros
+     * @param {string[]} digits - digits-array (original will be altered)
+     * @returns {{sign:boolean,digits:string[]}} `digits` and sign after decrementing
+     */
+    static #calcDec(digits){
+        /**@type {boolean} - sign for digits */
+        let sign=true;
+        digits[0]=String(Number(digits[0])-1);
+        if(digits[0]==="-1"){
+            if(digits.length===1){
+                sign=false;
+                digits[0]='1';
+            }else{
+                digits[0]='255';
+                BigIntType.#minusCarry(digits,0,digits.length-1);
+            }
+        }
+        return Object.freeze({sign:sign,digits:digits});
+    }
+    /**
+     * __increments `this` number once__ \
      * _modifies the original_
-     * @returns {BigIntType} `this` number after decrementing
+     * @returns {BigIntType} `++ this`
+     * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    #calcDec(){//TODO base 256
-        /**@type {number} - current index of the first digit */
-        let first=this.#digits.length-1,
-            /**@type {boolean} - current sign of number */
-            sign=true,
-            /**@type {number} - last calculation for current index */
-            z=(this.#digits[0]||0)-1,
-            /**@type {string[]} - array for temporary storage */
-            _tmp=Array.from(this.#digits,String);
-        if(z===0){
-            if(first===0){first--;}
-            _tmp[0]='0';
-        }else if(z===-1){
-            if(first===0){
-                sign=false;
-                _tmp[0]='1';
-            }else{
-                _tmp[0]='9';
-                first=BigIntType.#minusCarry(_tmp,0,first);
-            }
-        }else{_tmp[0]=String(z);}
-        this.#sign=sign;
-        this.#digits=Uint8Array.from(_tmp.slice(0,(first+1)||1));
+    inc(){
+        /**@type {string[]} - digits-array */
+        let _tmp=Array.from(this.#digits,String);
+        if(this.#sign){this.#digits=new Uint8Array(BigIntType.#removeLeadingZeros(BigIntType.#calcInc(_tmp)));}
+        else{
+            (({sign,digits})=>{
+                this.#digits=new Uint8Array(BigIntType.#removeLeadingZeros(digits));
+                this.#sign=!sign;
+            })(BigIntType.#calcDec(_tmp));
+        }
+        if(this.#digits.length>BigIntType.MAX_SIZE){throw new RangeError("[inc] would result in a number longer than [MAX_SIZE]");}
         return this;
     }
     /**
-     * __increments `this` number by `1`__ \
+     * __decrements `this` number once__ \
      * _modifies the original_
-     * @returns {BigIntType} `this` number after incrementing
+     * @returns {BigIntType} `-- this`
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    inc(){return this.#sign?this.#calcInc():this.#calcDec().neg();}
-    /**
-     * __decrements `this` number by `1`__ \
-     * _modifies the original_
-     * @returns {BigIntType} `this` number after decrementing
-     * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    dec(){return this.#sign?this.#calcDec():this.#calcAdd();}
+    dec(){
+        /**@type {string[]} - digits-array */
+        let _tmp=Array.from(this.#digits,String);
+        if(this.#sign){
+            (({sign,digits})=>{
+                this.#digits=new Uint8Array(BigIntType.#removeLeadingZeros(digits));
+                this.#sign=sign;
+            })(BigIntType.#calcDec(_tmp));
+        }else{this.#digits=new Uint8Array(BigIntType.#removeLeadingZeros(BigIntType.#calcInc(_tmp)));}
+        if(this.#digits.length>BigIntType.MAX_SIZE){throw new RangeError("[dec] would result in a number longer than [MAX_SIZE]");}
+        return this;
+    }
+    //TODO ↓ base 256 & string[] for #calc ! also change error/throw behavior (see above)
     /**
      * __adds two numbers together__ \
      * _ignoring initial sign_ \
@@ -400,7 +448,7 @@ class BigIntType{
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    #calcAdd(n){//TODO base 256
+    #calcAdd(n){
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
         /**@type {string[]} - array for temporary storage*/
         let _tmp=[];
@@ -427,7 +475,7 @@ class BigIntType{
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    #calcSub(n){//TODO base 256
+    #calcSub(n){
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
         /**@type {number} - length of the longer number */
         const len=Math.max(this.#digits.length,n.#digits.length);
@@ -506,7 +554,7 @@ class BigIntType{
      * @throws {SyntaxError} - if `rounding` is not a valid option (see `rounding`s doc.)
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    half(rounding='c'){//TODO base 256
+    half(rounding='c'){
         rounding=String(rounding);if(!/^(c|ceil|f|floor)$/.test(rounding)){throw new SyntaxError("[rounding] is not a valid option");}
         if(this.#digits.length===1&&this.#digits[0]===0){return this;}
         /**@type {string[]} - array for temporary storage */
@@ -534,7 +582,7 @@ class BigIntType{
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    double(){//TODO base 256
+    double(){
         /**@type {string[]} - array for temporary storage */
         let _tmp=['0'],
             /**@type {number} - last calculation */
@@ -563,7 +611,7 @@ class BigIntType{
      * @throws {SyntaxError} - if `rounding` is not a valid option (see `rounding`s doc.)
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    div(n,rounding='r'){//TODO base 256
+    div(n,rounding='r'){
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
         rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[rounding] is not a valid option");}
         // dividend / divisor = quotient + remainder / divisor
@@ -840,8 +888,8 @@ class BigIntType{
     */
 }
 
-console.log((({sign,digits})=>({sign,digits}))(new BigIntType("12345649061847658743611234564906184765874361876734659431587645014856782195644643266854326514266548265442656816546542654265665426542657426565365427654635654646546546542765876734659431587645014856782195644643266123456490618476587436187673465943158764501485678219564464326685432651426654826123456490618476587436187673465943158764501485678219564464326685432651426654826544265681654654265426566542654265742656536542765463565464654654654276554426568165465426542656654265426574265653654276546356546465465465427065854032")));
-// 512 digit base 10 string to base 256 Uint8Array(213) in 99ms finally faster :D
+// console.log((({sign,digits})=>({sign,digits}))(new BigIntType("12345649061847658743611234564906184765874361876734659431587645014856782195644643266854326514266548265442656816546542654265665426542657426565365427654635654646546546542765876734659431587645014856782195644643266123456490618476587436187673465943158764501485678219564464326685432651426654826123456490618476587436187673465943158764501485678219564464326685432651426654826544265681654654265426566542654265742656536542765463565464654654654276554426568165465426542656654265426574265653654276546356546465465465427065854032")));
+//~ 512 digit base 10 string to base 256 Uint8Array(213) in 99ms finally faster :D
 const a=Date.now();
 let num=new BigIntType(new Uint8Array([6,247,252,93,6,34,21,134,230,3,176,174,134,177,34,22,122,210,6,22,210,6,36,53,123,6,35,123,142,6,31]),256),
     num2=new BigIntType(new Uint8Array([58,237,133,133,61,65,65,65,122,142,146,100,177,35,91,75,241,139,246,28,11,158,253,22,230,253,253,200]),256),
