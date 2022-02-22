@@ -381,7 +381,7 @@ class BigIntType{
      * _ignoring  initial sign_ \
      * does not remove leading zeros
      * @param {string[]} digits - digits-array (original will be altered)
-     * @returns {{sign:boolean,digits:string[]}} `digits` and sign after decrementing
+     * @returns {Readonly<{sign:boolean;digits:string[]}>} `digits` and sign after decrementing
      */
     static #calcDec(digits){
         /**@type {boolean} - sign for digits */
@@ -437,81 +437,62 @@ class BigIntType{
         if(this.#digits.length>BigIntType.MAX_SIZE){throw new RangeError("[dec] would result in a number longer than [MAX_SIZE]");}
         return this;
     }
-    //TODO ↓ base 256 & string[] for #calc ! also change error/throw behavior (see above)
     /**
      * __adds two numbers together__ \
      * _ignoring initial sign_ \
-     * _modifies the original_
-     * @param {BigIntType} n - second number for addition
-     * @returns {BigIntType} `this` number after addition
-     * @throws {TypeError} - if `n` is not an instance of `BigIntType`
-     * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     * does not remove leading zeros
+     * @param {string[]} A - first addend digits-array (original will be altered)
+     * @param {string[]} B - second addend digits-array
+     * @returns {string[]} `A + B` (modified `A`)
      */
-    #calcAdd(n){
-        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
-        /**@type {string[]} - array for temporary storage*/
-        let _tmp=[];
-        /**@type {number} - length of the longer number */
-        const len=Math.max(this.#digits.length,n.#digits.length);
+    static #calcAdd(A,B){
+        /**@type {number} - length of the longer array */
+        const len=Math.max(A.length,B.length);
         for(let i=0;i<len;i++){
-            _tmp[i]=String((this.#digits[i]||0)+(n.#digits[i]||0)+(Number(_tmp[i])||0));
-            if(Number(_tmp[i])>9){
-                _tmp[i]=String(Number(_tmp[i])%10);
-                _tmp[i+1]='1';
+            A[i]=String(Number(A[i]||0)+Number(B[i]||0));
+            if(Number(A[i])>255){
+                A[i]=String(Number(A[i])%256);
+                A[i+1]='1';
             }
         }
-        if(_tmp.length>1&&_tmp[_tmp.length-1]==='0'){_tmp.pop();}
-        if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`additive calculation with [n] would result in a number longer than [MAX_SIZE]`);}
-        this.#digits=Uint8Array.from(_tmp);
-        return this;
+        return A;
     }
     /**
      * __subtracts two numbers from one another__ \
      * _ignoring initial sign_ \
-     * _modifies the original_
-     * @param {BigIntType} n - second number for subtraction (subtrahend)
-     * @returns {BigIntType} `this` number after subtraction
-     * @throws {TypeError} - if `n` is not an instance of `BigIntType`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     * does not remove leading zeros
+     * @param {string[]} A - minuend digits-array (original will be altered)
+     * @param {string[]} B - subtrahend digits-array
+     * @returns {Readonly<{sign:boolean;digits:string[]}>} `A - B` (modified `A` with sign)
      */
-    #calcSub(n){
-        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not a BigIntType");}
+    static #calcSub(A,B){
         /**@type {number} - length of the longer number */
-        const len=Math.max(this.#digits.length,n.#digits.length);
+        const len=Math.max(A.length,B.length);
         /**@type {number} - current index of the first digit */
         let first=len-1,
             /**@type {boolean} - current sign of number */
-            sign=true,
-            /**@type {number} - last calculation for current index */
-            z,
-            /**@type {string[]} - array for temporary storage */
-            _tmp=[];
+            sign=true;
         for(let i=first;i>=0;i--){
-            z=((this.#digits[i]||0)-(n.#digits[i]||0));
-            if(z===0){
+            A[i]=String(Number(A[i]||0)-Number(B[i]||0));
+            if(A[i]==='0'){
                 if(i===first){first--;}
-                _tmp[i]='0';
-            }else if(z<0){
-                if(!sign){_tmp[i]=String(Math.abs(z));}
+            }else if(A[i][0]==='-'){//~ <0
+                if(!sign){A[i]=A[i].substring(1);}//~ abs()
                 else if(i===first){
                     sign=false;
-                    _tmp[i]=String(Math.abs(z));
+                    A[i]=A[i].substring(1);//~ abs()
                 }else{
-                    _tmp[i]=String(z+10);
-                    first=BigIntType.#minusCarry(_tmp,i,first);
+                    A[i]=String(Number(A[i])+256);
+                    first=BigIntType.#minusCarry(A,i,first);
                 }
-            }else{
-                if(!sign){
-                    _tmp[i]=String(Math.abs(z-10));
-                    first=BigIntType.#minusCarry(_tmp,i,first);
-                }else{_tmp[i]=String(z);}
+            }else if(!sign){
+                A[i]=String(Math.abs(Number(A[i])-256));
+                first=BigIntType.#minusCarry(A,i,first);
             }
         }
-        this.#sign=sign;
-        this.#digits=Uint8Array.from(_tmp.slice(0,(first+1)||1));
-        return this;
+        return Object.freeze({sign:sign,digits:A});
     }
+    //TODO ↓ base 256 & string[] for #calc !static now! also change error/throw behavior (see above)
     /**
      * __adds another number to `this` one__ \
      * _modifies the original_
