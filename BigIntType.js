@@ -749,29 +749,23 @@ class BigIntType{
         if(this.isOdd()&&(rounding==='c'||rounding==="ceil")){return this.bitShiftR(1).inc();}
         else{return this.bitShiftR(1);}
     }
-    //TODO ↓ base 256 & string[] for #calc !static now! also change error/throw behavior (see above)
     /**
      * __calculates double of `this` number__ \
      * _modifies the original_
-     * @returns {BigIntType} `this` number after doubling
+     * @returns {BigIntType} `this * 2` (`this` modified)
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     double(){
-        /**@type {string[]} - array for temporary storage */
-        let _tmp=['0'],
-            /**@type {number} - last calculation */
-            z;
-        for(let i=0;i<this.#digits.length;i++){
-            z=Number(_tmp[i])+(this.#digits[i]<<1);
-            _tmp[i]=String(z%10);
-            _tmp[i+1]=z>=10?'1':'0';
+        try{this.bitShiftL(1);}
+        catch(error){
+            if(error instanceof RangeError){throw new RangeError(`[double] would result in a number longer than MAX_SIZE`);}
+            else{throw error;}
         }
-        if(_tmp[_tmp.length-1]==='0'){_tmp.pop();}
-        if(_tmp.length>BigIntType.MAX_SIZE){throw new RangeError(`doubling would result in a number longer than [MAX_SIZE]`);}
-        this.#digits=new Uint8Array(_tmp);
+        this.#digits=BigIntType.#removeLeadingZeros(this.#digits);
         return this;
     }
+    //TODO ↓ base 256 & string[] for #calc !static now! also change error/throw behavior (see above)
     /**
      * __divides another number from `this` one__ \
      * _modifies the original_
@@ -787,6 +781,7 @@ class BigIntType{
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     div(n,rounding='r'){
+        //? https://en.wikipedia.org/wiki/Division_algorithm#Restoring_division
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
         rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[rounding] is not a valid option");}
         // dividend / divisor = quotient + remainder / divisor
@@ -920,22 +915,6 @@ class BigIntType{
         //~ return num;
     }
     /**
-     * __multiplies `this` number with `10**x`__ \
-     * _shifts the digits by `x` amount, positive=left, with `rounding` in respect to base 10_ \
-     * ( same as `number*10**x` but for base 10 )
-     * @param {number} x - exponent - save integer
-     * @param {string} rounding - how to round when digit-shifting right _default `'r'`_
-     * + `'r'` or `"round"` auto rounds possible decimal places
-     * + `'f'` or `"floor"` rounds down possible decimal places
-     * + `'c'` or `"ceil"` rounds up possible decimal places
-     * @returns {BigIntType} - `this` number after multiplication/digit-shifts
-     * @throws {TypeError} - if `x` is not a save integer
-     * @throws {SyntaxError} - if `rounding` is not a valid option (see `rounding`s doc.)
-     * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    #times10ToThePowerOf(x,rounding='r'){return this;}//TODO ?
-    /**
      * __calculates the modulo of two numbers__
      * @param {BigIntType} n - second number - if `0` throws `RangeError`
      * @param {string} type - _default `'e'`_
@@ -951,19 +930,20 @@ class BigIntType{
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     modulo(n,type='e'){//TODO base 256
+        // TODO ?div
         if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
-        if(n.isZero()){throw new RangeError("[n] cannot divide by 0");}
-        if(this.isZero()||n.isOne()){this.#digits=new Uint8Array([0]);return this;}
-        if(n.isTwo()){this.#digits=new Uint8Array([this.#digits[0]%2]);return this;}
         type=String(type);
         if(!/^(e|euclid|t|trunc|f|floor|c|ceil|r|round)$/.test(type)){throw new SyntaxError("[type] is not a valid option");}
+        if(n.isZero()){throw new RangeError("[n] cannot divide by 0");}
+        if(this.isZero()||n.isOne()){this.#digits=new Uint8Array([0]);return this;}
+        if(n.isTwo()){this.#digits=new Uint8Array([Number(this.isOdd())]);return this;}
         let[_A,_B]=[this.copy().abs(),n.copy().abs()];
         /**@type {BigIntType} - rest */
         let R;
         if(_A.isSmallerThan(_B)){R=_A}
-        else if(_A.isEqualTo(_B)){R=new BigIntType('0');}
+        else if(_A.isEqualTo(_B)){R=new BigIntType(new Uint8Array([0]),"256");}
         else{
-            for(;!(_A.isSmallerThan(_B));_A.sub(_B));
+            for(;_A.isBiggerOrEqualTo(_B);_A.sub(_B));
             R=_A;
         }
         switch(type){
@@ -1084,78 +1064,6 @@ function byte2brailleString(bytenum){
     let out='';
     for(let i=bytenum.length-1;i>=0;i--){out+=String.fromCharCode(10240+bytenum[i]);}
     return out;
-}
-/**
- * __converts from braille string to base 256 number__
- * @param {string} braillestring - braille pattern string (base 256 char)
- * @returns {Uint8Array} - base 256 integer
- */
-function brailleString2byte(braillestring){
-    //! /^[\u2800-\u28ff]+$/
-    let bytenum=new Uint8Array(braillestring.length);
-    for(let i=0;i<bytenum.length;i++){bytenum[i]=braillestring.charCodeAt((braillestring.length-1)-i)-10240;}
-    return bytenum;
-}
-/**
- * __converts from base 16 to base 256__
- * @param {string} hexstring - base 16 (hexadecimal) integer (string)
- * @returns {Uint8Array} - base 256 integer
- */
-function hexString2byte(hexstring){
-    //! /^[0-9A-F]+$/
-    if(hexstring.length%2){hexstring='0'+hexstring;}
-    let bytenum=new Uint8Array(Math.floor(hexstring.length*.5));
-    for(let i=hexstring.length,j=0;i>0;i-=2){bytenum[j++]=Number.parseInt(hexstring.substring(i-2,i),16);}
-    return bytenum;
-}
-/**
- * __converts from base 2 to base 256__
- * @param {string} binstring - base 2 (binary) integer (string)
- * @returns {Uint8Array} - base 256 integer
- */
-function binString2byte(binstring){
-    //! /^[01]+$/
-    if(binstring.length%8>0){binstring='0'.repeat(8-(binstring.length%8))+binstring;}
-    let bytenum=new Uint8Array(Math.floor(binstring.length/8));
-    for(let i=binstring.length,j=0;i>0;i-=8){bytenum[j++]=Number.parseInt(binstring.substring(i-8,i),2);}
-    return bytenum;
-}
-/**
- * __byte number bitshift right / half__
- * @param {Uint8Array} bytenum - base 256 integer
- * @param {boolean} round - if `true` auto rounds number - default `false` → floored
- * @returns {Uint8Array} bytenum after shifting
- */
-function byteBitshiftR(bytenum,round=false){
-    let odd=Boolean(bytenum[0]&1);
-    for(let i=0;i<bytenum.length-1;i++){
-        bytenum[i]>>>=1;
-        if(bytenum[i+1]&1){bytenum[i]|=128;}
-    }
-    bytenum[bytenum.length-1]>>>=1;
-    if(round&&odd){
-        let i=0;
-        for(;bytenum[i]===255;bytenum[i++]=0);
-        if(i===bytenum.length){bytenum=new Uint8Array([...bytenum,1]);}
-        else{bytenum[i]+=1;}
-    }
-    if(bytenum[bytenum.length-1]===0){bytenum=bytenum.slice(0,bytenum.length-1);}
-    return bytenum;
-}
-/**
- * __byte number bitshift left / double__
- * @param {Uint8Array} bytenum - base 256 integer
- * @returns {Uint8Array} bytenum after shifting
- */
-function byteBitshiftL(bytenum){
-    let overflow=Boolean(bytenum[bytenum.length-1]&128);
-    for(let i=bytenum.length-1;i>0;i--){
-        bytenum[i]<<=1;
-        if(bytenum[i-1]&128){bytenum[i]|=1;}
-    }
-    bytenum[0]<<=1;
-    if(overflow){bytenum=new Uint8Array([...bytenum,1]);}
-    return bytenum;
 }
 // let n="123456789";
 // let a=decString2byte(n);
