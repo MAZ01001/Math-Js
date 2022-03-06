@@ -143,17 +143,27 @@ class BigIntType{
                 break;
             case 10:
                 if(!(num.every(v=>v>=0&&v<10))){throw new SyntaxError("[new BigIntType] num (Uint8Array) has incorrect values for base 10");}
-                num=Array.from(num,String);
-                /**@type {string[]} - digits for base 256*/
-                let b256=[];
-                for(;BigIntType.#base10.greaterOrEqual256(num);){
+                /**@type {string[]} - digits in base 10*/
+                let b10=Array.from(num,String),
+                    /**@type {string[]} - digits for base 256*/
+                    b256=[];
+                for(;b10.length>3||(b10.length===3&&(b10[2]>2||(b10[2]===2&&(b10[1]>5||(b10[1]===5&&(b10[0]>=6))))));){//~ b10 >=256
                     b256.push('0');
                     for(let i=0;i<8;i++){
-                        if(Number(num[0])&1){b256[b256.length-1]=String(Number(b256[b256.length-1])+(1<<i));}
-                        BigIntType.#base10.half(num);
+                        if(Number(b10[0])&1){b256[b256.length-1]=String(Number(b256[b256.length-1])+(1<<i));}
+                        if(b10.length===1&&b10[0]==='0');//~ b10 /2
+                        else if(b10.length===1&&b10[0]==='1'){b10[0]='0';}
+                        else{
+                            b10[0]=String(Number(b10[0])>>>1);
+                            for(let i=1;i<b10.length;i++){
+                                if(Number(b10[i])&1){b10[i-1]=String(Number(b10[i-1])+5);}
+                                b10[i]=String(Number(b10[i])>>>1);
+                            }
+                            if(b10[b10.length-1]==='0'){b10.splice(-1,1);}
+                        }
                     }
                 }
-                b256.push(num.reverse().join(''));
+                b256.push(b10.reverse().join(''));
                 this.#digits=new Uint8Array(b256);
                 break;
             case 16:
@@ -168,6 +178,47 @@ class BigIntType{
         }
         this.#sign=_sign;
         if(this.NumberOfDigits>BigIntType.MAX_SIZE){throw new RangeError(`[num] new number is longer than [MAX_SIZE]`);}
+    }
+    /**
+     * __convert `this` number to string__
+     * @param {number} base - base of number/digit string - _default `16`_
+     * + `2`      → `'0'`-`'1'` (prefix `0b`)
+     * + `10`     → `'0'`-`'9'`
+     * + `16`     → `'0'`-`'9'` & `'A'`-`'F'` (prefix `0x`)
+     * + `256`    → `'⠀'`-`'⣿'` (Unicode Braille Pattern) `0x2800`-`0x28FF`
+     * @returns {string} `this.toString(base)`
+     * @throws {SyntaxError} if `base` is not an available option
+     */
+    toString(base=16){
+        let out="";
+        switch(base){
+            case 2:out='0b';for(let i=this.NumberOfDigits-1;i>=0;i--){out+=this.#digits[i].toString(2).padStart(8,'0');}break;
+            case 10:
+                /**@type {string[]} - digit-array base 10 */
+                let b10=[];
+                for(let i=this.NumberOfDigits;i>=0;i--){
+                    for(let j=7;j>=0;j--){
+                        if(!(b10.length===1&&b10[0]==='0')){//~ b10 *=2
+                            for(let i=0,o=false;i<b10.length||o;i++){
+                                if(b10[i]==='0'&&!o){continue;}
+                                b10[i]=String((Number(b10[i])<<1)+(o?1:0));
+                                if(Number(b10[i])>=10){
+                                    b10[i]=String(Number(b10[i])-10);
+                                    o=true;
+                                }else{o=false;}
+                            }
+                        }
+                        if(this.#digits[i]&1<<j){b10[0]=String(Number(b10[0])|1);}
+                    }
+                }
+                out=b10.reverse().join('');
+                break;
+            case 16:out='0x';for(let i=this.NumberOfDigits-1;i>=0;i--){out+=this.#digits[i].toString(16).toUpperCase().padStart(2,'0');}break;
+            case 256:for(let i=this.NumberOfDigits-1;i>=0;i--){out+=String.fromCharCode(10240+this.#digits[i]);}break;
+            default:throw new SyntaxError("[toString] base is not an available option");
+        }
+        if(!this.#sign){out='-'+out;}
+        return out;
     }
     /**
      * __logs number as hex string to console and returns itself (`this`)__ \
@@ -193,26 +244,6 @@ class BigIntType{
             maxLen<this.NumberOfDigits?`.. (+${this.NumberOfDigits-maxLen} digit/s)`:''
         );
         return this;
-    }
-    /**
-     * __convert `this` number to string__
-     * @param {number} base - base of number/digit string
-     * + `2`      → `'0'`-`'1'`
-     * + `10`     → `'0'`-`'9'`
-     * + `16`     → `'0'`-`'9'` & `'A'`-`'F'`
-     * + `256`    → `'⠀'`-`'⣿'` (Unicode Braille Pattern) `0x2800`-`0x28FF`
-     * @returns {string} `this.toString(base)`
-     */
-    toString(base=16){//TODO base 10 output
-        let out="";
-        switch(base){
-            case 2:for(let i=this.NumberOfDigits;i>=0;i--){out+=this.#digits[i].toString(2).padStart(8,'0');}break;
-            case 10:throw"base 10 output not implemented jet";
-            case 16:for(let i=this.NumberOfDigits;i>=0;i--){out+=this.#digits[i].toString(16).toUpperCase().padStart(2,'0');}break;
-            case 256:for(let i=this.NumberOfDigits;i>=0;i--){out+=String.fromCharCode(10240+this.#digits[i]);}break;
-            default:throw new SyntaxError("[toString] base is not an available option");
-        }
-        return out;
     }
     /**
      * __makes a copy of `this` number__
@@ -372,45 +403,6 @@ class BigIntType{
         digits.splice(first+1);
         return digits;
     }
-    /**@description __functions specifically for the conversion from base 10 to base 256__ */
-    static #base10=Object.freeze({
-        greaterOrEqual256:
-        /**
-         * __check if `A` is greater than or equal to 256__ \
-         * specifically for conversion from base 10 to base 256
-         * @param {string[]} A - first number
-         * @returns {boolean} `A >= 256` (base 10)
-         */
-        (A)=>{
-            if(A.length<3){return false;}
-            if(A.length>3){return true;}
-            if(A[2]<2){return false;}
-            if(A[2]>2){return true;}
-            if(A[1]<5){return false;}
-            if(A[1]>5){return true;}
-            if(A[0]<6){return false;}
-            if(A[0]>6){return true;}
-            return true;
-        },
-        half:
-        /**
-         * __halfs `A` (floored)__
-         * @param {string[]} A - number (original will be altered)
-         */
-        (A)=>{
-            if(A.length===1){
-                if(A[0]==='0'){return;}
-                if(A[0]==='1'){A[0]='0';return;}
-            }
-            A[0]=String(Number(A[0])>>1);
-            for(let i=1;i<A.length;i++){
-                if(Number(A[i])&1){A[i-1]=String(Number(A[i-1])+5);}
-                A[i]=String(Number(A[i])>>1);
-            }
-            if(A[A.length-1]==='0'){A.splice(-1,1);}
-            return;
-        }
-    });
     /**
      * __applies the negative carry and returns new first-digit-index__ \
      * _used in `#calcDec()` and `#calcSub()`_ \
@@ -678,7 +670,7 @@ class BigIntType{
         if(x===0){return this;}
         for(let i=0;i<this.NumberOfDigits;i++){
             this.#digits[i]>>>=x;
-            this.#digits[i]|=((this.#digits[i+1]||0)&(2**x-1))<<(8-x);//~ add the right x bits from [i+1] to the left of [i] (8bits)
+            this.#digits[i]|=((this.#digits[i+1]||0)&((1<<x)-1))<<(8-x);//~ add the right x bits from [i+1] to the left of [i] (8bits)
         }
         this.#digits=BigIntType.#removeLeadingZeros(this.#digits);
         return this;
@@ -702,7 +694,7 @@ class BigIntType{
         this.#digits=new Uint8Array([...this.#digits,0]);
         for(let i=this.NumberOfDigits-1;i>=0;i--){
             this.#digits[i]<<=x;
-            this.#digits[i]|=((this.#digits[i-1]||0)&((2**x-1)<<(8-x)))>>>(8-x);//~ add the left x bits from [i-1] to the right of [i] (8bits)
+            this.#digits[i]|=((this.#digits[i-1]||0)&(((1<<x)-1)<<(8-x)))>>>(8-x);//~ add the left x bits from [i-1] to the right of [i] (8bits)
         }
         this.#digits=BigIntType.#removeLeadingZeros(this.#digits);
         if(this.NumberOfDigits>BigIntType.MAX_SIZE){throw new RangeError("[bitshiftL] would result in a number longer than MAX_SIZE");}
@@ -812,7 +804,7 @@ class BigIntType{
                 R[k]<<=1;
                 R[k]|=((R[k-1]||0)&(1<<7))>>>7;
             }
-            R[0]|=(A[i]&(2**j))>>>j;
+            R[0]|=(A[i]&(1<<j))>>>j;
             if(R[R.length-1]>0||!(R.some((v,n)=>R[n]<B[n]))){//~ R>=B
                 for(z=0,m=0,l=R.length-1;l>=0;l--){//~ R-=B
                     z=R[l]-(B[l]||0);
@@ -822,7 +814,7 @@ class BigIntType{
                         R[m]--;
                     }else{R[l]=z;}
                 }
-                Q[i]|=2**j;
+                Q[i]|=1<<j;
             }
         }
         return Object.freeze({quotient:BigIntType.#removeLeadingZeros(Q),remainder:BigIntType.#removeLeadingZeros(R)});
@@ -1077,3 +1069,4 @@ let num=new BigIntType(new Uint8Array([6,247,252,93,6,34,21,134,230,3,176,174,13
     num6=num.add(num2).mul(num4).sub(num5).add(num).logConsole();
 console.log("done in %ims",Date.now()-a);
 console.table([num,num2,num3,num4,num5,num6].map(({Sign,NumberOfDigits,Digits})=>({Sign,NumberOfDigits,Digits})));
+console.log(BigIntType.HelloThere.toString(256));
