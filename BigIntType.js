@@ -45,33 +45,48 @@ class BigIntType{
     /**@type {boolean} - sign of the number - `true` = positive */
     #sign=true;
     /**@returns {boolean} sign of the number - `true` = positive */
-    get sign(){return this.#sign;}
+    get Sign(){return this.#sign;}
     /**@type {Uint8Array} - the number as unsigned 8bit integer array (base 256) - index 0 is the 0st-digit of the number */
     #digits=new Uint8Array(1);
     /**
      * @returns {Uint8Array} a copy of the digits as an unsigned 8bit integer array (base 256) - index 0 is the 0st-digit of the number
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    get digits(){return this.#digits.slice();}
+    get Digits(){return this.#digits.slice();}
+    /**@returns {number} number of digits (base 256)*/
+    get NumberOfDigits(){return this.#digits.length;}
     /**
      * @returns {BigIntType} biggest possible number according to `MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     static get MAX_VALUE(){return new BigIntType(new Uint8Array(BigIntType.MAX_SIZE).fill(255),"256");}
     /**
-     * __just a funny number__
-     * _print as Braille string to see why this is funny_
-     * @returns {BigIntType} some random funny number
+     * @returns {BigIntType} "Hello There" in Braille - see `this.toString(256)`
+     * @throws {RangeError} - if current `MAX_SIZE` is to small - requires 22B
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    static get HelloThere(){return new BigIntType(new Uint8Array([0,1,0,0,0,1,0,0,1,3,0,0,0,1,0,1,0,1,0,1,0,0]),"256");}
+    static get HelloThere(){return new BigIntType(new Uint8Array([65,239,133,95,65,239,71,103,1,185,0,0,71,207,64,199,64,199,65,239,71,103]),"256");}
     /**
-     * __Infinity__ \
-     * `2**1024` ~ 1.79e308
-     * @returns {BigIntType} `2**1024`
+     * @returns {BigIntType} Infinity - `2**1024` ~ 1.79e308
+     * @throws {RangeError} - if current `MAX_SIZE` is to small - requires 129B
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    static get Infinity(){return new BigIntType(new Uint8Array([2]),"256").pow(new BigIntType(new Uint8Array([4,0]),"256"));}
+    static get Infinity(){return new BigIntType(new Uint8Array([...new Uint8Array(128),1]),"256");}
+    /**
+     * @returns {BigIntType} `0`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static get Zero(){return new BigIntType(new Uint8Array([0]),"256");}
+    /**
+     * @returns {BigIntType} `1`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static get One(){return new BigIntType(new Uint8Array([1]),"256");}
+    /**
+     * @returns {BigIntType} `2`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static get Two(){return new BigIntType(new Uint8Array([2]),"256");}
     /**
      * __constructs a BigIntType number__
      * @param {string|boolean[]|Uint8Array} num - an integer - _default `'1'`_
@@ -100,11 +115,11 @@ class BigIntType{
             case'd':case"dec":case"decimal":case"10":base=10;break;
             case'h':case"hex":case"hexadecimal":case"16":base=16;break;
             case"byte":case"256":base=256;break;
-            default:throw new SyntaxError("[base] is not an available option");
+            default:throw new SyntaxError("[new BigIntType] base is not an available option");
         }
         if(base===2&&Array.isArray(num)){
             if(num.every(v=>typeof(v)==="boolean")){num=new Uint8Array(num);}
-            else{throw new SyntaxError("[num] (array) has incorrect values for base 2");}
+            else{throw new SyntaxError("[new BigIntType] num (array) has incorrect values for base 2");}
         }
         /**@type {boolean} - if `num` is a string this will be the sign of the number (after the conversion) */
         let _sign=true;
@@ -122,12 +137,12 @@ class BigIntType{
         }
         switch(base){
             case 2:
-                if(!(num.every(v=>v===0||v===1))){throw new SyntaxError("[num] (Uint8Array) has incorrect values for base 2");}
+                if(!(num.every(v=>v===0||v===1))){throw new SyntaxError("[new BigIntType] num (Uint8Array) has incorrect values for base 2");}
                 this.#digits=new Uint8Array(Math.ceil(num.length/8));
-                for(let i=0;i<this.#digits.length;i++){this.#digits[i]=Number.parseInt(num.slice(i*8,(i+1)*8).reverse().join(''),2);}
+                for(let i=0;i<this.NumberOfDigits;i++){this.#digits[i]=Number.parseInt(num.slice(i*8,(i+1)*8).reverse().join(''),2);}
                 break;
             case 10:
-                if(!(num.every(v=>v>=0&&v<10))){throw new SyntaxError("[num] (Uint8Array) has incorrect values for base 10");}
+                if(!(num.every(v=>v>=0&&v<10))){throw new SyntaxError("[new BigIntType] num (Uint8Array) has incorrect values for base 10");}
                 num=Array.from(num,String);
                 /**@type {string[]} - digits for base 256*/
                 let b256=[];
@@ -142,17 +157,17 @@ class BigIntType{
                 this.#digits=new Uint8Array(b256);
                 break;
             case 16:
-                if(!(num.every(v=>v>=0&&v<16))){throw new SyntaxError("[num] (Uint8Array) has incorrect values for base 16");}
+                if(!(num.every(v=>v>=0&&v<16))){throw new SyntaxError("[new BigIntType] num (Uint8Array) has incorrect values for base 16");}
                 this.#digits=new Uint8Array(Math.floor(num.length/2));
-                for(let i=0;i<this.#digits.length;i++){this.#digits[i]=Number.parseInt(num.slice(i*2,(i+1)*2).reverse().join(''),2);}
+                for(let i=0;i<this.NumberOfDigits;i++){this.#digits[i]=Number.parseInt(num.slice(i*2,(i+1)*2).reverse().join(''),2);}
                 break;
             case 256:
-                if(!(num.every(v=>v>=0&&v<256))){throw new SyntaxError("[num] (Uint8Array) has incorrect values for base 256");}
+                if(!(num.every(v=>v>=0&&v<256))){throw new SyntaxError("[new BigIntType] num (Uint8Array) has incorrect values for base 256");}
                 this.#digits=num;
                 break;
         }
         this.#sign=_sign;
-        if(this.#digits.length>BigIntType.MAX_SIZE){throw new RangeError(`[num] new number is longer than [MAX_SIZE]`);}
+        if(this.NumberOfDigits>BigIntType.MAX_SIZE){throw new RangeError(`[num] new number is longer than [MAX_SIZE]`);}
     }
     /**
      * __logs number as hex string to console and returns itself (`this`)__ \
@@ -166,25 +181,45 @@ class BigIntType{
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     logConsole(maxLen=100){
-        maxLen=Number(maxLen);if(!Number.isSafeInteger(maxLen)){throw new TypeError("[maxlen] is not a save integer");}
-        if(maxLen>this.#digits.length||maxLen===0){maxLen=this.#digits.length;}
+        maxLen=Number(maxLen);if(!Number.isSafeInteger(maxLen)){throw new TypeError("[logConsole] maxLen is not a save integer");}
+        if(maxLen>this.NumberOfDigits||maxLen===0){maxLen=this.NumberOfDigits;}
         else if(maxLen<1){maxLen=1;}
         console.log(
             "[%i]: (total %i digit/s) %s%s%s",
             Date.now(),
-            this.#digits.length,
+            this.NumberOfDigits,
             this.#sign?'+':'-',
             Array.from(this.#digits.slice(-maxLen).reverse(),v=>v.toString(16).toUpperCase().padStart(2,'0')).join(' '),
-            maxLen<this.#digits.length?`.. (+${this.#digits.length-maxLen} digit/s)`:''
+            maxLen<this.NumberOfDigits?`.. (+${this.NumberOfDigits-maxLen} digit/s)`:''
         );
         return this;
+    }
+    /**
+     * __convert `this` number to string__
+     * @param {number} base - base of number/digit string
+     * + `2`      → `'0'`-`'1'`
+     * + `10`     → `'0'`-`'9'`
+     * + `16`     → `'0'`-`'9'` & `'A'`-`'F'`
+     * + `256`    → `'⠀'`-`'⣿'` (Unicode Braille Pattern) `0x2800`-`0x28FF`
+     * @returns {string} `this.toString(base)`
+     */
+    toString(base=16){//TODO base 10 output
+        let out="";
+        switch(base){
+            case 2:for(let i=this.NumberOfDigits;i>=0;i--){out+=this.#digits[i].toString(2).padStart(8,'0');}break;
+            case 10:throw"base 10 output not implemented jet";
+            case 16:for(let i=this.NumberOfDigits;i>=0;i--){out+=this.#digits[i].toString(16).toUpperCase().padStart(2,'0');}break;
+            case 256:for(let i=this.NumberOfDigits;i>=0;i--){out+=String.fromCharCode(10240+this.#digits[i]);}break;
+            default:throw new SyntaxError("[toString] base is not an available option");
+        }
+        return out;
     }
     /**
      * __makes a copy of `this` number__
      * @returns {BigIntType} a copy of `this` number
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    copy(){return this.#sign?new BigIntType(this.digits,"256"):new BigIntType(this.digits,"256").neg();}
+    copy(){return this.#sign?new BigIntType(this.Digits,"256"):new BigIntType(this.Digits,"256").neg();}
     /**
      * __set `this` number equal to `n`__
      * @param {BigIntType} n - number to set equal to (copy values from)
@@ -193,9 +228,9 @@ class BigIntType{
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     setEqualTo(n){
-        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
-        this.#digits=n.digits;
-        this.#sign=n.sign;
+        if(!(n instanceof BigIntType)){throw new TypeError("[setEqualTo] n is not an instance of BigIntType");}
+        this.#digits=n.Digits;
+        this.#sign=n.Sign;
         return this;
     }
     /**
@@ -222,17 +257,17 @@ class BigIntType{
      * __determines if `this` number is equal to 0__
      * @returns {boolean} `this === 0`
      */
-    isZero(){return(this.#digits.length===0&&this.#digits[0]===0);}
+    isZero(){return(this.NumberOfDigits===1&&this.#digits[0]===0);}
     /**
      * __determines if `this` number is equal to 1__
      * @returns {boolean} `this === 1`
      */
-    isOne(){return(this.#digits.length===0&&this.#digits[0]===1);}
+    isOne(){return(this.NumberOfDigits===1&&this.#digits[0]===1);}
     /**
      * __determines if `this` number is equal to 2__
      * @returns {boolean} `this === 2`
      */
-    isTwo(){return(this.#digits.length===0&&this.#digits[0]===2);}
+    isTwo(){return(this.NumberOfDigits===1&&this.#digits[0]===2);}
     /**
      * __determines if `this` number is smaller than `n`__
      * @param {BigIntType} n - the second number for comparison
@@ -240,21 +275,21 @@ class BigIntType{
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      */
     isSmallerThan(n){
-        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
+        if(!(n instanceof BigIntType)){throw new TypeError("[isSmallerThan] n is not an instance of BigIntType");}
         if(!this.#sign&&n.#sign){return true;}
         if(this.#sign&&!n.#sign){return false;}
         if(this.#sign){
-            if(this.#digits.length<n.#digits.length){return true;}
-            if(this.#digits.length>n.#digits.length){return false;}
-            for(let i=this.#digits.length-1;i>=0;i--){
+            if(this.NumberOfDigits<n.NumberOfDigits){return true;}
+            if(this.NumberOfDigits>n.NumberOfDigits){return false;}
+            for(let i=this.NumberOfDigits-1;i>=0;i--){
                 if(this.#digits[i]<n.#digits[i]){return true;}
                 if(this.#digits[i]>n.#digits[i]){return false;}
             }
             return false;
         }else{
-            if(this.#digits.length>n.#digits.length){return true;}
-            if(this.#digits.length<n.#digits.length){return false;}
-            for(let i=this.#digits.length-1;i>=0;i--){
+            if(this.NumberOfDigits>n.NumberOfDigits){return true;}
+            if(this.NumberOfDigits<n.NumberOfDigits){return false;}
+            for(let i=this.NumberOfDigits-1;i>=0;i--){
                 if(this.#digits[i]>n.#digits[i]){return true;}
                 if(this.#digits[i]<n.#digits[i]){return false;}
             }
@@ -262,27 +297,27 @@ class BigIntType{
         }
     }
     /**
-     * __determines if `this` number is bigger than `n`__
+     * __determines if `this` number is greater than `n`__
      * @param {BigIntType} n - the second number for comparison
      * @returns {boolean} `this > n`
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      */
-    isBiggerThan(n){
-        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
+    isGreaterThan(n){
+        if(!(n instanceof BigIntType)){throw new TypeError("[isGreaterThan] n is not an instance of BigIntType");}
         if(this.#sign&&!n.#sign){return true;}
         if(!this.#sign&&n.#sign){return false;}
         if(this.#sign){
-            if(this.#digits.length>n.#digits.length){return true;}
-            if(this.#digits.length<n.#digits.length){return false;}
-            for(let i=this.#digits.length-1;i>=0;i--){
+            if(this.NumberOfDigits>n.NumberOfDigits){return true;}
+            if(this.NumberOfDigits<n.NumberOfDigits){return false;}
+            for(let i=this.NumberOfDigits-1;i>=0;i--){
                 if(this.#digits[i]>n.#digits[i]){return true;}
                 if(this.#digits[i]<n.#digits[i]){return false;}
             }
             return false;
         }else{
-            if(this.#digits.length<n.#digits.length){return true;}
-            if(this.#digits.length>n.#digits.length){return false;}
-            for(let i=this.#digits.length-1;i>=0;i--){
+            if(this.NumberOfDigits<n.NumberOfDigits){return true;}
+            if(this.NumberOfDigits>n.NumberOfDigits){return false;}
+            for(let i=this.NumberOfDigits-1;i>=0;i--){
                 if(this.#digits[i]<n.#digits[i]){return true;}
                 if(this.#digits[i]>n.#digits[i]){return false;}
             }
@@ -296,19 +331,19 @@ class BigIntType{
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      */
     isEqualTo(n){
-        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
+        if(!(n instanceof BigIntType)){throw new TypeError("[isEqualTo] n is not an instance of BigIntType");}
         if(this.#sign!==n.#sign){return false;}
-        if(this.#digits.length!==n.#digits.length){return false;}
+        if(this.NumberOfDigits!==n.NumberOfDigits){return false;}
         return this.#digits.every((value,index)=>value===n.#digits[index]);
     }
     /**
-     * __determines if `this` number is bigger or equal to `n`__
+     * __determines if `this` number is greater or equal to `n`__
      * @param {BigIntType} n - the second number for comparison
      * @returns {boolean} `this >= n`
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      */
-    isBiggerOrEqualTo(n){
-        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
+    isGreaterOrEqualTo(n){
+        if(!(n instanceof BigIntType)){throw new TypeError("[isGreaterOrEqualTo] n is not an instance of BigIntType");}
         return !(this.isSmallerThan(n));
     }
     /**
@@ -318,8 +353,8 @@ class BigIntType{
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      */
     isSmallerOrEqualTo(n){
-        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
-        return !(this.isBiggerThan(n));
+        if(!(n instanceof BigIntType)){throw new TypeError("[isSmallerOrEqualTo] n is not an instance of BigIntType");}
+        return !(this.isGreaterThan(n));
     }
     /**
      * __removes (unnecessary) leading zeros from `digits`__
@@ -447,7 +482,7 @@ class BigIntType{
                 this.#sign=!sign;
             })(BigIntType.#calcDec(_tmp));
         }
-        if(this.#digits.length>BigIntType.MAX_SIZE){throw new RangeError("[inc] would result in a number longer than MAX_SIZE");}
+        if(this.NumberOfDigits>BigIntType.MAX_SIZE){throw new RangeError("[inc] would result in a number longer than MAX_SIZE");}
         return this;
     }
     /**
@@ -466,7 +501,7 @@ class BigIntType{
                 this.#sign=sign;
             })(BigIntType.#calcDec(_tmp));
         }else{this.#digits=new Uint8Array(BigIntType.#removeLeadingZeros(BigIntType.#calcInc(_tmp)));}
-        if(this.#digits.length>BigIntType.MAX_SIZE){throw new RangeError("[dec] would result in a number longer than MAX_SIZE");}
+        if(this.NumberOfDigits>BigIntType.MAX_SIZE){throw new RangeError("[dec] would result in a number longer than MAX_SIZE");}
         return this;
     }
     /**
@@ -603,19 +638,19 @@ class BigIntType{
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     times256ToThePowerOf(x,rounding='r'){
-        x=Number(x);if(!Number.isSafeInteger(x)){throw new TypeError("[x] is not a save integer");}
+        x=Number(x);if(!Number.isSafeInteger(x)){throw new TypeError("[times256ToThePowerOf] x is not a save integer");}
         rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[times256ToThePowerOf] rounding is not a valid option");}
         if(this.isZero()){return this;}
         if(x>0){
-            if(x+this.#digits.length>BigIntType.MAX_SIZE){throw new RangeError(`[times256ToThePowerOf] n digit-shifts would result in a number longer than MAX_SIZE`);}
+            if(x+this.NumberOfDigits>BigIntType.MAX_SIZE){throw new RangeError(`[times256ToThePowerOf] n digit-shifts would result in a number longer than MAX_SIZE`);}
             this.#digits=new Uint8Array([...new Uint8Array(x),...this.#digits]);
         }else if(x<0){
             x=Math.abs(x);
-            if(x>=this.#digits.length){
+            if(x>=this.NumberOfDigits){
                 switch(rounding){
                     case'c':case"ceil":this.#digits=new Uint8Array([1]);break;
                     case'f':case"floor":this.#digits=new Uint8Array([0]);break;
-                    case'r':case"round":this.#digits=new Uint8Array([x===this.#digits.length?Number(this.#digits[0]>=128):0]);break;
+                    case'r':case"round":this.#digits=new Uint8Array([x===this.NumberOfDigits?Number(this.#digits[0]>=128):0]);break;
                 }
             }else{
                 this.#digits=this.#digits.slice(x);
@@ -641,7 +676,7 @@ class BigIntType{
         this.times256ToThePowerOf(-(Math.floor(x/8)),'f');
         x=x%8
         if(x===0){return this;}
-        for(let i=0;i<this.#digits.length;i++){
+        for(let i=0;i<this.NumberOfDigits;i++){
             this.#digits[i]>>>=x;
             this.#digits[i]|=((this.#digits[i+1]||0)&(2**x-1))<<(8-x);//~ add the right x bits from [i+1] to the left of [i] (8bits)
         }
@@ -660,17 +695,17 @@ class BigIntType{
      */
     bitShiftL(x=1){
         x=Number(x);if(x<0||!Number.isSafeInteger(x)){throw new TypeError("[bitshiftL] x is not a positive save integer");}
-        if(Math.floor(x/8)+this.#digits.length>BigIntType.MAX_SIZE){throw new RangeError(`[bitshiftL] would result in a number longer than MAX_SIZE`);}
-        this.times256ToThePowerOf(Math.floor(x/8),'f');
+        if(Math.floor(x/8)+this.NumberOfDigits>BigIntType.MAX_SIZE){throw new RangeError(`[bitshiftL] would result in a number longer than MAX_SIZE`);}
+        this.times256ToThePowerOf(Math.ceil(x/8));
         x=x%8
         if(x===0){return this;}
         this.#digits=new Uint8Array([...this.#digits,0]);
-        for(let i=this.#digits.length-1;i>=0;i--){
+        for(let i=this.NumberOfDigits-1;i>=0;i--){
             this.#digits[i]<<=x;
             this.#digits[i]|=((this.#digits[i-1]||0)&((2**x-1)<<(8-x)))>>>(8-x);//~ add the left x bits from [i-1] to the right of [i] (8bits)
         }
         this.#digits=BigIntType.#removeLeadingZeros(this.#digits);
-        if(this.#digits.length>BigIntType.MAX_SIZE){throw new RangeError("[bitshiftL] would result in a number longer than MAX_SIZE");}
+        if(this.NumberOfDigits>BigIntType.MAX_SIZE){throw new RangeError("[bitshiftL] would result in a number longer than MAX_SIZE");}
         return this;
     }
     /**
@@ -683,9 +718,9 @@ class BigIntType{
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     bitAND(n){
-        if(!(n instanceof BigIntType)){throw new TypeError("[sub] n is not an instance of BigIntType");}
-        if(this.#digits.length<n.#digits.length){this.#digits=new Uint8Array([...this.#digits,...new Uint8Array(n.#digits.length-this.#digits.length)]);}
-        for(let i=0;i<this.#digits.length;i++){this.#digits[i]&=(n.#digits[i]||0);}
+        if(!(n instanceof BigIntType)){throw new TypeError("[bitAND] n is not an instance of BigIntType");}
+        if(this.NumberOfDigits<n.NumberOfDigits){this.#digits=new Uint8Array([...this.#digits,...new Uint8Array(n.NumberOfDigits-this.NumberOfDigits)]);}
+        for(let i=0;i<this.NumberOfDigits;i++){this.#digits[i]&=(n.#digits[i]||0);}
         this.#digits=BigIntType.#removeLeadingZeros(this.#digits);
         return this;
     }
@@ -699,9 +734,9 @@ class BigIntType{
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     bitOR(n){
-        if(!(n instanceof BigIntType)){throw new TypeError("[sub] n is not an instance of BigIntType");}
-        if(this.#digits.length<n.#digits.length){this.#digits=new Uint8Array([...this.#digits,...new Uint8Array(n.#digits.length-this.#digits.length)]);}
-        for(let i=0;i<this.#digits.length;i++){this.#digits[i]|=(n.#digits[i]||0);}
+        if(!(n instanceof BigIntType)){throw new TypeError("[bitOR] n is not an instance of BigIntType");}
+        if(this.NumberOfDigits<n.NumberOfDigits){this.#digits=new Uint8Array([...this.#digits,...new Uint8Array(n.NumberOfDigits-this.NumberOfDigits)]);}
+        for(let i=0;i<this.NumberOfDigits;i++){this.#digits[i]|=(n.#digits[i]||0);}
         this.#digits=BigIntType.#removeLeadingZeros(this.#digits);
         return this;
     }
@@ -715,9 +750,9 @@ class BigIntType{
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     bitXOR(n){
-        if(!(n instanceof BigIntType)){throw new TypeError("[sub] n is not an instance of BigIntType");}
-        if(this.#digits.length<n.#digits.length){this.#digits=new Uint8Array([...this.#digits,...new Uint8Array(n.#digits.length-this.#digits.length)]);}
-        for(let i=0;i<this.#digits.length;i++){this.#digits[i]^=(n.#digits[i]||0);}
+        if(!(n instanceof BigIntType)){throw new TypeError("[bitXOR] n is not an instance of BigIntType");}
+        if(this.NumberOfDigits<n.NumberOfDigits){this.#digits=new Uint8Array([...this.#digits,...new Uint8Array(n.NumberOfDigits-this.NumberOfDigits)]);}
+        for(let i=0;i<this.NumberOfDigits;i++){this.#digits[i]^=(n.#digits[i]||0);}
         this.#digits=BigIntType.#removeLeadingZeros(this.#digits);
         return this;
     }
@@ -729,7 +764,7 @@ class BigIntType{
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     bitNOT(){
-        for(let i=0;i<this.#digits.length;i++){this.#digits[i]=~this.#digits[i];}
+        for(let i=0;i<this.NumberOfDigits;i++){this.#digits[i]=~this.#digits[i];}
         this.#digits=BigIntType.#removeLeadingZeros(this.#digits);
         return this;
     }
@@ -758,14 +793,40 @@ class BigIntType{
      */
     double(){
         try{this.bitShiftL(1);}
-        catch(error){
-            if(error instanceof RangeError){throw new RangeError(`[double] would result in a number longer than MAX_SIZE`);}
-            else{throw error;}
-        }
-        this.#digits=BigIntType.#removeLeadingZeros(this.#digits);
+        catch(error){throw (error instanceof RangeError)?new RangeError(`[double] would result in a number longer than MAX_SIZE`):error;}
         return this;
     }
-    //TODO ↓ base 256 & string[] for #calc !static now! also change error/throw behavior (see above)
+    /**
+     * __divides one number from another one__ \
+     * _ignoring initial sign_ \
+     * [!] `A`>`B`>0
+     * @param {Uint8Array} A - dividend (>`B`)
+     * @param {Uint8Array} B - divisor (>0)
+     * @returns {Readonly<{quotient:Uint8Array;remainder:Uint8Array}>} `A / B` (quotient with remainder)
+     */
+    static #calcDivRest(A,B){
+        let Q=new Uint8Array(A.length),
+            R=new Uint8Array(B.length+1);
+        for(let i=A.length-1,j=6,k=0,z=0,m=0,l=0;i>=0;(j===0?(i--,j=7):j--)){
+            for(k=R.length-1;k>=0;k--){//~ R<<=1
+                R[k]<<=1;
+                R[k]|=((R[k-1]||0)&(1<<7))>>>7;
+            }
+            R[0]|=(A[i]&(2**j))>>>j;
+            if(R[R.length-1]>0||!(R.some((v,n)=>R[n]<B[n]))){//~ R>=B
+                for(z=0,m=0,l=R.length-1;l>=0;l--){//~ R-=B
+                    z=R[l]-(B[l]||0);
+                    if(z<0){
+                        R[l]=256+z;
+                        for(m=l+1;R[m]===0;R[m++]=255);
+                        R[m]--;
+                    }else{R[l]=z;}
+                }
+                Q[i]|=2**j;
+            }
+        }
+        return Object.freeze({quotient:BigIntType.#removeLeadingZeros(Q),remainder:BigIntType.#removeLeadingZeros(R)});
+    }
     /**
      * __divides another number from `this` one__ \
      * _modifies the original_
@@ -781,37 +842,80 @@ class BigIntType{
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     div(n,rounding='r'){
-        //? https://en.wikipedia.org/wiki/Division_algorithm#Restoring_division
-        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
-        rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[rounding] is not a valid option");}
+        if(!(n instanceof BigIntType)){throw new TypeError("[div] n is not an instance of BigIntType");}
+        rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[div] rounding is not a valid option");}
         // dividend / divisor = quotient + remainder / divisor
-        if(n.isZero()){throw new RangeError("[n] is 0");}
+        if(n.isZero()){throw new RangeError("[div] n is 0");}
         if(this.isZero()||n.isOne()){return n.#sign?this:this.neg();}
-        if(n.#digits.length>1&&n.#digits.every((v,i,a)=>(i<a.length-1&&v===0)||(i===a.length-1&&v===1))){this.times256ToThePowerOf(1-n.#digits.length,rounding);}
+        if(n.NumberOfDigits>1&&n.#digits.every((v,i,a)=>(i<a.length-1&&v===0)||(i===a.length-1&&v===1))){this.times256ToThePowerOf(1-n.NumberOfDigits,rounding);}
         else if(this.copy().abs().isSmallerThan(n.copy().abs())){
             switch(rounding){
                 case'c':case"ceil":this.#digits=new Uint8Array([1]);break;
                 case'f':case"floor":this.#digits=new Uint8Array([0]);break;
-                case'r':case"round":this.#digits=new Uint8Array([n.isBiggerThan(this.copy().abs().double())?0:1]);break;
+                case'r':case"round":this.#digits=new Uint8Array([n.copy().abs().isGreaterThan(this.copy().abs().double())?0:1]);break;
             }
         }else if(this.isEqualTo(n)){this.#digits=new Uint8Array([1]);}
         else{
-            /**@type {BigIntType} - rest */
-            let r=this.copy().abs(),
-                /**@type {BigIntType} - quotient */
-                q=new BigIntType('0');
-            for(;!(r.isSmallerThan(n));q.inc()){r.sub(n)};
+            /**@type {BigIntType[]}*/
+            let [q,r]=(({quotient,remainder})=>[
+                new BigIntType(quotient,"256"),
+                new BigIntType(remainder,"256")
+            ])(BigIntType.#calcDivRest(this.#digits,n.#digits));
             switch(rounding){
-                case'c':case"ceil":this.#digits=r.isZero()?q.#digits:q.inc().#digits;break;
+                case'c':case"ceil":
+                    if(!(r.isZero())){q.inc();}
+                    this.#digits=q.#digits;
+                    break;
                 case'f':case"floor":this.#digits=q.#digits;break;
-                case'r':case"round":this.#digits=r.double().isSmallerThan(q)?q.#digits:(r.isZero()?q.#digits:q.inc().#digits);break;
+                case'r':case"round":
+                    if(r.isZero()||r.copy().double().isSmallerThan(q)){this.#digits=q.#digits;}
+                    else{this.#digits=q.inc().#digits;}
+                    break;
             }
         }
         this.#sign=!(this.#sign^n.#sign);
         return this;
     }
     /**
-     * __Karazubas Multiplication Algorithm__ \
+     * __calculates the modulo of two numbers__
+     * @param {BigIntType} n - second number (!=0)
+     * @param {string} type - _default `'e'`_
+     * + `'e'` or `"euclid"` for euclidean modulo remainder
+     * + `'t'` or `"trunc"` for truncated modulo remainder - (like js `%`operator)
+     * + `'f'` or `"floor"` for floored modulo remainder
+     * + `'c'` or `"ceil"` for ceiled modulo remainder
+     * + `'r'` or `"round"` for rounded modulo remainder
+     * @returns {BigIntType} the modulo according to `type` as a new `BigIntType` number
+     * @throws {TypeError} - if `n` is not a `BigIntType`
+     * @throws {RangeError} - if `n` is `0`
+     * @throws {SyntaxError} - if `type` is not a valid option
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    modulo(n,type='e'){
+        if(!(n instanceof BigIntType)){throw new TypeError("[modulo] n is not an instance of BigIntType");}
+        type=String(type);
+        if(!/^(e|euclid|t|trunc|f|floor|c|ceil|r|round)$/.test(type)){throw new SyntaxError("[modulo] type is not a valid option");}
+        if(n.isZero()){throw new RangeError("[modulo] n cannot divide by 0");}
+        if(this.isZero()||n.isOne()){this.#digits=new Uint8Array([0]);return this;}
+        if(n.isTwo()){this.#digits=new Uint8Array([Number(this.isOdd())]);return this;}
+        let[_A,_B]=[this.copy().abs(),n.copy().abs()];
+        /**@type {BigIntType} - rest */
+        let R;
+        if(_A.isSmallerThan(_B)){R=_A}
+        else if(_A.isEqualTo(_B)){R=BigIntType.Zero;}
+        else{R=new BigIntType(BigIntType.#calcDivRest(_A.#digits,_B.#digits).remainder,"256");}
+        switch(type){
+            case'e':case"euclid":this.setEqualTo(this.#sign?R:_B.sub(R));break;
+            case't':case"trunc":this.setEqualTo(this.#sign?R:R.neg());break;
+            case'f':case"floor":this.setEqualTo(n.#sign?(this.#sign?R:_B.sub(R)):(this.#sign?R.sub(_B):R.neg()));break;
+            case'c':case"ceil":this.setEqualTo(n.#sign?(this.#sign?R.sub(_B):R.neg()):(this.#sign?R:_B.sub(R)));break;
+            case'r':case"round":this.setEqualTo(R.copy().sub(_B.copy().half('c')).#sign?(this.#sign?R.sub(_B):_B.sub(R)):(this.#sign?R:R.neg()));break;
+        }
+        return this;
+    }
+    //TODO ↓ base 256 & string[] for #calc !static now! also change error/throw behavior (see above)
+    /**
+     * __Karatsubas Multiplication Algorithm__ \
      * _with recursion_ \
      * for `BigIntType.mul`
      * @param {BigIntType} X - number for multiplication
@@ -822,12 +926,12 @@ class BigIntType{
      * @throws {RangeError} - if some number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    static #karazubaMul(X,Y){
-        if(!(X instanceof BigIntType)){throw new TypeError("[X] is not an instance of BigIntType");}
-        if(!(Y instanceof BigIntType)){throw new TypeError("[Y] is not an instance of BigIntType");}
+    static #karatsubaMul(X,Y){
+        if(!(X instanceof BigIntType)){throw new TypeError("[karatsubaMul] X is not an instance of BigIntType");}
+        if(!(Y instanceof BigIntType)){throw new TypeError("[karatsubaMul] Y is not an instance of BigIntType");}
         if(X.#digits.every(v=>v===0)||Y.#digits.every(v=>v===0)){return new BigIntType('0');}
         //~ assume here that`X` and `Y` are of same length and the length is a power of 2
-        if(X.#digits.length===1){
+        if(X.NumberOfDigits===1){
             if(X.#digits[0]===1&&Y.#digits[0]===1){return new BigIntType('1');}
             else if(X.#digits[0]===1){return new BigIntType(Y.#digits.slice(),"256");}
             else if(Y.#digits[0]===1){return new BigIntType(X.#digits.slice(),"256");}
@@ -840,18 +944,18 @@ class BigIntType{
         }
         let Xh=new BigIntType('0'),Xl=new BigIntType('0'),
             Yh=new BigIntType('0'),Yl=new BigIntType('0');
-        Xh.#digits=X.#digits.slice(Math.floor(X.#digits.length*.5));Xl.#digits=X.#digits.slice(0,Math.floor(X.#digits.length*.5));
-        Yh.#digits=Y.#digits.slice(Math.floor(Y.#digits.length*.5));Yl.#digits=Y.#digits.slice(0,Math.floor(Y.#digits.length*.5));
+        Xh.#digits=X.#digits.slice(Math.floor(X.NumberOfDigits*.5));Xl.#digits=X.#digits.slice(0,Math.floor(X.NumberOfDigits*.5));
+        Yh.#digits=Y.#digits.slice(Math.floor(Y.NumberOfDigits*.5));Yl.#digits=Y.#digits.slice(0,Math.floor(Y.NumberOfDigits*.5));
         let [P1,P2,P3]=[
-            BigIntType.#karazubaMul(Xh,Yh),
-            BigIntType.#karazubaMul(Xl,Yl),
+            BigIntType.#karatsubaMul(Xh,Yh),
+            BigIntType.#karatsubaMul(Xl,Yl),
             Xh.copy().add(Xl).mul(Yh.copy().add(Yl))
         ];
-        return P1.copy().times256ToThePowerOf(X.#digits.length).add((P3.copy().sub(P1.copy().add(P2))).times256ToThePowerOf(Xh.#digits.length)).add(P2);
+        return P1.copy().times256ToThePowerOf(X.NumberOfDigits).add((P3.copy().sub(P1.copy().add(P2))).times256ToThePowerOf(Xh.NumberOfDigits)).add(P2);
     }
     /**
      * __multiplies `this` number by `n`__ \
-     * _using Karazubas Multiplication Algorithm_
+     * _using Karatsubas Multiplication Algorithm_
      * @param {BigIntType} n - second number
      * @returns {BigIntType} `this` number after multiplication
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
@@ -859,28 +963,28 @@ class BigIntType{
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     mul(n){
-        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
+        if(!(n instanceof BigIntType)){throw new TypeError("[mul] n is not an instance of BigIntType");}
         if(this.isOne()&&n.isOne());
         else if(this.isOne()){this.#digits=n.#digits.slice();}
         else if(n.isOne());
         else if(n.isTwo()){
             try{this.double();}
-            catch(e){throw (e instanceof RangeError)?new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE]`):e;}
+            catch(e){throw (e instanceof RangeError)?new RangeError("[mul] would result in a number longer than MAX_SIZE"):e;}
         }else if(this.isTwo()){
             try{this.#digits=n.copy().double().#digits;}
-            catch(e){throw (e instanceof RangeError)?new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE]`):e;}
-        }else if(n.#digits.length>1&&n.#digits.every((v,i,a)=>(i<a.length-1&&v===0)||(i===a.length-1&&v===1))){
-            if((n.#digits.length-1)+this.#digits.length>BigIntType.MAX_SIZE){throw new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE]`);}
-            this.times256ToThePowerOf(n.#digits.length-1,'f');
+            catch(e){throw (e instanceof RangeError)?new RangeError("[mul] would result in a number longer than MAX_SIZE"):e;}
+        }else if(n.NumberOfDigits>1&&n.#digits.every((v,i,a)=>(i<a.length-1&&v===0)||(i===a.length-1&&v===1))){
+            if((n.NumberOfDigits-1)+this.NumberOfDigits>BigIntType.MAX_SIZE){throw new RangeError("[mul] would result in a number longer than MAX_SIZE");}
+            this.times256ToThePowerOf(n.NumberOfDigits-1,'f');
         }else{
-            /**@type {number} - length (a power of 2) for karazuba-algorithm-numbers */
+            /**@type {number} - length (a power of 2) for karatsuba-algorithm-numbers */
             let len=1;
-            for(;len<this.#digits.length||len<n.#digits.length;len*=2);
-            /**@type {BigIntType[]} - padded numbers for karazuba-algorithm */
+            for(;len<this.NumberOfDigits||len<n.NumberOfDigits;len*=2);
+            /**@type {BigIntType[]} - padded numbers for karatsuba-algorithm */
             let [X,Y]=new Array(2).fill(new BigIntType('0'));
-            X.#digits=new Uint8Array([...this.#digits,...new Uint8Array(len-this.#digits.length)]);
-            Y.#digits=new Uint8Array([...n.#digits,...new Uint8Array(len-n.#digits.length)]);
-            try{this.#digits=BigIntType.#karazubaMul(X,Y).#digits;}
+            X.#digits=new Uint8Array([...this.#digits,...new Uint8Array(len-this.NumberOfDigits)]);
+            Y.#digits=new Uint8Array([...n.#digits,...new Uint8Array(len-n.NumberOfDigits)]);
+            try{this.#digits=BigIntType.#karatsubaMul(X,Y).#digits;}
             catch(e){throw(e instanceof RangeError)?new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE]`):e;}
         }
         this.#sign=this.#sign===n.#sign;
@@ -913,47 +1017,6 @@ class BigIntType{
         //~     exp=Math.floor(exp*.5);
         //~ }
         //~ return num;
-    }
-    /**
-     * __calculates the modulo of two numbers__
-     * @param {BigIntType} n - second number - if `0` throws `RangeError`
-     * @param {string} type - _default `'e'`_
-     * + `'e'` or `"euclid"` for euclidean modulo remainder
-     * + `'t'` or `"trunc"` for truncated modulo remainder - (like js `%`operator)
-     * + `'f'` or `"floor"` for floored modulo remainder
-     * + `'c'` or `"ceil"` for ceiled modulo remainder
-     * + `'r'` or `"round"` for rounded modulo remainder
-     * @returns {BigIntType} the modulo according to `type` as a new `BigIntType`
-     * @throws {TypeError} - if `n` is not a `BigIntType`
-     * @throws {RangeError} - if `n` is `0`
-     * @throws {SyntaxError} - if `type` is not a valid option (see `type`s doc.)
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    modulo(n,type='e'){//TODO base 256
-        // TODO ?div
-        if(!(n instanceof BigIntType)){throw new TypeError("[n] is not an instance of BigIntType");}
-        type=String(type);
-        if(!/^(e|euclid|t|trunc|f|floor|c|ceil|r|round)$/.test(type)){throw new SyntaxError("[type] is not a valid option");}
-        if(n.isZero()){throw new RangeError("[n] cannot divide by 0");}
-        if(this.isZero()||n.isOne()){this.#digits=new Uint8Array([0]);return this;}
-        if(n.isTwo()){this.#digits=new Uint8Array([Number(this.isOdd())]);return this;}
-        let[_A,_B]=[this.copy().abs(),n.copy().abs()];
-        /**@type {BigIntType} - rest */
-        let R;
-        if(_A.isSmallerThan(_B)){R=_A}
-        else if(_A.isEqualTo(_B)){R=new BigIntType(new Uint8Array([0]),"256");}
-        else{
-            for(;_A.isBiggerOrEqualTo(_B);_A.sub(_B));
-            R=_A;
-        }
-        switch(type){
-            case'e':case"euclid":(_obj=>{this.#digits=_obj.#digits;this.#sign=_obj.#sign;})(this.#sign?R:_B.sub(R));break;
-            case't':case"trunc":(_obj=>{this.#digits=_obj.#digits;this.#sign=_obj.#sign;})(this.#sign?R:R.neg());break;
-            case'f':case"floor":(_obj=>{this.#digits=_obj.#digits;this.#sign=_obj.#sign;})(n.#sign?(this.#sign?R:_B.sub(R)):(this.#sign?R.sub(_B):R.neg()));break;
-            case'c':case"ceil":(_obj=>{this.#digits=_obj.#digits;this.#sign=_obj.#sign;})(n.#sign?(this.#sign?R.sub(_B):R.neg()):(this.#sign?R:_B.sub(R)));break;
-            case'r':case"round":(_obj=>{this.#digits=_obj.#digits;this.#sign=_obj.#sign;})(R.copy().sub(_B.copy().half('c')).#sign?(this.#sign?R.sub(_B):_B.sub(R)):(this.#sign?R:R.neg()));break;
-        }
-        return this;
     }
     /* TODO's
 
@@ -1004,77 +1067,13 @@ class BigIntType{
 }
 
 // console.log((({sign,digits})=>({sign,digits}))(new BigIntType("12345649061847658743611234564906184765874361876734659431587645014856782195644643266854326514266548265442656816546542654265665426542657426565365427654635654646546546542765876734659431587645014856782195644643266123456490618476587436187673465943158764501485678219564464326685432651426654826123456490618476587436187673465943158764501485678219564464326685432651426654826544265681654654265426566542654265742656536542765463565464654654654276554426568165465426542656654265426574265653654276546356546465465465427065854032")));
-//~ 512 digit base 10 string to base 256 Uint8Array(213) in 99ms finally faster :D
+//~ 512 digit base 10 string to base 256 Uint8Array(213) in 99ms
 const a=Date.now();
 let num=new BigIntType(new Uint8Array([6,247,252,93,6,34,21,134,230,3,176,174,134,177,34,22,122,210,6,22,210,6,36,53,123,6,35,123,142,6,31]),256),
     num2=new BigIntType(new Uint8Array([58,237,133,133,61,65,65,65,122,142,146,100,177,35,91,75,241,139,246,28,11,158,253,22,230,253,253,200]),256),
     num3=new BigIntType(new Uint8Array([112,74,221,233,65,144,244,38,7,7,77,0,76,29,29,7,145,96,201,209,172,56,121,220,204,188,34,30,102,36]),256),
-    num4=new BigIntType(new Uint8Array([82,59,171,240,0,25,137,6,76,76,120,118,172,75,86,204,196,137,13,4,135,165,0,241,34,15,4,240,164,87]),256),
-    num5=new BigIntType(new Uint8Array([8,30,8,99,242,226,56,26,54,165,46,143,65,6,146,54,66,54,66,6,164,145,164,64,156,12,142,65,165]),256),
+    num4=new BigIntType("-87441534845318654375427546527654265423410818153548318838","10").modulo(new BigIntType("4348418","10"),'t'),
+    num5=new BigIntType("87441534845318410818153548318838","10").div(new BigIntType("-48418","10"),'r'),
     num6=num.add(num2).mul(num4).sub(num5).add(num).logConsole();
 console.log("done in %ims",Date.now()-a);
-console.table([num,num2,num3,num4,num5,num6].map(({sign,digits})=>({sign,digits})));
-
-// TODO                     ↑
-// TODO implement this to that
-// TODO             ↓
-
-// TODO maxLen for output strings !
-// TODO typedarrays instead of string arrays
-/**
- * __converts from base 256 to base 10__
- * @param {Uint8Array} bytenum - base 256 integer
- * @returns {string} - base 10 (decimal) integer (string)
- */
-function byte2decString(bytenum){
-    //! arrayLike ~ Uint8Array
-    // TODO
-    // mul/karazuba & add & pow256
-    // bytenum forEach bytechar decnum=add(decnum,mul(bytechar,pow256(i)))
-}
-/**
- * __converts from base 256 to base 16__
- * @param {Uint8Array} bytenum - base 256 integer
- * @returns {string} - base 16 (hexadecimal) integer (string)
- */
-function byte2hexString(bytenum){
-    //! arrayLike ~ Uint8Array
-    let out='';
-    for(let i=bytenum.length-1;i>=0;i--){out+=bytenum[i].toString(16).toUpperCase().padStart(2,'0');}
-    return out;
-}
-/**
- * __converts from base 256 to base 2__
- * @param {Uint8Array} bytenum - base 256 integer
- * @returns {string} - base 2 (binary) integer (string)
- */
-function byte2binString(bytenum){
-    //! arrayLike ~ Uint8Array
-    let out='';
-    for(let i=bytenum.length-1;i>=0;i--){out+=bytenum[i].toString(2).padStart(8,'0');}
-    return out;
-}
-/**
- * __converts from base 256 to braille string__
- * @param {Uint8Array} bytenum - base 256 integer
- * @returns {string} - braille pattern string (base 256 char)
- */
-function byte2brailleString(bytenum){
-    //! arrayLike ~ Uint8Array
-    let out='';
-    for(let i=bytenum.length-1;i>=0;i--){out+=String.fromCharCode(10240+bytenum[i]);}
-    return out;
-}
-// let n="123456789";
-// let a=decString2byte(n);
-// console.log(
-//     "number: %s\nbyte: %s\nchars: %O\nhex: %s\nbin: %s\nhalf: %s\ndouble: %s\n%s",
-//     n,
-//     a.slice().reverse().join(' '),
-//     byte2brailleString(a),
-//     byte2hexString(a),
-//     byte2binString(a),
-//     byteBitshiftR(a.slice()).reverse().join(' '),
-//     byteBitshiftL(a.slice()).reverse().join(' '),
-//     byte2brailleString(hexString2byte("6747EF41C740C740CF470000B9016747EF415F85EF41"))
-// );
+console.table([num,num2,num3,num4,num5,num6].map(({Sign,NumberOfDigits,Digits})=>({Sign,NumberOfDigits,Digits})));
