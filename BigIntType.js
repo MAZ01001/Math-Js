@@ -250,7 +250,7 @@ class BigIntType{
      * @returns {BigIntType} a copy of `this` number
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    copy(){return this.#sign?new BigIntType(this.Digits,"256"):new BigIntType(this.Digits,"256").neg();}
+    copy(){return this.#sign?new BigIntType(this.#digits.slice(),"256"):new BigIntType(this.#digits.slice(),"256").neg();}
     /**
      * __set `this` number equal to `n`__
      * @param {BigIntType} n - number to set equal to (copy values from)
@@ -260,7 +260,7 @@ class BigIntType{
      */
     setEqualTo(n){
         if(!(n instanceof BigIntType)){throw new TypeError("[setEqualTo] n is not an instance of BigIntType");}
-        this.#digits=n.Digits;
+        this.#digits=n.#digits.slice();
         this.#sign=n.Sign;
         return this;
     }
@@ -507,12 +507,12 @@ class BigIntType{
     static #calcAdd(A,B){
         /**@type {number} - length of the longer array */
         const len=Math.max(A.length,B.length);
-        for(let i=0;i<len;i++){
-            A[i]=String(Number(A[i]||0)+Number(B[i]||0));
-            if(Number(A[i])>255){
+        for(let i=0,o=false;i<len||o;i++){
+            A[i]=String(Number(A[i]||0)+Number(B[i]||0)+(o?1:0));
+            if(Number(A[i])>=256){
                 A[i]=String(Number(A[i])%256);
-                A[i+1]='1';
-            }
+                o=true;
+            }else{o=false;}
         }
         return A;
     }
@@ -905,51 +905,70 @@ class BigIntType{
         }
         return this;
     }
-    //TODO ↓ base 256 & string[] for #calc !static now! also change error/throw behavior (see above)
+    /**
+     * __doubles a number__ \
+     * does not remove leading zeros
+     * @param {string[]} A - digits-array (original will be altered)
+     * @returns {string[]} `A * 2` (modified `A`)
+     */
+    static #calcDouble(A){
+        if(A.some(v=>v!=='0')){
+            for(let i=0,o=false;i<A.length||o;i++){
+                if(A[i]==='0'&&!o){continue;}
+                A[i]=String((Number(A[i])<<1)+(o?1:0));
+                if(Number(A[i])>=256){
+                    A[i]=String(Number(A[i])-256);
+                    o=true;
+                }else{o=false;}
+            }
+        }
+        return A;
+    }
     /**
      * __Karatsubas Multiplication Algorithm__ \
      * _with recursion_ \
-     * for `BigIntType.mul`
-     * @param {BigIntType} X - number for multiplication
-     * @param {BigIntType} Y - number for multiplication
-     * @description [!!] `X` and `Y` must be of same length and the length must be a power of 2 (pad end with `0` if needed)
-     * @returns {BigIntType} result of `X`*`Y`
-     * @throws {TypeError} - if `X` or `Y` are not instances of `BigIntType`
-     * @throws {RangeError} - if some number would be longer than `BigIntType.MAX_SIZE`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     * for `mul()`
+     * @param {string[]} X - multiplicand digits-array
+     * @param {string[]} Y - multiplicator digits-array
+     * @description [!] initial `X` and `Y` same length → power of 2 (pad end with `0`)
+     * @returns {string[]} `X * Y`
      */
-    static #karatsubaMul(X,Y){
-        if(!(X instanceof BigIntType)){throw new TypeError("[karatsubaMul] X is not an instance of BigIntType");}
-        if(!(Y instanceof BigIntType)){throw new TypeError("[karatsubaMul] Y is not an instance of BigIntType");}
-        if(X.#digits.every(v=>v===0)||Y.#digits.every(v=>v===0)){return new BigIntType('0');}
+    static #calcKaratsuba(X,Y){
+        if(X.every(v=>v==='0')||Y.every(v=>v==='0')){return ['0'];}
         //~ assume here that`X` and `Y` are of same length and the length is a power of 2
-        if(X.NumberOfDigits===1){
-            if(X.#digits[0]===1&&Y.#digits[0]===1){return new BigIntType('1');}
-            else if(X.#digits[0]===1){return new BigIntType(Y.#digits.slice(),"256");}
-            else if(Y.#digits[0]===1){return new BigIntType(X.#digits.slice(),"256");}
-            else if(Y.#digits[0]===2){return X.copy().double();}
-            else if(X.#digits[0]===2){return Y.copy().double();}
+        if(X.length===1){//~ small enough to conpute savely with JS-Number
+            if(X[0]==='1'&&Y[0]==='1'){return['1'];}
+            else if(X[0]==='1'){return Y.slice();}
+            else if(Y[0]==='1'){return X.slice();}
+            else if(Y[0]==='2'){return BigIntType.#calcDouble(X.slice());}
+            else if(X[0]==='2'){return BigIntType.#calcDouble(Y.slice());}
             else{
-                const A=X.#digits[0]*Y.#digits[0];
-                return new BigIntType(new Uint8Array([A%256,Math.floor(A/256)]),"256");
+                const A=Number(X[0])*Number(Y[0]);
+                return[String(A%256),String(Math.floor(A/256))];
             }
         }
-        let Xh=new BigIntType('0'),Xl=new BigIntType('0'),
-            Yh=new BigIntType('0'),Yl=new BigIntType('0');
-        Xh.#digits=X.#digits.slice(Math.floor(X.NumberOfDigits*.5));Xl.#digits=X.#digits.slice(0,Math.floor(X.NumberOfDigits*.5));
-        Yh.#digits=Y.#digits.slice(Math.floor(Y.NumberOfDigits*.5));Yl.#digits=Y.#digits.slice(0,Math.floor(Y.NumberOfDigits*.5));
+        let Xl=X.slice(0,Math.floor(X.length*.5)),Xh=X.slice(Math.floor(X.length*.5)),
+            Yl=Y.slice(0,Math.floor(Y.length*.5)),Yh=Y.slice(Math.floor(Y.length*.5));
+        let P3Calc1=BigIntType.#calcAdd(Xh.slice(),Xl),
+            P3Calc2=BigIntType.#calcAdd(Yh.slice(),Yl),P3Count=1;
+        for(const max=Math.max(P3Calc1.length,P3Calc2.length);P3Count<max;P3Count*=2);
         let [P1,P2,P3]=[
-            BigIntType.#karatsubaMul(Xh,Yh),
-            BigIntType.#karatsubaMul(Xl,Yl),
-            Xh.copy().add(Xl).mul(Yh.copy().add(Yl))
+            BigIntType.#calcKaratsuba(Xh,Yh),
+            BigIntType.#calcKaratsuba(Xl,Yl),
+            BigIntType.#calcKaratsuba([...P3Calc1,...new Array(P3Count-P3Calc1.length).fill('0')],[...P3Calc2,...new Array(P3Count-P3Calc2.length).fill('0')])
         ];
-        return P1.copy().times256ToThePowerOf(X.NumberOfDigits).add((P3.copy().sub(P1.copy().add(P2))).times256ToThePowerOf(Xh.NumberOfDigits)).add(P2);
+        return BigIntType.#calcAdd(
+            BigIntType.#calcAdd(
+                [...new Array(X.length).fill('0'),...P1.slice()],
+                [...new Array(Xh.length).fill('0'),...BigIntType.#calcSub(P3,BigIntType.#calcAdd(P1.slice(),P2)).digits]
+            ),P2
+        );
     }
     /**
      * __multiplies `this` number by `n`__ \
-     * _using Karatsubas Multiplication Algorithm_
-     * @param {BigIntType} n - second number
-     * @returns {BigIntType} `this` number after multiplication
+     * _using Karatsubas Algorithm_
+     * @param {BigIntType} n - multiplicator
+     * @returns {BigIntType} `this * n` (`this` modified)
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
@@ -971,19 +990,18 @@ class BigIntType{
         }else{
             /**@type {number} - length (a power of 2) for karatsuba-algorithm-numbers */
             let len=1;
-            for(;len<this.NumberOfDigits||len<n.NumberOfDigits;len*=2);
-            /**@type {BigIntType[]} - padded numbers for karatsuba-algorithm */
-            let [X,Y]=new Array(2).fill(new BigIntType('0'));
-            X.#digits=new Uint8Array([...this.#digits,...new Uint8Array(len-this.NumberOfDigits)]);
-            Y.#digits=new Uint8Array([...n.#digits,...new Uint8Array(len-n.NumberOfDigits)]);
-            try{this.#digits=BigIntType.#karatsubaMul(X,Y).#digits;}
-            catch(e){throw(e instanceof RangeError)?new RangeError(`multiplication with [n] would result in a number longer than [MAX_SIZE]`):e;}
+            for(const max=Math.max(this.NumberOfDigits,n.NumberOfDigits);len<max;len*=2);
+            try{
+                this.#digits=new Uint8Array(BigIntType.#removeLeadingZeros(BigIntType.#calcKaratsuba(
+                    [...Array.from(this.#digits,String),...new Array(len-this.NumberOfDigits).fill('0')],
+                    [...Array.from(n.#digits,String),...new Array(len-n.NumberOfDigits).fill('0')]
+                )));
+            }catch(e){throw(e instanceof RangeError)?new RangeError("[mul] would result in a number longer than MAX_SIZE"):e;}
         }
         this.#sign=this.#sign===n.#sign;
         return this;
     }
-    // TODO ↓↓↓↓↓↓↓↓↓↓
-    // TODO ↓↓↓↓↓↓↓↓↓↓
+    //TODO ↓ base 256 & string[] for #calc !static now! also change error/throw behavior (see above)
     #_pow(n){
         let result=new BigIntType('1'),
             exp=n.copy();
@@ -1060,13 +1078,19 @@ class BigIntType{
 
 // console.log((({sign,digits})=>({sign,digits}))(new BigIntType("12345649061847658743611234564906184765874361876734659431587645014856782195644643266854326514266548265442656816546542654265665426542657426565365427654635654646546546542765876734659431587645014856782195644643266123456490618476587436187673465943158764501485678219564464326685432651426654826123456490618476587436187673465943158764501485678219564464326685432651426654826544265681654654265426566542654265742656536542765463565464654654654276554426568165465426542656654265426574265653654276546356546465465465427065854032")));
 //~ 512 digit base 10 string to base 256 Uint8Array(213) in 99ms
-const a=Date.now();
-let num=new BigIntType(new Uint8Array([6,247,252,93,6,34,21,134,230,3,176,174,134,177,34,22,122,210,6,22,210,6,36,53,123,6,35,123,142,6,31]),256),
-    num2=new BigIntType(new Uint8Array([58,237,133,133,61,65,65,65,122,142,146,100,177,35,91,75,241,139,246,28,11,158,253,22,230,253,253,200]),256),
-    num3=new BigIntType(new Uint8Array([112,74,221,233,65,144,244,38,7,7,77,0,76,29,29,7,145,96,201,209,172,56,121,220,204,188,34,30,102,36]),256),
-    num4=new BigIntType("-87441534845318654375427546527654265423410818153548318838","10").modulo(new BigIntType("4348418","10"),'t'),
-    num5=new BigIntType("87441534845318410818153548318838","10").div(new BigIntType("-48418","10"),'r'),
-    num6=num.add(num2).mul(num4).sub(num5).add(num).logConsole();
-console.log("done in %ims",Date.now()-a);
-console.table([num,num2,num3,num4,num5,num6].map(({Sign,NumberOfDigits,Digits})=>({Sign,NumberOfDigits,Digits})));
-console.log(BigIntType.HelloThere.toString(256));
+try{
+    const a=Date.now();
+    let num=new BigIntType(new Uint8Array([6,247,252,93,6,34,21,134,230,3,176,174,134,177,34,22,122,210,6,22,210,6,36,53,123,6,35,123,142,6,31]),256),
+        num2=new BigIntType(new Uint8Array([58,237,133,133,61,65,65,65,122,142,146,100,177,35,91,75,241,139,246,28,11,158,253,22,230,253,253,200]),256),
+        num3=new BigIntType(new Uint8Array([112,74,221,233,65,144,244,38,7,7,77,0,76,29,29,7,145,96,201,209,172,56,121,220,204,188,34,30,102,36]),256),
+        num4=new BigIntType("-87441534845318654375427546527654265423410818153548318838","10").modulo(new BigIntType("4348418","10"),'t'),
+        num5=new BigIntType("87441534845318410818153548318838","10").div(new BigIntType("-48418","10"),'r'),
+        num6=num.add(num2).mul(num4).sub(num5).add(num).logConsole();
+    console.log("done in %ims",Date.now()-a);
+    console.table([num,num2,num3,num4,num5,num6].map(({Sign,NumberOfDigits,Digits})=>({Sign,NumberOfDigits,Digits})));
+    console.log(BigIntType.HelloThere.toString(256));
+    // new BigIntType("123abc@&%");//~ produce an error → "{SyntaxError} : [num] (string) does not have the correct format for base 10"
+}catch(error){
+    console.log("{%s} : %s",error.name,error.message);//~ show only recent message (on screen) and not the whole stack
+    console.error(error);//~ but do log the whole error message with stack to console
+}
