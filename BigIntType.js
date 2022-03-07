@@ -35,11 +35,12 @@ class BigIntType{
         if(!Number.isInteger(n)||n<1||n>1048576){throw new RangeError("[MAX_SIZE] must be an integer in range [1-1048576]");}
         return BigIntType.#MAX_SIZE=n;
     }
-    /**@type {Readonly<{2:RegExp;10:RegExp;16:RegExp;256:RegExp;}>} - regular expressions for matching strings in specific base with optional sign, minimum one digit and no leading zeros */
+    /**@type {Readonly<{2:RegExp;10:RegExp;16:RegExp;36:RegExp;256:RegExp;}>} - regular expressions for matching strings in specific base with optional sign, minimum one digit and no leading zeros */
     static #REGEXP_STRING=Object.freeze({
         2:/^([+-]?)(0|1[01]*)$/,
         10:/^([+-]?)(0|[1-9][0-9]*)$/,
         16:/^([+-]?)(0|[1-9A-F][0-9A-F]*)$/i,
+        36:/^([+-]?)(0|[1-9A-Z][0-9A-Z]*)$/i,
         256:/^([+-]?)(\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)$/u
     });
     /**@type {boolean} - sign of the number - `true` = positive */
@@ -95,11 +96,13 @@ class BigIntType{
      * + `base` 2   → as string or Uint8Array `0` and `1` or as bool array `true` and `false`
      * + `base` 10  → as string or Uint8Array `0` to `9`
      * + `base` 16  → as string `0` to `9` and `A` to `F` or as Uint8Array `0` to `16`
+     * + `base` 32  → as string `0` to `9` and `A` to `Z` or as Uint8Array `0` to `36`
      * + `base` 256 → as string `⠀` to `⣿` (Braille `0x2800` to `0x28FF`) or as Uint8Array `0` to `256`
      * @param {string|number} base - base of `num` as a number or string - _default `'d'`_
      * + base 2 can be `'b'`, `"bin"`, `"binary"` or `'2'`
      * + base 10 can be `'d'`, `"dec"`, `"decimal"` or `"10"`
      * + base 16 can be `'h'`, `"hex"`, `"hexadecimal"` or `"16"`
+     * + base 36 can be `'t'`, `"text"`, `"bin-text"` or `"36"`
      * + base 256 can be `"byte"` or `"256"`
      * @throws {SyntaxError} - if `base` is not an available option
      * @throws {SyntaxError} - if `num` does not have the correct format for this `base`
@@ -114,6 +117,7 @@ class BigIntType{
             case'b':case"bin":case"binary":case'2':base=2;break;
             case'd':case"dec":case"decimal":case"10":base=10;break;
             case'h':case"hex":case"hexadecimal":case"16":base=16;break;
+            case't':case"text":case"bin-text":case"36":base=36;break;
             case"byte":case"256":base=256;break;
             default:throw new SyntaxError("[new BigIntType] base is not an available option");
         }
@@ -132,6 +136,7 @@ class BigIntType{
             switch(base){
                 case 2:case 10:num=new Uint8Array([..._match[2]].reverse());break;
                 case 16:num=new Uint8Array([..._match[2]].map(v=>Number.parseInt(v,16)).reverse());break;
+                case 36:num=new Uint8Array([..._match[2]].map(v=>Number.parseInt(v,36)).reverse());break;
                 case 256:num=new Uint8Array([..._match[2]].map(v=>v.charCodeAt(0)-10240).reverse());break;
             }
         }
@@ -147,12 +152,12 @@ class BigIntType{
                 let b10=Array.from(num,String),
                     /**@type {string[]} - digits for base 256*/
                     b256=[];
-                for(;b10.length>3||(b10.length===3&&(b10[2]>2||(b10[2]===2&&(b10[1]>5||(b10[1]===5&&(b10[0]>=6))))));){//~ b10 >=256
+                for(;b10.length>3||(b10.length===3&&(Number(b10[2])>2||(Number(b10[2])===2&&(Number(b10[1])>5||(Number(b10[1])===5&&(Number(b10[0])>=6))))));){//~ b10 >=256
                     b256.push('0');
                     for(let i=0;i<8;i++){
                         if(Number(b10[0])&1){b256[b256.length-1]=String(Number(b256[b256.length-1])+(1<<i));}
-                        if(b10.length===1&&b10[0]==='0');//~ b10 /2
-                        else if(b10.length===1&&b10[0]==='1'){b10[0]='0';}
+                        if(b10.length===1&&b10[0]==='0'){continue;}
+                        if(b10.length===1&&b10[0]==='1'){b10[0]='0';}//~ b10 /2
                         else{
                             b10[0]=String(Number(b10[0])>>>1);
                             for(let i=1;i<b10.length;i++){
@@ -171,6 +176,31 @@ class BigIntType{
                 this.#digits=new Uint8Array(Math.floor(num.length/2));
                 for(let i=0;i<this.NumberOfDigits;i++){this.#digits[i]=Number.parseInt(num.slice(i*2,(i+1)*2).reverse().join(''),2);}
                 break;
+            case 36:
+                if(!(num.every(v=>v>=0&&v<36))){throw new SyntaxError("[new BigIntType] num (Uint8Array) has incorrect values for base 36");}
+                /**@type {string[]} - digits in base 36*/
+                let b36=Array.from(num,String),
+                    /**@type {string[]} - digits for base 256*/
+                    _b256=[];
+                for(;b36.length>2||(b36.length===2&&(Number.parseInt(b36[1],36)>7||(Number.parseInt(b36[1],36)===7&&(Number.parseInt(b36[0],36)>=3))));){//~ b36 >=256 (73_b36)
+                    _b256.push('0');
+                    for(let i=0;i<8;i++){
+                        if(Number.parseInt(b36[0],36)&1){_b256[_b256.length-1]=String(Number(_b256[_b256.length-1])+(1<<i));}
+                        if(b36.length===1&&b36[0]==='0'){continue;}
+                        if(b36.length===1&&b36[0]==='1'){b36[0]='0';}//~ b36 /2
+                        else{
+                            b36[0]=(Number.parseInt(b36[0],36)>>>1).toString(36);
+                            for(let i=1;i<b36.length;i++){
+                                if(Number.parseInt(b36[i],36)&1){b36[i-1]=(Number.parseInt(b36[i-1],36)+5).toString(36);}
+                                b36[i]=(Number.parseInt(b36[i],36)>>>1).toString(36);
+                            }
+                            if(b36[b36.length-1]==='0'){b36.splice(-1,1);}
+                        }
+                    }
+                }
+                _b256.push(String(Number.parseInt(b36.reverse().join(''),36)));
+                this.#digits=new Uint8Array(_b256);
+                break;
             case 256:
                 if(!(num.every(v=>v>=0&&v<256))){throw new SyntaxError("[new BigIntType] num (Uint8Array) has incorrect values for base 256");}
                 this.#digits=num;
@@ -185,6 +215,7 @@ class BigIntType{
      * + `2`      → `'0'`-`'1'` (prefix `0b`)
      * + `10`     → `'0'`-`'9'`
      * + `16`     → `'0'`-`'9'` & `'A'`-`'F'` (prefix `0x`)
+     * + `36`     → `'0'`-`'9'` & `'A'`-`'Z'`
      * + `256`    → `'⠀'`-`'⣿'` (Unicode Braille Pattern) `0x2800`-`0x28FF`
      * @returns {string} `this.toString(base)`
      * @throws {SyntaxError} if `base` is not an available option
@@ -192,7 +223,7 @@ class BigIntType{
     toString(base=16){
         let out="";
         switch(base){
-            case 2:out='0b';for(let i=this.NumberOfDigits-1;i>=0;i--){out+=this.#digits[i].toString(2).padStart(8,'0');}break;
+            case 2:out="0b";for(let i=this.NumberOfDigits-1;i>=0;i--){out+=this.#digits[i].toString(2).padStart(8,'0');}break;
             case 10:
                 /**@type {string[]} - digit-array base 10 */
                 let b10=[];
@@ -201,19 +232,39 @@ class BigIntType{
                         if(!(b10.length===1&&b10[0]==='0')){//~ b10 *=2
                             for(let i=0,o=false;i<b10.length||o;i++){
                                 if(b10[i]==='0'&&!o){continue;}
-                                b10[i]=String((Number(b10[i])<<1)+(o?1:0));
+                                b10[i]=((Number(b10[i])<<1)+(o?1:0)).toString(10);
                                 if(Number(b10[i])>=10){
-                                    b10[i]=String(Number(b10[i])-10);
+                                    b10[i]=(Number(b10[i])-10).toString(10);
                                     o=true;
                                 }else{o=false;}
                             }
                         }
-                        if(this.#digits[i]&1<<j){b10[0]=String(Number(b10[0])|1);}
+                        if(this.#digits[i]&1<<j){b10[0]=(Number(b10[0])|1).toString(10);}
                     }
                 }
                 out=b10.reverse().join('');
                 break;
-            case 16:out='0x';for(let i=this.NumberOfDigits-1;i>=0;i--){out+=this.#digits[i].toString(16).toUpperCase().padStart(2,'0');}break;
+            case 16:out="0x";for(let i=this.NumberOfDigits-1;i>=0;i--){out+=this.#digits[i].toString(16).toUpperCase().padStart(2,'0');}break;
+            case 36:
+                /**@type {string[]} - digit-array base 36 */
+                let b36=[];
+                for(let i=this.NumberOfDigits;i>=0;i--){
+                    for(let j=7;j>=0;j--){
+                        if(!(b36.length===1&&b36[0]==='0')){//~ b36 *=2
+                            for(let i=0,o=false;i<b36.length||o;i++){
+                                if(b36[i]==='0'&&!o){continue;}
+                                b36[i]=((Number(b36[i])<<1)+(o?1:0)).toString(36).toUpperCase();
+                                if(Number(b36[i])>=36){
+                                    b36[i]=(Number(b36[i])-36).toString(36).toUpperCase();
+                                    o=true;
+                                }else{o=false;}
+                            }
+                        }
+                        if(this.#digits[i]&1<<j){b36[0]=(Number(b36[0])|1).toString(36).toUpperCase();}
+                    }
+                }
+                out=b36.reverse().join('');
+                break;
             case 256:for(let i=this.NumberOfDigits-1;i>=0;i--){out+=String.fromCharCode(10240+this.#digits[i]);}break;
             default:throw new SyntaxError("[toString] base is not an available option");
         }
@@ -1001,9 +1052,10 @@ class BigIntType{
         this.#sign=this.#sign===n.#sign;
         return this;
     }
-    //TODO ↓ base 256 & string[] for #calc !static now! also change error/throw behavior (see above)
+    //TODO
     #_pow(n){
-        let result=new BigIntType('1'),
+        //TODO n<0 ? inverse ? (this<0 → n.isOdd()?-:+)
+        let result=BigIntType.One,
             exp=n.copy();
         for(;;){
             if(exp.#digits[0]&1){result.mul(this);}
@@ -1030,7 +1082,7 @@ class BigIntType{
     }
     /* TODO's
 
-        gcd(a,b) pow(n) root(n) maprange(n,min1,max1,min2,max2,limit?) toString(padLen?,padChar?,maxLen?) logString(!see log() and toString()!)
+        gcd(a,b) pow(n) root(n) maprange(n,min1,max1,min2,max2,limit?)
         randomInt ?
 
         ( n-root(n,x) => pow(x,1/n) )
