@@ -1054,7 +1054,18 @@ class BigIntType{
     }
     //TODO
     #_pow(n){
-        //TODO n<0 ? inverse ? (this<0 → n.isOdd()?-:+)
+        // TODO implement this:
+        //~ (base,exp)=>{// num = base**exp
+        //~ // exp<0 → 1/(base**exp) # base<0 → (exp&1 ? - : +)
+        //~ let num=1;
+        //~ if(exp&1){num*=base;}
+        //~ exp>>>=1;
+        //~ while(exp!==0){
+        //~     base**=2;
+        //~     if(exp&1){num*=base;}
+        //~     exp>>>=1;
+        //~ }
+        //~ return num;}
         let result=BigIntType.One,
             exp=n.copy();
         for(;;){
@@ -1066,19 +1077,6 @@ class BigIntType{
         this.#digits=result.#digits;
         this.#sign=result.#sign;
         return this;
-        //~ // num = 256**exp
-        //~ /**@type {Uint8Array} - starting base (256) */
-        //~ let base=new Uint8Array([6,5,2]),
-        //~     /**@type {Uint8Array} - new number */
-        //~     num=new Uint8Array([1]);
-        //~ if(exp%2){num=BigIntType.#base10.mul(num,base);}
-        //~ exp=Math.floor(exp*.5);
-        //~ while(exp!==0){
-        //~     base=BigIntType.#base10.mul(base,base);
-        //~     if(exp%2){num=BigIntType.#base10.mul(num,base);}
-        //~     exp=Math.floor(exp*.5);
-        //~ }
-        //~ return num;
     }
     /* TODO's
 
