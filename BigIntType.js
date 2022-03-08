@@ -24,6 +24,9 @@ class BigIntType{
             647 509 515 396 711 351 487 546 062 479 444 592 779 055 555 421 362 722 504 575
             706 910 949 375 in base 10 which is 1205 digits (2.41 times longer)
     */
+    //~ for potentially larger numbers Uint16Array could be used ('cause 2**16*2**16 is still a save integer is js so save to compute)
+    //~ but it is the same size in memory just potentially a longer number 'cause the index can go higher (a digit-array in base 65536 is 2x shorter than in base 256)
+    //~ but with (2**53-1) digits (MAX_SAFE_INTEGER) and 1Byte (base 256) per digit - it is large enough (usually not more than 2GB can be allocated anyways...)
     /**@type {number} - maximum possible length of a number _(excluding sign)_ - originally `500` = 0.5KB in RAM */
     static #MAX_SIZE=500;
     /**@returns {number} _current_ maximum possible length of a number _(excluding sign)_ */
@@ -41,7 +44,7 @@ class BigIntType{
         10:/^([+-]?)(0|[1-9][0-9]*)$/,
         16:/^([+-]?)(0|[1-9A-F][0-9A-F]*)$/i,
         36:/^([+-]?)(0|[1-9A-Z][0-9A-Z]*)$/i,
-        256:/^([+-]?)(\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)$/u
+        256:/^([+-]?)(\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)$/
     });
     /**@type {boolean} - sign of the number - `true` = positive */
     #sign=true;
@@ -873,12 +876,12 @@ class BigIntType{
     /**
      * __divides another number from `this` one__ \
      * _modifies the original_
-     * @param {BigIntType} n - second number for division (divisor)
+     * @param {BigIntType} n - divisor
      * @param {string} rounding - _default `'r'`_
      * + `'r'` or `"round"` for rounded division result
      * + `'f'` or `"floor"` for floored division result
      * + `'c'` or `"ceil"` for ceiled division result
-     * @returns {BigIntType} `this` number after division
+     * @returns {BigIntType} `this / n` (`this` modified)
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      * @throws {RangeError} - if `n` is `0`
      * @throws {SyntaxError} - if `rounding` is not a valid option (see `rounding`s doc.)
@@ -1052,38 +1055,66 @@ class BigIntType{
         this.#sign=this.#sign===n.#sign;
         return this;
     }
-    //TODO
-    #_pow(n){
-        // TODO implement this:
-        //~ (base,exp)=>{// num = base**exp
-        //~ // exp<0 → 1/(base**exp) # base<0 → (exp&1 ? - : +)
-        //~ let num=1;
-        //~ if(exp&1){num*=base;}
-        //~ exp>>>=1;
-        //~ while(exp!==0){
-        //~     base**=2;
-        //~     if(exp&1){num*=base;}
-        //~     exp>>>=1;
-        //~ }
-        //~ return num;}
-        let result=BigIntType.One,
-            exp=n.copy();
-        for(;;){
-            if(exp.#digits[0]&1){result.mul(this);}
-            exp.half('f');
-            if(exp.isZero()){break;}
-            this.mul(this);
+    /**
+     * __raises `this` number to the power of `n`__ \
+     * _modifies the original_
+     * @param {BigIntType} n - exponent
+     * @returns {BigIntType} `this ** n` (`this` modified)
+     * @throws {TypeError} - if `n` is not an instance of `BigIntType`
+     * @throws {RangeError} - if `this` is 0 and `n` is negative (inverse of 0)
+     * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    pow(n){
+        if(!(n instanceof BigIntType)){throw new TypeError("[pow] n is not an instance of BigIntType");}
+        if(n.isZero()){return this.setEqualTo(BigIntType.One);}
+        if(this.isZero()){
+            if(n.#sign){return this;}
+            throw new RangeError("[pow] can not calculate zero to the power of a negative exponent");
         }
-        this.#digits=result.#digits;
-        this.#sign=result.#sign;
+        if(this.isOne()){return this;}
+        if(n.isOne()&&n.#sign){return this;}
+        if(!n.#sign){
+            this.#digits=new Uint8Array([0]);
+            return this;
+        }
+        /**@type {string[]} - final number */
+        let result=['1'];
+        for(let karatsubaLen=0,exp=Array.from(n.#digits,String),base=Array.from(this.#digits,String);;){
+            // TODO ? inf-loop ? test !
+            if(Number(exp[0])&1){
+                for(karatsubaLen=0;karatsubaLen<Math.max(result.length,base.length);karatsubaLen*=2);//~ result*=base
+                result=BigIntType.#calcKaratsuba(
+                    [...result,...new Array(karatsubaLen-result.length).fill('0')],
+                    [...base,...new Array(karatsubaLen-base.length).fill('0')]
+                );
+            }
+            for(let i=0;i<exp.length;i++){//~ exp>>>=1
+                exp[i]=String(Number(exp[i])>>>1);
+                exp[i]=String(Number(exp[i])|(Number(exp[i+1]||0)&1)<<7);
+            }
+            if(exp.every(v=>v==='0')){break;}
+            for(karatsubaLen=0;karatsubaLen<base.length;karatsubaLen*=2);//~ base*=base
+            result=BigIntType.#calcKaratsuba(
+                [...base,...new Array(karatsubaLen-base.length).fill('0')],
+                [...base,...new Array(karatsubaLen-base.length).fill('0')]
+            );
+        }
+        BigIntType.#removeLeadingZeros(result);
+        if(result.length>BigIntType.MAX_SIZE){throw new RangeError("[pow] would result in a number longer than MAX_SIZE");}
+        this.#digits=new Uint8Array(result);
+        if(n.isEven()){this.abs();}
         return this;
     }
     /* TODO's
 
-        gcd(a,b) pow(n) root(n) maprange(n,min1,max1,min2,max2,limit?)
-        randomInt ?
+        maprange(n,min1,max1,min2,max2,limit?)
 
-        ( n-root(n,x) => pow(x,1/n) )
+        gcd(a,b)
+
+        root(n)
+
+        ( n-root(n,x) => pow(x,1/n) ) ~ 1/x if x>2 is rounded 0 !
 
         log(x)(y)=z <-> (x^z=y) https://en.wikipedia.org/wiki/Logarithm#Change_of_base
         log(x)(y) = ( log(2)(y) / log(2)(x) ) log of 2 to log of any base
@@ -1144,3 +1175,4 @@ try{
     console.log("{%s} : %s",error.name,error.message);//~ show only recent message (on screen) and not the whole stack
     console.error(error);//~ but do log the whole error message with stack to console
 }
+console.log(BigIntType.Two.pow(new BigIntType("1024","10")).toString("16"),BigIntType.Infinity.toString("16"));
