@@ -198,6 +198,7 @@
 > + `div(n:BigIntType,rounding:String):BigIntType`
 > + `modulo(n:BigIntType,type:String):BigIntType`
 > + `mul(n:BigIntType):BigIntType`
+> + `pow(n:BigIntType):BigIntType`
 >
 ----
 >
