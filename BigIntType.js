@@ -289,12 +289,13 @@ class BigIntType{
         maxLen=Number(maxLen);if(!Number.isSafeInteger(maxLen)){throw new TypeError("[logConsole] maxLen is not a save integer");}
         if(maxLen>this.NumberOfDigits||maxLen===0){maxLen=this.NumberOfDigits;}
         else if(maxLen<1){maxLen=1;}
+        // TODO different base ~> toString(base) ? maxLen? trunc?
         console.log(
             "[%i]: (total %i digit/s) %s%s%s",
             Date.now(),
             this.NumberOfDigits,
             this.#sign?'+':'-',
-            Array.from(this.#digits.slice(-maxLen).reverse(),v=>v.toString(16).toUpperCase().padStart(2,'0')).join(' '),
+            "0x"+Array.from(this.#digits.slice(-maxLen).reverse(),v=>v.toString(16).toUpperCase().padStart(2,'0')).join(''),
             maxLen<this.NumberOfDigits?`.. (+${this.NumberOfDigits-maxLen} digit/s)`:''
         );
         return this;
@@ -1003,20 +1004,20 @@ class BigIntType{
         }
         let Xl=X.slice(0,Math.floor(X.length*.5)),Xh=X.slice(Math.floor(X.length*.5)),
             Yl=Y.slice(0,Math.floor(Y.length*.5)),Yh=Y.slice(Math.floor(Y.length*.5));
-        let P3Calc1=BigIntType.#calcAdd(Xh.slice(),Xl),
-            P3Calc2=BigIntType.#calcAdd(Yh.slice(),Yl),P3Count=1;
+        let P3Calc1=BigIntType.#removeLeadingZeros(BigIntType.#calcAdd(Xh.slice(),Xl)),
+            P3Calc2=BigIntType.#removeLeadingZeros(BigIntType.#calcAdd(Yh.slice(),Yl)),P3Count=1;
         for(const max=Math.max(P3Calc1.length,P3Calc2.length);P3Count<max;P3Count*=2);
         let [P1,P2,P3]=[
             BigIntType.#calcKaratsuba(Xh,Yh),
             BigIntType.#calcKaratsuba(Xl,Yl),
             BigIntType.#calcKaratsuba([...P3Calc1,...new Array(P3Count-P3Calc1.length).fill('0')],[...P3Calc2,...new Array(P3Count-P3Calc2.length).fill('0')])
         ];
-        return BigIntType.#calcAdd(
+        return BigIntType.#removeLeadingZeros(BigIntType.#calcAdd(
             BigIntType.#calcAdd(
                 [...new Array(X.length).fill('0'),...P1.slice()],
-                [...new Array(Xh.length).fill('0'),...BigIntType.#calcSub(P3,BigIntType.#calcAdd(P1.slice(),P2)).digits]
+                [...new Array(Xh.length).fill('0'),...BigIntType.#removeLeadingZeros(BigIntType.#calcSub(P3,BigIntType.#calcAdd(P1.slice(),P2)).digits)]
             ),P2
-        );
+        ));
     }
     /**
      * __multiplies `this` number by `n`__ \
@@ -1061,7 +1062,8 @@ class BigIntType{
      * @param {BigIntType} n - exponent
      * @returns {BigIntType} `this ** n` (`this` modified)
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
-     * @throws {RangeError} - if `this` is 0 and `n` is negative (inverse of 0)
+     * @throws {RangeError} - if `this` is 0 and `n` is negative (inverse of 0 → division by 0)
+     * @throws {RangeError} - if `n` is negative (and `this` not 1 or 0) (inverse of integers does not exist except for 1)
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
@@ -1074,16 +1076,14 @@ class BigIntType{
         }
         if(this.isOne()){return this;}
         if(n.isOne()&&n.#sign){return this;}
-        if(!n.#sign){
-            this.#digits=new Uint8Array([0]);
-            return this;
-        }
+        if(!n.#sign){throw new RangeError("[pow] can not calculate the inverse of integers other than 1");}
         /**@type {string[]} - final number */
         let result=['1'];
-        for(let karatsubaLen=0,exp=Array.from(n.#digits,String),base=Array.from(this.#digits,String);;){
-            // TODO ? inf-loop ? test !
+        for(let karatsubaLen=0,base=Array.from(this.#digits,String),exp=Array.from(n.#digits,String);;){
             if(Number(exp[0])&1){
-                for(karatsubaLen=0;karatsubaLen<Math.max(result.length,base.length);karatsubaLen*=2);//~ result*=base
+                BigIntType.#removeLeadingZeros(result);
+                BigIntType.#removeLeadingZeros(base);
+                for(karatsubaLen=1;karatsubaLen<Math.max(result.length,base.length);karatsubaLen*=2);//~ result*=base
                 result=BigIntType.#calcKaratsuba(
                     [...result,...new Array(karatsubaLen-result.length).fill('0')],
                     [...base,...new Array(karatsubaLen-base.length).fill('0')]
@@ -1094,8 +1094,9 @@ class BigIntType{
                 exp[i]=String(Number(exp[i])|(Number(exp[i+1]||0)&1)<<7);
             }
             if(exp.every(v=>v==='0')){break;}
-            for(karatsubaLen=0;karatsubaLen<base.length;karatsubaLen*=2);//~ base*=base
-            result=BigIntType.#calcKaratsuba(
+            BigIntType.#removeLeadingZeros(base);
+            for(karatsubaLen=1;karatsubaLen<base.length;karatsubaLen*=2);//~ base*=base
+            base=BigIntType.#calcKaratsuba(
                 [...base,...new Array(karatsubaLen-base.length).fill('0')],
                 [...base,...new Array(karatsubaLen-base.length).fill('0')]
             );
@@ -1171,8 +1172,8 @@ try{
     console.table([num,num2,num3,num4,num5,num6].map(({Sign,NumberOfDigits,Digits})=>({Sign,NumberOfDigits,Digits})));
     console.log(BigIntType.HelloThere.toString(256));
     // new BigIntType("123abc@&%");//~ produce an error → "{SyntaxError} : [num] (string) does not have the correct format for base 10"
+    console.log(BigIntType.Two.pow(new BigIntType("1024","10")).logConsole(0).isEqualTo(BigIntType.Infinity));
 }catch(error){
     console.log("{%s} : %s",error.name,error.message);//~ show only recent message (on screen) and not the whole stack
     console.error(error);//~ but do log the whole error message with stack to console
 }
-console.log(BigIntType.Two.pow(new BigIntType("1024","10")).toString("16"),BigIntType.Infinity.toString("16"));
