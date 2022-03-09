@@ -1107,6 +1107,21 @@ class BigIntType{
         if(n.isEven()){this.abs();}
         return this;
     }
+    mapRange(initialLow,initialHigh,finalLow,finalHigh,rounding='f',limit=false){
+        if(!(initialLow instanceof BigIntType)){throw new TypeError("[mapRange] initialLow is not an instance of BigIntType");}
+        if(!(initialHigh instanceof BigIntType)){throw new TypeError("[mapRange] initialHigh is not an instance of BigIntType");}
+        if(!(finalLow instanceof BigIntType)){throw new TypeError("[mapRange] finalLow is not an instance of BigIntType");}
+        if(!(finalHigh instanceof BigIntType)){throw new TypeError("[mapRange] finalHigh is not an instance of BigIntType");}
+        rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[mapRange] rounding is not a valid option");}
+        limit=Boolean(limit);
+        // output=((this-initialLow)/(initialHigh-initialLow))*(finalHigh-finalLow)+finalLow
+        //~ [!] integer other way 'cause only rounding in div is wrong result only rounding at end...other calc...
+        // return limit?(
+        //     x2<y2?
+        //     Math.max(Math.min(o,y2),x2):
+        //     Math.max(Math.min(o,x2),y2)
+        // ):o;
+    }
     /* TODO's
 
         maprange(n,min1,max1,min2,max2,limit?)
