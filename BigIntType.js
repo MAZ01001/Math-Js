@@ -885,7 +885,7 @@ class BigIntType{
      * @returns {BigIntType} `this / n` (`this` modified)
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      * @throws {RangeError} - if `n` is `0`
-     * @throws {SyntaxError} - if `rounding` is not a valid option (see `rounding`s doc.)
+     * @throws {SyntaxError} - if `rounding` is not a valid option
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     div(n,rounding='r'){
@@ -924,7 +924,8 @@ class BigIntType{
         return this;
     }
     /**
-     * __calculates the modulo of two numbers__
+     * __calculates modulo `n` of `this` number__ \
+     * _modifies the original_
      * @param {BigIntType} n - second number (!=0)
      * @param {string} type - _default `'e'`_
      * + `'e'` or `"euclid"` for euclidean modulo remainder
@@ -1021,6 +1022,7 @@ class BigIntType{
     }
     /**
      * __multiplies `this` number by `n`__ \
+     * _modifies the original_
      * _using Karatsubas Algorithm_
      * @param {BigIntType} n - multiplicator
      * @returns {BigIntType} `this * n` (`this` modified)
@@ -1107,28 +1109,58 @@ class BigIntType{
         if(n.isEven()){this.abs();}
         return this;
     }
-    mapRange(initialLow,initialHigh,finalLow,finalHigh,rounding='f',limit=false){
+    /**
+     * __maps `this` number from one range to another__ \
+     * _modifies the original_
+     * @param {BigIntType} initialLow - initial lower bound
+     * @param {BigIntType} initialHigh - initial higher bound
+     * @param {BigIntType} finalLow - final lower bound
+     * @param {BigIntType} finalHigh - final higher bound
+     * @param {string} rounding - _default `'r'`_
+     * + `'r'` or `"round"` for rounded result
+     * + `'f'` or `"floor"` for floored result
+     * + `'c'` or `"ceil"` for ceiled result
+     * @param {boolean} limit - if `true` caps the result at final bound
+     * @returns {BigIntType} `this` in `finalLow` to `finalHigh` range (rounded/caped as set) (`this` modified)
+     * @throws {TypeError} if `initialLow`,`initialHigh`,`finalLow` or `finalHigh` are not instances of `BigIntType`
+     * @throws {SyntaxError} - if `rounding` is not a valid option
+     * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    mapRange(initialLow,initialHigh,finalLow,finalHigh,rounding='r',limit=false){
         if(!(initialLow instanceof BigIntType)){throw new TypeError("[mapRange] initialLow is not an instance of BigIntType");}
         if(!(initialHigh instanceof BigIntType)){throw new TypeError("[mapRange] initialHigh is not an instance of BigIntType");}
         if(!(finalLow instanceof BigIntType)){throw new TypeError("[mapRange] finalLow is not an instance of BigIntType");}
         if(!(finalHigh instanceof BigIntType)){throw new TypeError("[mapRange] finalHigh is not an instance of BigIntType");}
         rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[mapRange] rounding is not a valid option");}
         limit=Boolean(limit);
-        // output=((this-initialLow)/(initialHigh-initialLow))*(finalHigh-finalLow)+finalLow
-        //~ [!] integer other way 'cause only rounding in div is wrong result only rounding at end...other calc...
-        // return limit?(
-        //     x2<y2?
-        //     Math.max(Math.min(o,y2),x2):
-        //     Math.max(Math.min(o,x2),y2)
-        // ):o;
+        try{
+            initialHigh=initialHigh.copy().sub(initialLow);
+            this.sub(initialLow).mul(finalHigh.copy().sub(finalLow)).add(initialHigh.copy().mul(finalLow)).div(initialHigh,rounding);
+        }catch(error){throw new Error("[mapRange]"+error);}
+        if(limit){
+            if(this.isSmallerThan(finalLow)){this.setEqualTo(finalLow);}
+            else if(this.isGreaterThan(finalHigh)){this.setEqualTo(finalHigh);}
+        }
+        if(this.NumberOfDigits>BigIntType.MAX_SIZE){throw new RangeError("[mapRange] would result in a number longer than MAX_SIZE");}
+        return this;
+    }
+    /**
+     * __calculates gcd for `A`/`B`__ \
+     * [!] `A`>`B`>0
+     * @param {Uint8Array} A - numerator
+     * @param {Uint8Array} B - denominator
+     * @returns {Uint8Array} greatest-common-divisor so that `(A/gcd) / (B/gcd)` the smallest possible fraction with this value is
+     */
+    static #calcGCD(A,B){
+        for(let last=new Uint8Array();last=BigIntType.#calcDivRest(A,B).remainder,last.length>1||last[0]!==0;[A,B]=[B,last]);
+        return B.slice();
     }
     /* TODO's
 
-        maprange(n,min1,max1,min2,max2,limit?)
+        !test! mapRange,#calcGCD
 
-        gcd(a,b)
-
-        x!
+        x! ~ to large?
 
         fibonacci() ?
 
@@ -1188,10 +1220,10 @@ try{
         num5=new BigIntType("87441534845318410818153548318838","10").div(new BigIntType("-48418","10"),'r'),
         num6=num.add(num2).mul(num4).sub(num5).add(num).logConsole();
     console.log("done in %ims",Date.now()-a);
-    console.table([num,num2,num3,num4,num5,num6].map(({Sign,NumberOfDigits,Digits})=>({Sign,NumberOfDigits,Digits})));
-    console.log(BigIntType.HelloThere.toString(256));
+    // console.table([num,num2,num3,num4,num5,num6].map(({Sign,NumberOfDigits,Digits})=>({Sign,NumberOfDigits,Digits})));
+    // console.log(BigIntType.HelloThere.toString(256));
     // new BigIntType("123abc@&%");//~ produce an error → "{SyntaxError} : [num] (string) does not have the correct format for base 10"
-    console.log(BigIntType.Two.pow(new BigIntType("1024","10")).logConsole(0).isEqualTo(BigIntType.Infinity));
+    // console.log(BigIntType.Two.pow(new BigIntType("1024","10")).logConsole(0).isEqualTo(BigIntType.Infinity));
 }catch(error){
     console.log("{%s} : %s",error.name,error.message);//~ show only recent message (on screen) and not the whole stack
     console.error(error);//~ but do log the whole error message with stack to console
