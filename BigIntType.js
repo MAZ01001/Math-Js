@@ -1128,6 +1128,10 @@ class BigIntType{
 
         gcd(a,b)
 
+        x!
+
+        fibonacci() ?
+
         root(n)
 
         ( n-root(n,x) => pow(x,1/n) ) ~ 1/x if x>2 is rounded 0 !
