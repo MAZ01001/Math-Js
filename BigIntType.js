@@ -422,6 +422,12 @@ class BigIntType{
      */
     copy(){return this.#sign?new BigIntType(this.#digits.slice(),"256"):new BigIntType(this.#digits.slice(),"256").neg();}
     /**
+     * __copy values from `this` to `n`__
+     * @param {BigIntType} n - number to set equal to `this` (will be modified)
+     * @returns {BigIntType} `this` (unmodified)
+     */
+    reverseCopy(n){n.setEqualTo(this);return this;}
+    /**
      * __set `this` number equal to `n`__
      * @param {BigIntType} n - number to set equal to (copy values from)
      * @returns {BigIntType} `this = n`
@@ -1149,7 +1155,7 @@ class BigIntType{
     /**
      * __multiplies `this` number by `n`__ \
      * _modifies the original_
-     * _using Karatsubas Algorithm_
+     * _using Karatsubas algorithm_
      * @param {BigIntType} n - multiplicator
      * @returns {BigIntType} `this * n` (`this` modified)
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
@@ -1248,7 +1254,7 @@ class BigIntType{
      * + `'c'` or `"ceil"` for ceiled result
      * @param {boolean} limit - if `true` caps the result at final bound
      * @returns {BigIntType} `this` in `finalLow` to `finalHigh` range (rounded/caped as set) (`this` modified)
-     * @throws {TypeError} if `initialLow`,`initialHigh`,`finalLow` or `finalHigh` are not instances of `BigIntType`
+     * @throws {TypeError} - if `initialLow`,`initialHigh`,`finalLow` or `finalHigh` are not instances of `BigIntType`
      * @throws {SyntaxError} - if `rounding` is not a valid option
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
@@ -1261,9 +1267,16 @@ class BigIntType{
         rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[mapRange] rounding is not a valid option");}
         limit=Boolean(limit);
         try{
+            // TODO ~ could be faster with BigIntType.#calc... methods (divRest and karazuba need extra handeling) also no false "larger than max size" throw
             initialHigh=initialHigh.copy().sub(initialLow);
-            this.sub(initialLow).mul(finalHigh.copy().sub(finalLow)).add(initialHigh.copy().mul(finalLow)).div(initialHigh,rounding);
-        }catch(error){throw new Error("[mapRange]"+error);}
+            this.sub(initialLow)
+                .mul(finalHigh.copy().sub(finalLow))
+                .add(initialHigh.copy().mul(finalLow))
+                .div(initialHigh,rounding);
+        }catch(error){
+            if(error instanceof RangeError)throw new RangeError("[mapRange] would result in a number longer than MAX_SIZE");
+            throw error;
+        }
         if(limit){
             if(this.isSmallerThan(finalLow)){this.setEqualTo(finalLow);}
             else if(this.isGreaterThan(finalHigh)){this.setEqualTo(finalHigh);}
@@ -1286,21 +1299,41 @@ class BigIntType{
         for(let last=new Uint8Array(1);(last=BigIntType.#calcDivRest(A,B).remainder,(last.length>1||last[0]!==0));[A,B]=[B,last]);
         return new BigIntType(B.slice(),"256");
     }
+    /**
+     * __creates a random number using `Math.random()`'s binary output__ \
+     * _not cryptographically secure output_
+     * @param {BigIntType} min - lower limit (included) - _default `0`_
+     * @param {BigIntType} max - upper limit (included) - _default `1.79e308` (`BigIntType.Infinity`)_
+     * @returns {BigIntType} random number between `min` and `max`
+     * @throws {TypeError} - if `min` or `max` are not instances of `BigIntType`
+     * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static randomInt(min=BigIntType.Zero,max=BigIntType.Infinity){
+        try{
+            return new BigIntType(new Uint8Array(BigIntType.#removeLeadingZeros([...Math.random().toString(2).substring(2)].reverse())),'2').mapRange(
+                BigIntType.Zero,
+                new BigIntType(new Uint8Array([255,255,255,255,255,255,15]),"256"),
+                min,max,
+                'r',true
+            );
+        }catch(error){
+            if(error instanceof RangeError)throw new RangeError("[randomInt] would result in a number longer than MAX_SIZE");
+            throw error;
+        }
+    }
     /* TODO's
 
-        fibonacci() ?
-
-        randomInt(min,max) algorithm?Math.random()?function*(x){yield x++;}?
-
         root(n)
-
         ( n-root(n,x) => pow(x,1/n) ) ~ 1/x if x>2 is rounded 0 !
 
         log(x)(y)=z <-> (x^z=y) https://en.wikipedia.org/wiki/Logarithm#Change_of_base
         log(x)(y) = ( log(2)(y) / log(2)(x) ) log of 2 to log of any base
 
 
-        (；￢＿￢)
+        (；￢＿￢) basically BigInt but slower (just a proof of concept and a fun math challenge)
+
+        probably for the best to use BigInt (in fraction-class) and copy methods from here as needed, 'cause speed
 
         <num_frac([a+(b/c)])>
             frac2decString - [PowerShell]
@@ -1332,24 +1365,20 @@ class BigIntType{
             COS: https://wikimedia.org/api/rest_v1/media/math/render/svg/b81fe2f5f9ac74cbd88ec71d23baf9a1e39b8f04
             SIN: https://wikimedia.org/api/rest_v1/media/math/render/svg/2d12b4b66e58abfcf03c1f452658b85f662ce228
     */
-}
+} //~ or just u know use the actual BigInt xD - it might not have base 256 and a few of the methods here but it's a lot faster since it's coded on a lower level ^^
 
-// console.log((({sign,digits})=>({sign,digits}))(new BigIntType("12345649061847658743611234564906184765874361876734659431587645014856782195644643266854326514266548265442656816546542654265665426542657426565365427654635654646546546542765876734659431587645014856782195644643266123456490618476587436187673465943158764501485678219564464326685432651426654826123456490618476587436187673465943158764501485678219564464326685432651426654826544265681654654265426566542654265742656536542765463565464654654654276554426568165465426542656654265426574265653654276546356546465465465427065854032")));
-//~ 512 digit base 10 string to base 256 Uint8Array(213) in 99ms
 try{
-    const a=Date.now();
-    let num=new BigIntType(new Uint8Array([6,247,252,93,6,34,21,134,230,3,176,174,134,177,34,22,122,210,6,22,210,6,36,53,123,6,35,123,142,6,31]),256),
-        num2=new BigIntType(new Uint8Array([58,237,133,133,61,65,65,65,122,142,146,100,177,35,91,75,241,139,246,28,11,158,253,22,230,253,253,200]),256),
-        num3=new BigIntType(new Uint8Array([112,74,221,233,65,144,244,38,7,7,77,0,76,29,29,7,145,96,201,209,172,56,121,220,204,188,34,30,102,36]),256),
-        num4=new BigIntType("-87441534845318654375427546527654265423410818153548318838","10").modulo(new BigIntType("4348418","10"),'t'),
-        num5=new BigIntType("87441534845318410818153548318838","10").div(new BigIntType("-48418","10"),'r'),
-        num6=num.add(num2).mul(num4).sub(num5).add(num).logConsole();
-    console.log("done in %ims",Date.now()-a);
-    console.table([num,num2,num3,num4,num5,num6].map((obj)=>({"Sign":obj.sign,"Bytes":obj.length,"Base 36 Number":obj.toString(36)})));
     console.log(BigIntType.HelloThere.toString("braille"));
-    // new BigIntType("123abc@&%");//~ produce an error → "{SyntaxError} : [num] (string) does not have the correct format for base 10"
-    // console.log(BigIntType.Two.pow(new BigIntType("1024","10")).logConsole(0).isEqualTo(BigIntType.Infinity));
-    // new BigIntType(new BigIntType(123456789876543210n).logConsole("braille").toString("braille"),"braille").logConsole("braille")
+    const a=Date.now();
+    BigIntType.randomInt(
+        new BigIntType((2n**128n).toString(16),16),
+        new BigIntType((2n**256n).toString(16),16)
+    ).logConsole(10);
+    BigIntType.randomInt(
+        new BigIntType((2n**128n).toString(16),16),
+        new BigIntType((2n**256n).toString(16),16)
+    ).logConsole(10);
+    console.log("done in %ims",Date.now()-a); //~ 8ms
 }catch(error){
     console.log("{%s} : \"%s\"",error.name,error.message);//~ show only recent message (on screen) and not the whole stack
     console.error(error);//~ but do log the whole error message with stack to console
