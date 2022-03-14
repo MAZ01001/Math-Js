@@ -146,59 +146,43 @@
 > ## [BigIntType.js](https://github.com/MAZ01001/Math-Js/blob/main/BigIntType.js)
 >
 > >
-> > WIP [2022-03-07]
+> > WIP [2022-03-14]
 > >
-> > update methods and make an online calculator with this class
+> > + online calculator
+> > + nth-root()
+> > + log_n()
+> > + (?) digits of `E` / `PI`
+> > + (?) fraction output/calcs
 > >
 >
-> create numbers with js typed arrays (8bit - base 256)
+> arbitrary precision integer using JS's Uint8Array (unsigned 8-bit integer array)
+> human "readable" code with lots of documentation (js-doc & some comments) and descriptive error throws
 >
-> ### (BigIntType) Methods
->
-> + `static get MAX_SIZE():Number`
-> + `static set MAX_SIZE(n:Number):Number`
-> + `get Sign():Boolean`
-> + `get Digits():Uint8Array`
-> + `get NumberOfDigits():Number`
-> + `static get MAX_VALUE():BigIntType`
-> + `static get HelloThere():BigIntType`
-> + `static get Infinity():BigIntType`
-> + `static get Zero():BigIntType`
-> + `static get One():BigIntType`
-> + `static get Two():BigIntType`
-> + `toString(base:Number):String`
-> + `logConsole(maxLen:Number):BigIntType`
-> + `copy():BigIntType`
-> + `setEqualTo(n:BigIntType):BigIntType`
-> + `abs():BigIntType`
-> + `neg():BigIntType`
-> + `isOdd():BigIntType`
-> + `isEven():BigIntType`
-> + `isZero():BigIntType`
-> + `isOne():BigIntType`
-> + `isTwo():BigIntType`
-> + `isSmallerThan(n:BigIntType):BigIntType`
-> + `isGreaterThan(n:BigIntType):BigIntType`
-> + `isEqualTo(n:BigIntType):BigIntType`
-> + `isGreaterOrEqualTo(n:BigIntType):BigIntType`
-> + `isSmallerOrEqualTo(n:BigIntType):BigIntType`
-> + `inc():BigIntType`
-> + `dec():BigIntType`
-> + `add(n:BigIntType):BigIntType`
-> + `sub(n:BigIntType):BigIntType`
-> + `times256ToThePowerOf(x:Number,rounding:String):BigIntType`
-> + `bitShiftR(x:Number):BigIntType`
-> + `bitShiftL(x:Number):BigIntType`
-> + `bitAND(n:BigIntType):BigIntType`
-> + `bitOR(n:BigIntType):BigIntType`
-> + `bitXOR(n:BigIntType):BigIntType`
-> + `bitNOT():BigIntType`
-> + `half(rounding:String):BigIntType`
-> + `double():BigIntType`
-> + `div(n:BigIntType,rounding:String):BigIntType`
-> + `modulo(n:BigIntType,type:String):BigIntType`
-> + `mul(n:BigIntType):BigIntType`
-> + `pow(n:BigIntType):BigIntType`
+> + *(uses string arrays internally in private-methods for faster calculations)*
+> + adjustable limit `MAX_SIZE:Number` (Range 1 to 1048576 / 1MiB) *(software max is [8PiB-1] - wich could be extended to [16PiB-2] using `Uint16Array` - or even [32PiB-4] using `Uint32Array` with `BigInt`)*
+> + internal values: `sign:Boolean` / `digits:Uint8Array` (base 256 digits) / `length:Number` (length of digit-array)
+> + convert from/to string with radix 2, 4, 5, 10, 16, 36, 256 or 256 with unicode-braille-pattern - (supported prefixes `0b`, `0o`, `0x`)
+> + comparisons:
+>   + `isOdd()` / `isEven()`
+>   + `A===0` / `A===1` / `A===2`
+>   + `A<B` / `A>B` / `A===B` / `A>=B` / `A<=B`
+> + __chainable methods:__
+> + number constants: `0` / `1` / `2` / `1.79e308` / `MAX_VALUE` / `HelloThere`
+> + logging to console (custom base) without breaking chain
+> + copy/setEqual: `copy()` / `reverseCopy(toOtherNumber)` / `setEqualTo(otherNumber)`
+> + sign: `abs()` / `neg()` (`!A`)
+> + operations:
+>   + `++A` / `--A` / `A+B` / `A-B`
+>   + `A*B` using karatsubas algorithm / `A**B`
+>   + `A/B` with rounding (ceil, floor or round) / `A%B` with type (euclidean, truncated, floored, ceiled, rounded)
+>   + `A*2` / `A/2` with rounding (ceiled or floored)
+>   + `A*(256**x)` with rounding (ceiled, floored or rounded) - *(digit-shifts)*
+> + bitwise operations:
+>   + `A>>x` / `A<<x` / `A&B` / `A|B` / `A^B` / `~A`
+> + `GCD(A,B)`
+> + `mapRange(a,b,a2,b2)` with rounding (ceiled, floored or rounded) and limit (cap at a2/b2)
+> + `randomInt(min,max)` (using `Math.random()`)
+> + *↑ (`A=B=BigIntType` and `x=Number`) ↑*
 >
 ----
 >
@@ -207,7 +191,7 @@
 > >
 > > WIP
 > >
-> > idea: BigIntType > Fraction > ComplexNumber]
+> > idea: ~BigIntType~ BigInt > Fraction > ComplexNumber]
 > >
 >
 ----
