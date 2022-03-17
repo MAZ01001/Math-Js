@@ -461,18 +461,21 @@ class BigIntType{
      */
     isEven(){return !this.isOdd();}
     /**
-     * __determines if `this` number is equal to 0__
-     * @returns {boolean} `this === 0`
+     * __determines if `this` number is equal to 0__ \
+     * _only compares digit not sign_
+     * @returns {boolean} `abs(this) === 0`
      */
     isZero(){return(this.length===1&&this.#digits[0]===0);}
     /**
-     * __determines if `this` number is equal to 1__
-     * @returns {boolean} `this === 1`
+     * __determines if `this` number is equal to 1__ \
+     * _only compares digit not sign_
+     * @returns {boolean} `abs(this) === 1`
      */
     isOne(){return(this.length===1&&this.#digits[0]===1);}
     /**
-     * __determines if `this` number is equal to 2__
-     * @returns {boolean} `this === 2`
+     * __determines if `this` number is equal to 2__ \
+     * _only compares digit not sign_
+     * @returns {boolean} `abs(this) === 2`
      */
     isTwo(){return(this.length===1&&this.#digits[0]===2);}
     /**
