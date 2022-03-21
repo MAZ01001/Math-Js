@@ -1327,6 +1327,12 @@ class BigIntType{
     }
     /* TODO's
 
+        [!] use String.fromCharCode(10240+n) and (10240-s.charCodeAt(0)) (2Byte per number) in stead of "0"-"256" (wich uses up to 6Bytes per number)
+
+        [!] private method for converting from every base (2-256) to every base (2-256) (string[]/Uint8Array) (see base 10 conversion ~)
+            to use in constructor and toString method
+        [!] also an extra private method for "hexadecimal"=16 conversion/translation (switch in constructor, toString and logConsole) with every known base names ~
+
         root(n)
         ( n-root(n,x) => pow(x,1/n) ) ~ 1/x if x>2 is rounded 0 !
 
