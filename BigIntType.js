@@ -619,7 +619,7 @@ class BigIntType{
      * _ignoring  initial sign_ \
      * does not remove leading zeros
      * @param {string[]} digits - digits-array (original will be altered)
-     * @returns {Readonly<{sign:boolean;digits:string[]}>} `digits` and sign after decrementing
+     * @returns {Readonly<{_sign:boolean;_digits:string[]}>} `digits` and sign after decrementing
      */
     static #calcDec(digits){
         /**@type {boolean} - sign for digits */
@@ -634,7 +634,7 @@ class BigIntType{
                 BigIntType.#minusCarry(digits,0,digits.length-1);
             }
         }
-        return Object.freeze({sign:sign,digits:digits});
+        return Object.freeze({_sign:sign,_digits:digits});
     }
     /**
      * __increments `this` number once__ \
@@ -648,9 +648,9 @@ class BigIntType{
         let _tmp=Array.from(this.#digits,String);
         if(this.#sign){this.#digits=new Uint8Array(BigIntType.#removeLeadingZeros(BigIntType.#calcInc(_tmp)));}
         else{
-            (({sign,digits})=>{
-                this.#digits=new Uint8Array(BigIntType.#removeLeadingZeros(digits));
-                this.#sign=!sign;
+            (({_sign,_digits})=>{
+                this.#digits=new Uint8Array(BigIntType.#removeLeadingZeros(_digits));
+                this.#sign=!_sign;
             })(BigIntType.#calcDec(_tmp));
         }
         if(this.length>BigIntType.MAX_SIZE){throw new RangeError("[inc] would result in a number longer than MAX_SIZE");}
@@ -667,9 +667,9 @@ class BigIntType{
         /**@type {string[]} - digits-array */
         let _tmp=Array.from(this.#digits,String);
         if(this.#sign){
-            (({sign,digits})=>{
-                this.#digits=new Uint8Array(BigIntType.#removeLeadingZeros(digits));
-                this.#sign=sign;
+            (({_sign,_digits})=>{
+                this.#digits=new Uint8Array(BigIntType.#removeLeadingZeros(_digits));
+                this.#sign=_sign;
             })(BigIntType.#calcDec(_tmp));
         }else{this.#digits=new Uint8Array(BigIntType.#removeLeadingZeros(BigIntType.#calcInc(_tmp)));}
         if(this.length>BigIntType.MAX_SIZE){throw new RangeError("[dec] would result in a number longer than MAX_SIZE");}
@@ -749,12 +749,12 @@ class BigIntType{
             this.#digits=new Uint8Array(A);
         }else{
             if(this.#sign){//~ (+)+(-)
-                this.#sign=BigIntType.#calcSub(A,B).sign;
+                this.#sign=BigIntType.#calcSub(A,B)._sign;
                 BigIntType.#removeLeadingZeros(A);
                 if(A.length>BigIntType.MAX_SIZE){throw new RangeError("[add] would result in a number longer than MAX_SIZE");}
                 this.#digits=new Uint8Array(A);
             }else{//~ (-)+(+)
-                this.#sign=BigIntType.#calcSub(B,A).sign;
+                this.#sign=BigIntType.#calcSub(B,A)._sign;
                 BigIntType.#removeLeadingZeros(B);
                 if(B.length>BigIntType.MAX_SIZE){throw new RangeError("[add] would result in a number longer than MAX_SIZE");}
                 this.#digits=new Uint8Array(B);
@@ -781,12 +781,12 @@ class BigIntType{
             this.#digits=new Uint8Array(A);
         }else{
             if(this.#sign){//~ (+)-(+)
-                this.#sign=BigIntType.#calcSub(A,B).sign;
+                this.#sign=BigIntType.#calcSub(A,B)._sign;
                 BigIntType.#removeLeadingZeros(A);
                 if(A.length>BigIntType.MAX_SIZE){throw new RangeError("[sub] would result in a number longer than MAX_SIZE");}
                 this.#digits=new Uint8Array(A);
             }else{//~ (-)-(-)
-                this.#sign=BigIntType.#calcSub(B,A).sign;
+                this.#sign=BigIntType.#calcSub(B,A)._sign;
                 BigIntType.#removeLeadingZeros(B);
                 if(B.length>BigIntType.MAX_SIZE){throw new RangeError("[sub] would result in a number longer than MAX_SIZE");}
                 this.#digits=new Uint8Array(B);
@@ -1376,19 +1376,8 @@ class BigIntType{
     */
 } //~ or just u know use the actual BigInt xD - it might not have base 256 and a few of the methods here but it's a lot faster since it's coded on a lower level ^^
 
-try{
-    console.log(BigIntType.HelloThere.toString("braille"));
-    const a=Date.now();
-    BigIntType.randomInt(
-        new BigIntType((2n**128n).toString(16),16),
-        new BigIntType((2n**256n).toString(16),16)
-    ).logConsole(10);
-    BigIntType.randomInt(
-        new BigIntType((2n**128n).toString(16),16),
-        new BigIntType((2n**256n).toString(16),16)
-    ).logConsole(10);
-    console.log("done in %ims",Date.now()-a); //~ 8ms
-}catch(error){
+try{console.log(BigIntType.HelloThere.toString("braille"));}
+catch(error){
     console.log("{%s} : \"%s\"",error.name,error.message);//~ show only recent message (on screen) and not the whole stack
     console.error(error);//~ but do log the whole error message with stack to console
 }
