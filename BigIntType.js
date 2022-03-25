@@ -1381,3 +1381,60 @@ catch(error){
     console.log("{%s} : \"%s\"",error.name,error.message);//~ show only recent message (on screen) and not the whole stack
     console.error(error);//~ but do log the whole error message with stack to console
 }
+
+// TODO implement ↓ as private method for constructor/toString/logConsole
+
+/**
+ * __constructs a RegExp to match `base`__ \
+ * _min 1 digit_ \
+ * match-groups:
+ * 1. sign / null
+ * 2. number / comma-separated list of numbers
+ * @param {number} base - base 0=braille, 2-10 [0-9], 11-36 [0-9A-F], 37-256 [0-9](comma-separated list of numbers)
+ * @returns {RegExp} regexp for `base` - if out of range only matches `+0` and `-0`
+ */
+const REGEXP_STRING=base=>{
+    base=Math.abs(Number(base));if(Number.isNaN(base)){return/^([+-]?)(0)$/;}
+    switch(Number(base)){
+        case 0:return/^([+-]?)(\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)$/;// unicode braille-pattern
+        case 1:return/^([+-]?)(0)$/;//~ base 1 does not exist
+        case 2:return/^([+-]?)(?:0b)?(0|1[01]*)$/i;
+        case 8:return/^([+-]?)(?:0o)?(0|[1-7][0-7]*)$/i;
+        case 16:return/^([+-]?)(?:0x)?(0|[1-9A-F][0-9A-F]*)$/i;
+        case 36:return/^([+-]?)(0|[1-9A-Z][0-9A-Z]*)$/i;
+        case 256:return/^([+-]?)(0|(?:[1-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])(?:\,(?:[1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))*)$/;
+        default:
+            if(base<=10){return new RegExp(`^([+-]?)(0|[1-${base-1}][0-${base-1}]*)$`);}
+            else if(base<=36){return new RegExp(`^([+-]?)(0|[1-9A-${String.fromCharCode(54+base)}][0-9A-${String.fromCharCode(54+base)}]*)$`,'i');}
+            else if(base<=256){// 37-256 (comma-separated list of numbers)
+                const _base=String(base);
+                if(_base.length===2){// "37"-"99" (~"10"-"99")
+                    return new RegExp(
+                        `^([+-]?)((?:0|[1-9]|[1-${Number(_base[0])-1}][0-9]${
+                            (_base[1]!=='0'?`|${_base[0]}[0-${Number(_base[1])-1}]`:'')
+                        })(?:\,(?:0|[1-9]|[1-${Number(_base[0])-1}][0-9]${
+                            (_base[1]!=='0'?`|${_base[0]}[0-${Number(_base[1])-1}]`:'')
+                        }))*)$`
+                    );
+                }else if(_base.length===3){// "100"-"256" (~"100"-"999")
+                    return new RegExp(
+                        `^([+-]?)((?:0|[1-9]|[1-9][0-9]${
+                            (_base[0]!=='1'?`|[1-${Number(_base[0])-1}][0-9][0-9]`:'')
+                            +(
+                                _base[2]!=='0'?`|${_base[0]}[0-${_base[1]}][0-${Number(_base[2])-1}]`
+                                :(_base[1]!=='0'?`|${_base[0]}[0-${Number(_base[1])-1}][0-9]`:'')
+                            )
+                        })(?:\,(?:0|[1-9]|[1-9][0-9]${
+                            (_base[0]!=='1'?`|[1-${Number(_base[0])-1}][0-9][0-9]`:'')
+                            +(
+                                _base[2]!=='0'?`|${_base[0]}[0-${_base[1]}][0-${Number(_base[2])-1}]`
+                                :(_base[1]!=='0'?`|${_base[0]}[0-${Number(_base[1])-1}][0-9]`:'')
+                            )
+                        }))*)$`
+                    );
+                }
+            }
+            break;
+    }
+    return/^([+-]?)(0)$/;//~ no more bases implemented
+};
