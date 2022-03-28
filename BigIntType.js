@@ -867,7 +867,7 @@ class BigIntType{
     bitShiftL(x=1){
         x=Number(x);if(x<0||!Number.isSafeInteger(x)){throw new TypeError("[bitshiftL] x is not a positive save integer");}
         if(Math.floor(x/8)+this.length>BigIntType.MAX_SIZE){throw new RangeError(`[bitshiftL] would result in a number longer than MAX_SIZE`);}
-        this.times256ToThePowerOf(Math.ceil(x/8));
+        this.times256ToThePowerOf(Math.floor(x/8));
         x=x%8
         if(x===0){return this;}
         this.#digits=new Uint8Array([...this.#digits,0]);
@@ -1189,6 +1189,7 @@ class BigIntType{
                     [...Array.from(n.#digits,String),...new Array(len-n.length).fill('0')]
                 )));
             }catch(e){throw(e instanceof RangeError)?new RangeError("[mul] would result in a number longer than MAX_SIZE"):e;}
+            if(this.length>BigIntType.MAX_SIZE){new RangeError("[mul] would result in a number longer than MAX_SIZE");}
         }
         this.#sign=this.#sign===n.#sign;
         return this;
@@ -1237,6 +1238,7 @@ class BigIntType{
                 [...base,...new Array(karatsubaLen-base.length).fill('0')],
                 [...base,...new Array(karatsubaLen-base.length).fill('0')]
             );
+            if(result.length>2147483648||base.length>2147483648){throw new RangeError("[pow] would result in a number longer than MAX_SIZE");}//~ safety? (2GiB)
         }
         BigIntType.#removeLeadingZeros(result);
         if(result.length>BigIntType.MAX_SIZE){throw new RangeError("[pow] would result in a number longer than MAX_SIZE");}
@@ -1258,6 +1260,7 @@ class BigIntType{
      * @param {boolean} limit - if `true` caps the result at final bound
      * @returns {BigIntType} `this` in `finalLow` to `finalHigh` range (rounded/caped as set) (`this` modified)
      * @throws {TypeError} - if `initialLow`,`initialHigh`,`finalLow` or `finalHigh` are not instances of `BigIntType`
+     * @throws {RangeError} - if `initialLow` and `initialHigh` or `finalLow` and `finalHigh` are the same value
      * @throws {SyntaxError} - if `rounding` is not a valid option
      * @throws {RangeError} - if new number would be longer than `BigIntType.MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
@@ -1267,6 +1270,8 @@ class BigIntType{
         if(!(initialHigh instanceof BigIntType)){throw new TypeError("[mapRange] initialHigh is not an instance of BigIntType");}
         if(!(finalLow instanceof BigIntType)){throw new TypeError("[mapRange] finalLow is not an instance of BigIntType");}
         if(!(finalHigh instanceof BigIntType)){throw new TypeError("[mapRange] finalHigh is not an instance of BigIntType");}
+        if(initialLow.isEqualTo(initialHigh)){throw new RangeError("[mapRange] initialLow and initialHigh are the same value");}
+        if(finalLow.isEqualTo(finalHigh)){throw new RangeError("[mapRange] finalLow and finalHigh are the same value");}
         rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[mapRange] rounding is not a valid option");}
         limit=Boolean(limit);
         try{
@@ -1327,11 +1332,16 @@ class BigIntType{
     }
     /* TODO's
 
+        [!] in constructor auto detect base from prefix or base10 (base=null → prefix? || 10)
         [!] use String.fromCharCode(10240+n) and (10240-s.charCodeAt(0)) (2Byte per number) in stead of "0"-"256" (wich uses up to 6Bytes per number)
-
         [!] private method for converting from every base (2-256) to every base (2-256) (string[]/Uint8Array) (see base 10 conversion ~)
             to use in constructor and toString method
         [!] also an extra private method for "hexadecimal"=16 conversion/translation (switch in constructor, toString and logConsole) with every known base names ~
+        [!] todo in mapRange and function for regexp below
+        [!] number output padding with '_' for base 2/4/16 after prefix (like padding with '0' wich is not allowed by the regexps currently)
+            number input set regexp to ignore '_' after prefix and between digits (not for comma separated lists)
+
+        lerp(a,b,t,rounding) -> mapRange(t,0,100,a,b,rounding)
 
         root(n)
         ( n-root(n,x) => pow(x,1/n) ) ~ 1/x if x>2 is rounded 0 !
@@ -1394,6 +1404,7 @@ catch(error){
  * @returns {RegExp} regexp for `base` - if out of range only matches `+0` and `-0`
  */
 const REGEXP_STRING=base=>{
+    // TODO add support for ignoring '_' after prefix and between digits (except comma separated list)
     base=Math.abs(Number(base));if(Number.isNaN(base)){return/^([+-]?)(0)$/;}
     switch(Number(base)){
         case 0:return/^([+-]?)(\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)$/;// unicode braille-pattern
