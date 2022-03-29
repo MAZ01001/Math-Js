@@ -148,7 +148,6 @@
 > >
 > > WIP [2022-03-14]
 > >
-> > + online calculator
 > > + nth-root()
 > > + log_n()
 > > + (?) digits of `E` / `PI`
@@ -157,6 +156,8 @@
 >
 > arbitrary precision integer using JS's Uint8Array (unsigned 8-bit integer array)
 > human "readable" code with lots of documentation (js-doc & some comments) and descriptive error throws
+>
+> > [online calculator [WIP]](https://maz01001.github.io/site/BigIntType_calc.html)
 >
 > + *(uses string arrays internally in private-methods for faster calculations)*
 > + adjustable limit `MAX_SIZE:Number` (Range 1 to 1048576 / 1MiB) *(software max is [8PiB-1] - wich could be extended to [16PiB-2] using `Uint16Array` - or even [32PiB-4] using `Uint32Array` with `BigInt`)*
@@ -172,13 +173,13 @@
 > + copy/setEqual: `copy()` / `reverseCopy(toOtherNumber)` / `setEqualTo(otherNumber)`
 > + sign: `abs()` / `neg()` (`!A`)
 > + operations:
->   + `++A` / `--A` / `A+B` / `A-B`
->   + `A*B` using karatsubas algorithm / `A**B`
->   + `A/B` with rounding (ceil, floor or round) / `A%B` with type (euclidean, truncated, floored, ceiled, rounded)
->   + `A*2` / `A/2` with rounding (ceiled or floored)
->   + `A*(256**x)` with rounding (ceiled, floored or rounded) - *(digit-shifts)*
+>   + `++A` / `--A` / `A+=B` / `A-=B`
+>   + `A*=B` using karatsubas algorithm / `A**=B`
+>   + `A/=B` with rounding (ceil, floor or round) / `A%=B` with type (euclidean, truncated, floored, ceiled, rounded)
+>   + `A*=2` / `A/=2` with rounding (ceiled or floored)
+>   + `A*=(256**x)` with rounding (ceiled, floored or rounded) - *(digit-shifts)*
 > + bitwise operations:
->   + `A>>x` / `A<<x` / `A&B` / `A|B` / `A^B` / `~A`
+>   + `A>>=x` / `A<<=x` / `A&=B` / `A|=B` / `A^=B` / `A=~A`
 > + `GCD(A,B)`
 > + `mapRange(a,b,a2,b2)` with rounding (ceiled, floored or rounded) and limit (cap at a2/b2)
 > + `randomInt(min,max)` (using `Math.random()`)
