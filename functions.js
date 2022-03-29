@@ -316,3 +316,46 @@ function fixPrecision(n){
     const m=Math.round(n);
     return Math.abs(Math.abs(m)-Math.abs(n))<Number.EPSILON?m:n;
 }
+/**
+ * __divides one number from another one__ \
+ * _ignoring initial sign_ \
+ * [!] `A`>`B`>0
+ * @param {BigIntType} A - dividend (>`B`)
+ * @param {BigIntType} B - divisor (>0)
+ * @returns {Readonly<{quotient:Uint8Array;remainder:Uint8Array}>} `A / B` (quotient with remainder)
+ */
+function __intDivRest(A,B){// TODO
+    let Q=new Uint8Array(A.length+1),
+        R=new Uint8Array(B.length+1);
+    /**
+    * @param {Uint8Array} a - digit-array R
+    * @param {Uint8Array} b - digit-array B
+    * @returns {boolean} `a>=b`
+    */
+    const greaterEqual=(a,b)=>{
+        for(let i=a.length-2;i>=0;i--){
+            if(a[i]<b[i]){return false;}
+            if(a[i]>b[i]){return true;}
+        }
+        return true;
+    };
+    for(let i=A.length-1,j=7,k=0,z=0,m=0,l=0;i>=0;(j===0?(--i,j=7):--j)){//~ [i,j] for bit position / [k,m,l] other for-loop indexes / [z] a calculation result
+        for(k=R.length-1;k>=0;k--){//~ R<<=1
+            R[k]<<=1;
+            R[k]|=((R[k-1]||0)&128)>>>7;
+        }
+        R[0]|=(A[i]&(1<<j))>>>j;
+        if(R[R.length-1]>0||greaterEqual(R,B)){//~ R>=B
+            for(z=0,m=0,l=R.length-1;l>=0;l--){//~ R-=B
+                z=R[l]-(B[l]||0);
+                if(z<0){
+                    R[l]=256+z;
+                    for(m=l+1;R[m]===0;R[m++]=255);//~ minus carry
+                    R[m]--;
+                }else{R[l]=z;}
+            }
+            Q[i]|=1<<j;
+        }
+    }
+    return Object.freeze({quotient:BigIntType.#removeLeadingZeros(Q),remainder:BigIntType.#removeLeadingZeros(R)});
+}
