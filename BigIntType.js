@@ -1097,25 +1097,6 @@ class BigIntType{
         return this;
     }
     /**
-     * __doubles a number__ \
-     * does not remove leading zeros
-     * @param {string[]} A - digits-array (original will be altered)
-     * @returns {string[]} `A * 2` (modified `A`)
-     */
-    static #calcDouble(A){
-        if(A.some(v=>v!=='0')){
-            for(let i=0,o=false;i<A.length||o;i++){
-                if(A[i]==='0'&&!o){continue;}
-                A[i]=String((Number(A[i])<<1)+(o?1:0));
-                if(Number(A[i])>=256){
-                    A[i]=String(Number(A[i])-256);
-                    o=true;
-                }else{o=false;}
-            }
-        }
-        return A;
-    }
-    /**
      * __Karatsubas Multiplication Algorithm__ \
      * _with recursion_ \
      * for `mul()`
@@ -1128,15 +1109,8 @@ class BigIntType{
         if(X.every(v=>v==='0')||Y.every(v=>v==='0')){return ['0'];}
         //~ assume here that`X` and `Y` are of same length and the length is a power of 2
         if(X.length===1){//~ small enough to conpute savely with JS-Number
-            if(X[0]==='1'&&Y[0]==='1'){return['1'];}
-            else if(X[0]==='1'){return Y.slice();}
-            else if(Y[0]==='1'){return X.slice();}
-            else if(Y[0]==='2'){return BigIntType.#calcDouble(X.slice());}
-            else if(X[0]==='2'){return BigIntType.#calcDouble(Y.slice());}
-            else{
-                const A=Number(X[0])*Number(Y[0]);
-                return[String(A%256),String(Math.floor(A/256))];
-            }
+            const A=Number(X[0])*Number(Y[0]);
+            return[String(A&255),String(A>>>8)];
         }
         let Xl=X.slice(0,Math.floor(X.length*.5)),Xh=X.slice(Math.floor(X.length*.5)),
             Yl=Y.slice(0,Math.floor(Y.length*.5)),Yh=Y.slice(Math.floor(Y.length*.5));
@@ -1332,6 +1306,7 @@ class BigIntType{
     }
     /* TODO's
 
+        [?] pow/mul more stable for large numbers ? test on MAZ01001.github.io/site/BigIntType_calc.html
         [!] in constructor auto detect base from prefix or base10 (base=null → prefix? || 10)
         [!] use String.fromCharCode(10240+n) and (10240-s.charCodeAt(0)) (2Byte per number) in stead of "0"-"256" (wich uses up to 6Bytes per number)
         [!] private method for converting from every base (2-256) to every base (2-256) (string[]/Uint8Array) (see base 10 conversion ~)
@@ -1386,8 +1361,13 @@ class BigIntType{
     */
 } //~ or just u know use the actual BigInt xD - it might not have base 256 and a few of the methods here but it's a lot faster since it's coded on a lower level ^^
 
-try{console.log(BigIntType.HelloThere.toString("braille"));}
-catch(error){
+try{//~ Test number to console
+    console.log(
+        "TEST NUMBER: %c %s",
+        "background-color:#000;color:#0f0;font-family:consolas;font-size:2em;",
+        BigIntType.HelloThere.toString("braille")
+    );
+}catch(error){
     console.log("{%s} : \"%s\"",error.name,error.message);//~ show only recent message (on screen) and not the whole stack
     console.error(error);//~ but do log the whole error message with stack to console
 }
