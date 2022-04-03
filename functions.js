@@ -218,7 +218,7 @@ function dec2frac(dec,loop_last=0,max_den=0,max_iter=1e6){
  * @example padNum(1.23e2,3,5);//=> '+  1.23000e2'
  * @description
  * format:`[sign] [padded start ' '] [.] [padded end '0'] [e ~]`
-*/
+ */
 function padNum(n,first=0,last=0){
     n=Number(n);if(Number.isNaN(n)){throw new TypeError('[n] is not a number.')}
     first=Math.abs(Number(first));if(Number.isNaN(first)){throw new TypeError('[first] is not a whole number.');}
@@ -318,44 +318,26 @@ function fixPrecision(n){
 }
 /**
  * __divides one number from another one__ \
- * _ignoring initial sign_ \
- * [!] `A`>`B`>0
- * @param {BigIntType} A - dividend (>`B`)
- * @param {BigIntType} B - divisor (>0)
- * @returns {Readonly<{quotient:Uint8Array;remainder:Uint8Array}>} `A / B` (quotient with remainder)
+ * _ignoring initial sign_
+ * @param {number} A - dividend
+ * @param {number} B - divisor
+ * @returns {Readonly<{quotient:number;remainder:number}>} `A / B` (quotient with remainder)
+ * @throws {TypeError} if `A` or `B` are not finite numbers
+ * @throws {RangeError} if `B` is 0 (division by 0)
  */
-function __intDivRest(A,B){// TODO
-    let Q=new Uint8Array(A.length+1),
-        R=new Uint8Array(B.length+1);
-    /**
-    * @param {Uint8Array} a - digit-array R
-    * @param {Uint8Array} b - digit-array B
-    * @returns {boolean} `a>=b`
-    */
-    const greaterEqual=(a,b)=>{
-        for(let i=a.length-2;i>=0;i--){
-            if(a[i]<b[i]){return false;}
-            if(a[i]>b[i]){return true;}
-        }
-        return true;
-    };
-    for(let i=A.length-1,j=7,k=0,z=0,m=0,l=0;i>=0;(j===0?(--i,j=7):--j)){//~ [i,j] for bit position / [k,m,l] other for-loop indexes / [z] a calculation result
-        for(k=R.length-1;k>=0;k--){//~ R<<=1
-            R[k]<<=1;
-            R[k]|=((R[k-1]||0)&128)>>>7;
-        }
-        R[0]|=(A[i]&(1<<j))>>>j;
-        if(R[R.length-1]>0||greaterEqual(R,B)){//~ R>=B
-            for(z=0,m=0,l=R.length-1;l>=0;l--){//~ R-=B
-                z=R[l]-(B[l]||0);
-                if(z<0){
-                    R[l]=256+z;
-                    for(m=l+1;R[m]===0;R[m++]=255);//~ minus carry
-                    R[m]--;
-                }else{R[l]=z;}
-            }
-            Q[i]|=1<<j;
-        }
+function divisionWithRest(A,B){
+    A=Math.abs(Number(A));if(!Number.isFinite(A)){throw new TypeError("[A] is not a finite number");}
+    B=Math.abs(Number(B));if(!Number.isFinite(B)){throw new TypeError("[B] is not a finite number");}
+    let Q=0,R=0;
+    if(A===0){Q=(R=0);}
+    else if(B===1){Q=A;R=0;}
+    else if(B===0){throw new RangeError("[B] is 0 (can not divide by 0)");}
+    else if(A===B){Q=1;R=0;}
+    else{
+        Q=Math.floor(A/B);
+        R=A%B;
     }
-    return Object.freeze({quotient:BigIntType.#removeLeadingZeros(Q),remainder:BigIntType.#removeLeadingZeros(R)});
+    return Object.freeze({quotient:Q,remainder:R});
+    //~ see `#calcDivRest` in `Math-Js/BigIntType.js` for an approach with arbitrary-length-integers ~ string/bit-array (base power of 2)
+    //~ → https://github.com/MAZ01001/Math-Js/blob/cafda120f3464dcd433a0816df4461c0e42a545e/BigIntType.js#L978
 }
