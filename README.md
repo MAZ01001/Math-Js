@@ -208,7 +208,7 @@
 > + `toPercent(n,x,y);` calculates percent of number in range *("progress")*
 > + `deg2rad(deg);` DEG to RAD
 > + `rad2deg(rad);` RAD to DEG
-> + `gcd(A,B);` calculates greatest common divisor
+> + `gcd(A,B);` calculates the greatest common divisor of A and B
 > + `dec2frac(dec,loop_last=0,max_den=0,max_iter=1e6);` estimates a decimal number with a fraction
 > + `padNum(n,first=0,last=0);` pad number in respect to the decimal point
 > + `euclideanModulo(a,b);` calculates the modulo of two whole numbers *(the euclidean way with only positive remainder)*
@@ -216,4 +216,5 @@
 > + `randomRange(min,max);` genarates a random number within given range *(including min and max)*
 > + `randomRangeInt(min,max);` genarates a random integer within given range *(including min and max)*
 > + `fixPrecision(n);` attempt of fixing (potential) js float precision errors *(with `Number.EPSILON`)*
+> + `divisionWithRest(A,B);` calculates division of A by B and returns *(integer)* quotient and remainder
 >
