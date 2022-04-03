@@ -52,14 +52,14 @@ class PerfectComplex{
             imaginary=[imaginary,"0","1"];
         }
         this.real=Object.freeze({
-            whole=real[0],
-            numerator=real[1],
-            denominator=real[2]
+            whole:real[0],
+            numerator:real[1],
+            denominator:real[2]
         });
         this.imaginary=Object.freeze({
-            whole=imaginary[0],
-            numerator=imaginary[1],
-            denominator=imaginary[2]
+            whole:imaginary[0],
+            numerator:imaginary[1],
+            denominator:imaginary[2]
         });
     }
     // TODO
