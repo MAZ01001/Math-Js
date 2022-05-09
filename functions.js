@@ -342,3 +342,16 @@ function divisionWithRest(A,B){
     //~ see `#calcDivRest` in `Math-Js/BigIntType.js` for an approach with arbitrary-length-integers ~ string/bit-array (base power of 2)
     //~ → https://github.com/MAZ01001/Math-Js/blob/cafda120f3464dcd433a0816df4461c0e42a545e/BigIntType.js#L978
 }
+/**
+ * __generate an array of random bools__
+ * @param {number} x - number of bools to generate
+ * @returns {boolean[]} bool array with `x` entries
+ * @throws {TypeError} if `x` is not a safe integer
+ */
+function randomBools(x=1){
+    x=Math.abs(Number(x));if(!Number.isSafeInteger(x)){throw new TypeError("[randomBool] x is not a safe integer");}
+    /** @type {boolean[]} */
+    let output=[];
+    for(;x>0;x--){output.push(Math.round(Math.random())===1);}
+    return output;
+}
