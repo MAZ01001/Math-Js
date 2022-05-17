@@ -1574,6 +1574,38 @@ try{//~ Test number to console
 // TODO finish, improve, implement ↓ as private method for constructor/toString/logConsole
 
 /**
+ * __checking if the comma separated list matches format and numbers are below `base`__
+ * @param {string} cSNumStr - comma separated numbers
+ * @param {number} base - max number possible +1 (base) - positive save integer - _default `2**32`_
+ * @returns {boolean} `true` if the comma separated list matches format and numbers are below `base` - `false` otherwise
+ * @throws {TypeError} if `base` is not a safe integer
+ */
+function CheckCSNum(cSNumStr="0",base=2**32){
+    cSNumStr=String(cSNumStr);
+    base=Math.abs(Number(base));if(!Number.isSafeInteger(base)){throw new TypeError("[CheckCSNum] base is not a number");}
+    const _base=String(base);
+    if(!/^(?:0|[1-9][0-9]*)(?:\,(?:0|[1-9][0-9]*))*$/.test(cSNumStr)){return false;}
+    for(let i=0,lastNum="";i<cSNumStr.length;i++){
+        if(cSNumStr[i]!=','){
+            lastNum+=cSNumStr[i];
+            if(i<cSNumStr.length-1){continue;}
+        }
+        //~ check lastNum < _base
+        if(lastNum.length>_base.length){return false;}
+        if(lastNum.length===_base.length){
+            for(let j=0;j<_base.length;j++){
+                if(lastNum.charCodeAt(j)>_base.charCodeAt(j)){return false;}
+                if(lastNum.charCodeAt(j)<_base.charCodeAt(j)){break;}
+            }
+        }
+        lastNum="";
+    }
+    return true;
+}
+
+// ! use ↑ instead of ↓ (archive below)
+
+/**
  * __constructs a RegExp to match `base`__ \
  * _min 1 digit_ \
  * allows prefixes for bases 2, 8, and 16 \
