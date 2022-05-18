@@ -1571,7 +1571,7 @@ try{//~ Test number to console
     console.error(error);//~ but do log the whole error message with stack to console
 }
 
-// TODO finish, improve, implement ↓ as private method for constructor/toString/logConsole
+// TODO implement ↓ as private method for constructor/toString/logConsole
 
 /**
  * __checking if the comma separated list matches format and numbers are below `base`__
@@ -1601,91 +1601,4 @@ function CheckCSNum(cSNumStr="0",base=2**32){
         lastNum="";
     }
     return true;
-}
-
-// ! use ↑ instead of ↓ (archive below)
-
-/**
- * __constructs a RegExp to match `base`__ \
- * _min 1 digit_ \
- * allows prefixes for bases 2, 8, and 16 \
- * match-groups:
- * 1. sign / null
- * 2. number / comma-separated list of decimal-numbers representing characters
- * @param {number} base - string that consist of digits that match base:
- * + base 1-10 [0-9]
- * + 11-36 [0-9A-F]
- * + 37-(`MAX_SAFE_INTEGER` = 2↑53-1 = 9007199254740991) [0-9](comma-separated list of decimal-numbers representing characters)
- * @returns {RegExp} regexp for base `base`
- * @throws {RangeError} if `base` is not an integer, smaller than 1, or bigger than (`MAX_SAFE_INTEGER` = 2↑53-1 = 9007199254740991)
- */
-function REGEXP_STRING(base){
-    base=Number(base);if(Number.isNaN(base)||!Number.isSafeInteger(base)||base<1){throw RangeError('[REGEXP_STRING] base is out of range');}
-    switch(Number(base)){//~ special cases
-        case 1:return/^([+-]?)(0+(?:_0+)*)$/;//~ base 1 does not realy exist, but I would imagine it like this. Where the length is the number value -1, so "0" is 0, "00" is 1, "000" is 2, etc.
-        case 2:return/^([+-]?)(?:0b)?((?:0|1[01]*)+(?:_(?:0|1[01]*)+)*)$/i;
-        case 8:return/^([+-]?)(?:0o)?((?:0|[1-7][0-7]*)+(?:_(?:0|[1-7][0-7]*)+)*)$/i;
-        case 16:return/^([+-]?)(?:0x)?((?:0|[1-9A-F][0-9A-F]*)+(?:_(?:0|[1-9A-F][0-9A-F]*)+)*)$/i;
-        // case 36:return/^([+-]?)((?:0|[1-9A-Z][0-9A-Z]*)+(?:_(?:0|[1-9A-Z][0-9A-Z]*)+)*)$/i;
-        // case 256:return/^([+-]?)(0|(?:[1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(?:\,(?:[1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))*)$/;
-    }
-    const add_char_seperator=characters=>`(?:${characters})+(?:_(?:${characters})+)*`,
-        construct_regexp=(number_regexp,flag='')=>new RegExp(`^([+-]?)(${number_regexp})$`,flag);
-    if(base<=10){//~ base 2-10
-        const characters=`0|[1-${base-1}][0-${base-1}]*`;
-        return construct_regexp(add_char_seperator(characters));
-    }else if(base<=36){//~ base 11-36
-        const characters=`0|[1-9A-${String.fromCharCode(54+base)}][0-9A-${String.fromCharCode(54+base)}]*`;
-        return construct_regexp(add_char_seperator(characters),'i');
-    }else{//~ 37-* (comma-separated list of numbers)
-        // TODO comma-separated list of numbers (representing digits)
-        const _base=String(base),
-            add_comma_seperator=characters=>`${characters}(?:\,${characters})*)`;
-        let characters='';
-        switch(_base.length){
-            case 2://~ "10"-"99"
-                characters=`(?:[0-9]${
-                    (_base[0]!=='1'?`|[1-${Number(_base[0])-1}][0-9]`:'')
-                    +(_base[1]!=='0'?`|${_base[0]}[0-${Number(_base[1])-1}]`:'')
-                })`;
-                break;
-            case 3://~ "100"-"999"
-                characters=`(?:[1-9]?[0-9]${
-                    (_base[0]!=='1'?`|[1-${Number(_base[0])-1}][0-9]{2}`:'')
-                    +(_base[1]!=='0'?`|${_base.substring(0,1)}[0-${Number(_base[1])-1}][0-9]`:'')
-                    +(_base[2]!=='0'?`|${_base.substring(0,2)}[0-${Number(_base[2])-1}]`:'')
-                })`;
-                break;
-            case 4://~ "1000"-"9999"
-                characters=`(?:(?:[1-9][0-9]{0,1})?[0-9]${
-                    (_base[0]!=='1'?`|[1-${Number(_base[0])-1}][0-9]{3}`:'')
-                    +(_base[1]!=='0'?`|${_base.substring(0,1)}[0-${Number(_base[1])-1}][0-9]{2}`:'')
-                    +(_base[2]!=='0'?`|${_base.substring(0,2)}[0-${Number(_base[2])-1}][0-9]`:'')
-                    +(_base[3]!=='0'?`|${_base.substring(0,3)}[0-${Number(_base[3])-1}]`:'')
-                })`;
-                break;
-            case 5://~ "10000"-"99999"
-                characters=`(?:(?:[1-9][0-9]{0,2})?[0-9]${
-                    (_base[0]!=='1'?`|[1-${Number(_base[0])-1}][0-9]{4}`:'')
-                    +(_base[1]!=='0'?`|${_base.substring(0,1)}[0-${Number(_base[1])-1}][0-9]{3}`:'')
-                    +(_base[2]!=='0'?`|${_base.substring(0,2)}[0-${Number(_base[2])-1}][0-9]{2}`:'')
-                    +(_base[3]!=='0'?`|${_base.substring(0,3)}[0-${Number(_base[3])-1}][0-9]`:'')
-                    +(_base[4]!=='0'?`|${_base.substring(0,4)}[0-${Number(_base[4])-1}]`:'')
-                })`;
-                break;
-            case 5://~ "100000"-"999999"
-                characters=`(?:(?:[1-9][0-9]{0,3})?[0-9]${
-                    (_base[0]!=='1'?`|[1-${Number(_base[0])-1}][0-9]{5}`:'')
-                    +(_base[1]!=='0'?`|${_base.substring(0,1)}[0-${Number(_base[1])-1}][0-9]{4}`:'')
-                    +(_base[2]!=='0'?`|${_base.substring(0,2)}[0-${Number(_base[2])-1}][0-9]{3}`:'')
-                    +(_base[3]!=='0'?`|${_base.substring(0,3)}[0-${Number(_base[3])-1}][0-9]{2}`:'')
-                    +(_base[4]!=='0'?`|${_base.substring(0,4)}[0-${Number(_base[4])-1}][0-9]`:'')
-                    +(_base[5]!=='0'?`|${_base.substring(0,5)}[0-${Number(_base[5])-1}]`:'')
-                })`;
-                break;
-            default:// TODO make loop here (for case 4 and onwards) (special case for [0],[n-1],[n] others are easily iterable)
-                break;
-        }
-        return construct_regexp(add_comma_seperator(characters));
-    }
 }
