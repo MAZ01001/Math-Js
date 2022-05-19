@@ -43,19 +43,19 @@ class BigIntType{
      * _min 1 digit_ \
      * allows prefixes for bases 2, 8, and 16 \
      * allows '_' between digits \
-     * supports bases 1 to 36 \
-     * base 0 is braille pattern \
+     * __supports bases 1 to 36__ \
+     * __base 0 is braille pattern__ \
      * match-groups:
      * 1. sign / null
      * 2. number
-     * @param {number} base - string that consist of digits that match base:
-     * + base 1-10 [0-9]
-     * + base 11-36 [0-9A-F]
-     * @returns {RegExp} regexp for base `base`
-     * @throws {RangeError} if `base` is not an integer, smaller than 1, or bigger than 36
+     * @param {number} base - the base for the RegExp wich checks against a number-string - save integer
+     * + base 1-10 [digits 0-9]
+     * + base 11-36 [digits 0-9A-F]
+     * @returns {RegExp} the regexp for number-strings with base `base`
+     * @throws {RangeError} if `base` is not a save integer or bigger than 36
      */
     static #REGEXP_STRING(base){
-        base=Number(base);if(Number.isNaN(base)||base>36||base<1){throw RangeError("[REGEXP_STRING] base is out of range");}
+        base=Math.abs(Number(base));if(!Number.isSafeInteger(base)||base>36){throw RangeError("[REGEXP_STRING] base is out of range");}
         switch(Number(base)){//~ special cases
             case 0:return/^([+-]?)((?:\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)+(?:_(?:\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)+)*)$/; //~ base 256 in braille-patterns
             case 1:return/^([+-]?)(0+(?:_0+)*)$/;//~ base 1 does not realy exist, but I would imagine it like this. Where the length is the number value -1, so "0" is 0, "00" is 1, "000" is 2, etc.
@@ -76,8 +76,8 @@ class BigIntType{
     /**
      * __checking if the comma separated list matches format and numbers are below `base`__
      * @param {string} cSNumStr - comma separated numbers
-     * @param {number} base - max number possible +1 (base) - positive save integer - _default `2**32`_
-     * @returns {boolean} `true` if the comma separated list matches format and numbers are below `base` - `false` otherwise
+     * @param {number} base - base of `cSNumStr` - save integer - _default `2**32`_
+     * @returns {boolean} `true` if the comma separated list matches format and numbers are below `base` and `false` otherwise
      * @throws {TypeError} if `base` is not a safe integer
      */
     static #CheckCSNum(cSNumStr,base=2**32){
@@ -487,6 +487,7 @@ class BigIntType{
         );
         return this;
     }
+    // TODO ↑ more base
     /**
      * __makes a copy of `this` number__
      * @returns {BigIntType} a copy of `this` number
