@@ -38,17 +38,70 @@ class BigIntType{
         if(!Number.isInteger(n)||n<1||n>1048576){throw new RangeError("[MAX_SIZE] must be an integer in range [1-1048576]");}
         return BigIntType.#MAX_SIZE=n;
     }
-    /**@type {Readonly<{0:RegExp;2:RegExp;4:RegExp;8:RegExp;10:RegExp;16:RegExp;36:RegExp;256:RegExp;}>} - regular expressions for matching strings in specific base with optional sign, minimum one digit and no leading zeros */
-    static #REGEXP_STRING=Object.freeze({
-        0:/^([+-]?)(\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)$/, //~ base 256 in braille-patterns
-        2:/^([+-]?)(?:0b)?(0|1[01]*)$/i,
-        4:/^([+-]?)(0|[1-3][0-3]*)$/,
-        8:/^([+-]?)(?:0o)?(0|[1-7][0-7]*)$/i,
-        10:/^([+-]?)(0|[1-9][0-9]*)$/,
-        16:/^([+-]?)(?:0x)?(0|[1-9A-F][0-9A-F]*)$/i,
-        36:/^([+-]?)(0|[1-9A-Z][0-9A-Z]*)$/i,
-        256:/^([+-]?)(0|(?:[1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(?:\,(?:[1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))*)$/
-    });
+    /**
+     * __constructs a RegExp to match `base`__ \
+     * _min 1 digit_ \
+     * allows prefixes for bases 2, 8, and 16 \
+     * allows '_' between digits \
+     * supports bases 1 to 36 \
+     * base 0 is braille pattern \
+     * match-groups:
+     * 1. sign / null
+     * 2. number
+     * @param {number} base - string that consist of digits that match base:
+     * + base 1-10 [0-9]
+     * + base 11-36 [0-9A-F]
+     * @returns {RegExp} regexp for base `base`
+     * @throws {RangeError} if `base` is not an integer, smaller than 1, or bigger than 36
+     */
+    static #REGEXP_STRING(base){
+        base=Number(base);if(Number.isNaN(base)||base>36||base<1){throw RangeError("[REGEXP_STRING] base is out of range");}
+        switch(Number(base)){//~ special cases
+            case 0:return/^([+-]?)((?:\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)+(?:_(?:\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)+)*)$/; //~ base 256 in braille-patterns
+            case 1:return/^([+-]?)(0+(?:_0+)*)$/;//~ base 1 does not realy exist, but I would imagine it like this. Where the length is the number value -1, so "0" is 0, "00" is 1, "000" is 2, etc.
+            case 2:return/^([+-]?)(?:0b)?((?:0|1[01]*)+(?:_(?:0|1[01]*)+)*)$/i;
+            case 8:return/^([+-]?)(?:0o)?((?:0|[1-7][0-7]*)+(?:_(?:0|[1-7][0-7]*)+)*)$/i;
+            case 16:return/^([+-]?)(?:0x)?((?:0|[1-9A-F][0-9A-F]*)+(?:_(?:0|[1-9A-F][0-9A-F]*)+)*)$/i;
+        }
+        const add_char_seperator=characters=>`(?:${characters})+(?:_(?:${characters})+)*`,
+            construct_regexp=(number_regexp,flag='')=>new RegExp(`^([+-]?)(${number_regexp})$`,flag);
+        if(base<=10){//~ base 2-10
+            const characters=`0|[1-${base-1}][0-${base-1}]*`;
+            return construct_regexp(add_char_seperator(characters));
+        }else if(base<=36){//~ base 11-36
+            const characters=`0|[1-9A-${String.fromCharCode(54+base)}][0-9A-${String.fromCharCode(54+base)}]*`;
+            return construct_regexp(add_char_seperator(characters),'i');
+        }
+    }
+    /**
+     * __checking if the comma separated list matches format and numbers are below `base`__
+     * @param {string} cSNumStr - comma separated numbers
+     * @param {number} base - max number possible +1 (base) - positive save integer - _default `2**32`_
+     * @returns {boolean} `true` if the comma separated list matches format and numbers are below `base` - `false` otherwise
+     * @throws {TypeError} if `base` is not a safe integer
+     */
+    static #CheckCSNum(cSNumStr,base=2**32){
+        cSNumStr=String(cSNumStr);
+        base=Math.abs(Number(base));if(!Number.isSafeInteger(base)){throw new TypeError("[CheckCSNum] base is not a number");}
+        const baseStr=String(base);
+        if(!/^(?:0|(?:[1-9][0-9]*)(?:\,(?:0|[1-9][0-9]*))*)$/.test(cSNumStr)){return false;}
+        for(let i=0,lastNum="";i<cSNumStr.length;i++){
+            if(cSNumStr[i]!=','){
+                lastNum+=cSNumStr[i];
+                if(i<cSNumStr.length-1){continue;}
+            }
+            //~ check lastNum < baseStr
+            if(lastNum.length>baseStr.length){return false;}
+            if(lastNum.length===baseStr.length){
+                for(let j=0;j<baseStr.length;j++){
+                    if(lastNum.charCodeAt(j)>baseStr.charCodeAt(j)){return false;}
+                    if(lastNum.charCodeAt(j)<baseStr.charCodeAt(j)){break;}
+                }
+            }
+            lastNum="";
+        }
+        return true;
+    }
     /**@type {boolean} - sign of the number - `true` = positive */
     #sign=true;
     /**@returns {boolean} sign of the number - `true` = positive */
@@ -154,7 +207,7 @@ class BigIntType{
                 6   senary heximal seximal      [0-5]
                 12  duodecimal dozenal uncial   [0-9,A-B]
                 20  vigesimal                   [0-9,A-J]
-                60  sexagesimal sexagenary      [?]
+                60  sexagesimal sexagenary      [<comma separated list>]
             */
             case'b':case"bin":case"bit":case"binary":case'2':base=2;break;
             case'c':case"crumb":
@@ -176,19 +229,22 @@ class BigIntType{
         /**@type {boolean} - if `num` is a string this will be the sign of the number (after the conversion) */
         let _sign=true;
         if(typeof num==="string"){
-            /**@type {RegExpMatchArray|null} - sign and number from string or `null` if no match*/
-            let _match=num.match(BigIntType.#REGEXP_STRING[base]);
-            if(!_match){throw new SyntaxError(`[new BigIntType] num (string) does not have the correct format for base ${base===0?'256 (braille)':base}`);}
-            _sign=_match[1]!=='-';
-            switch(base){
-                case 2:case 4:case 8:case 10:num=new Uint8Array([..._match[2]].reverse());break;
-                case 16:num=new Uint8Array([..._match[2]].map(v=>Number.parseInt(v,16)).reverse());break;
-                case 36:num=new Uint8Array([..._match[2]].map(v=>Number.parseInt(v,36)).reverse());break;
-                case 256:num=new Uint8Array(_match[2].split(',').reverse());break;
-                case 0:num=new Uint8Array([..._match[2]].map(v=>v.charCodeAt(0)-10240).reverse());base=256;break;
+            if(base<=36){
+                /**@type {RegExpMatchArray|null} - sign and number from string or `null` if no match*/
+                let _match=num.match(BigIntType.#REGEXP_STRING(base));
+                if(!_match){throw new SyntaxError(`[new BigIntType] num (string) does not have the correct format for base ${base===0?'256 (braille)':base}`);}
+                _sign=_match[1]!=='-';
+                switch(base){
+                    case 0:num=new Uint8Array([..._match[2]].map(v=>v.charCodeAt(0)-10240).reverse());base=256;break;
+                    case 2:case 4:case 8:case 10:num=new Uint8Array([..._match[2]].reverse());break;
+                    case 16:num=new Uint8Array([..._match[2]].map(v=>Number.parseInt(v,16)).reverse());break;
+                    case 36:num=new Uint8Array([..._match[2]].map(v=>Number.parseInt(v,36)).reverse());break;
+                }
+            }else{
+                if(BigIntType.#CheckCSNum(num)){num=new Uint8Array(num.split(',').reverse());}
+                else{throw new SyntaxError(`[new BigIntType] num (string / comma separated list) does not have the correct format for base ${base}`);}
             }
-        }
-        if(base!==256){if(num.some(v=>v>=base)){throw new SyntaxError(`[new BigIntType] num (Uint8Array) has incorrect values for base ${base}`);}}
+        }else if(num.some(v=>v>=base)){throw new SyntaxError(`[new BigIntType] num (Uint8Array) has incorrect values for base ${base}`);}
         switch(base){
             case 2:
                 this.#digits=new Uint8Array(Math.ceil(num.length/8));
@@ -292,6 +348,7 @@ class BigIntType{
                 this.#digits=new Uint8Array(_b256);
                 break;
             case 256:this.#digits=num;break;
+            // TODO case 3,5-15,17-(2**32)       
         }
         this.#digits=BigIntType.#removeLeadingZeros(this.#digits);
         this.#sign=_sign;
@@ -1569,36 +1626,4 @@ try{//~ Test number to console
 }catch(error){
     console.log("{%s} : \"%s\"",error.name,error.message);//~ show only recent message (on screen) and not the whole stack
     console.error(error);//~ but do log the whole error message with stack to console
-}
-
-// TODO implement ↓ as private method for constructor/toString/logConsole
-
-/**
- * __checking if the comma separated list matches format and numbers are below `base`__
- * @param {string} cSNumStr - comma separated numbers
- * @param {number} base - max number possible +1 (base) - positive save integer - _default `2**32`_
- * @returns {boolean} `true` if the comma separated list matches format and numbers are below `base` - `false` otherwise
- * @throws {TypeError} if `base` is not a safe integer
- */
-function CheckCSNum(cSNumStr="0",base=2**32){
-    cSNumStr=String(cSNumStr);
-    base=Math.abs(Number(base));if(!Number.isSafeInteger(base)){throw new TypeError("[CheckCSNum] base is not a number");}
-    const _base=String(base);
-    if(!/^(?:0|[1-9][0-9]*)(?:\,(?:0|[1-9][0-9]*))*$/.test(cSNumStr)){return false;}
-    for(let i=0,lastNum="";i<cSNumStr.length;i++){
-        if(cSNumStr[i]!=','){
-            lastNum+=cSNumStr[i];
-            if(i<cSNumStr.length-1){continue;}
-        }
-        //~ check lastNum < _base
-        if(lastNum.length>_base.length){return false;}
-        if(lastNum.length===_base.length){
-            for(let j=0;j<_base.length;j++){
-                if(lastNum.charCodeAt(j)>_base.charCodeAt(j)){return false;}
-                if(lastNum.charCodeAt(j)<_base.charCodeAt(j)){break;}
-            }
-        }
-        lastNum="";
-    }
-    return true;
 }
