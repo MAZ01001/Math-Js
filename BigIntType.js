@@ -195,10 +195,6 @@ class BigIntType{
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
     constructor(num='1',base='d'){
-        this.#sign=true;
-        if(!(num instanceof Uint8Array)){num=String(num);}
-        if(num==='0'||num==='\u2800'||(num.length===1&&(num[0]===0||num[0]===false))){this.#digits=new Uint8Array(1);return;}
-        if(num==='1'||num==='\u2801'||(num.length===1&&(num[0]===1||num[0]===true))){this.#digits=new Uint8Array([1]);return;}
         switch(String(base).toLowerCase()){
             /*
                 all your base are belong to us
@@ -221,11 +217,20 @@ class BigIntType{
             case"braille":base=0;break;
             default:throw new SyntaxError("[new BigIntType] base is not an available option");
         }
+        this.#sign=true;
         if(base===2&&Array.isArray(num)){
             if(num.every(v=>typeof(v)==="boolean")){num=new Uint8Array(num);}
             else{throw new SyntaxError("[new BigIntType] num (array) has incorrect values for base 2");}
         }
         if(base===0&&num instanceof Uint8Array){throw new SyntaxError("[new BigIntType] base \"braille\" requires num to be a string");}
+        if(num instanceof Uint8Array){
+            if(num.length===1&&(num[0]===0||num[0]===false)){this.#digits=new Uint8Array(1);return;}
+            if(num.length===1&&(num[0]===1||num[0]===true)){this.#digits=new Uint8Array([1]);return;}
+        }else{
+            num=String(num);
+            if(num==='0'||num==='\u2800'){this.#digits=new Uint8Array(1);return;}
+            if(num==='1'||num==='\u2801'){this.#digits=new Uint8Array([1]);return;}
+        }
         /**@type {boolean} - if `num` is a string this will be the sign of the number (after the conversion) */
         let _sign=true;
         if(typeof num==="string"){
@@ -234,19 +239,24 @@ class BigIntType{
                 let _match=num.match(BigIntType.#REGEXP_STRING(base));
                 if(!_match){throw new SyntaxError(`[new BigIntType] num (string) does not have the correct format for base ${base===0?'256 (braille)':base}`);}
                 _sign=_match[1]!=='-';
-                switch(base){
-                    case 0:num=new Uint8Array([..._match[2]].map(v=>v.charCodeAt(0)-10240).reverse());base=256;break;
-                    case 2:case 4:case 8:case 10:num=new Uint8Array([..._match[2]].reverse());break;
-                    case 16:num=new Uint8Array([..._match[2]].map(v=>Number.parseInt(v,16)).reverse());break;
-                    case 36:num=new Uint8Array([..._match[2]].map(v=>Number.parseInt(v,36)).reverse());break;
-                }
+                _match[2]=_match[2].replace('_','');
+                if(base===0){
+                    num=new Uint8Array([..._match[2]].map(v=>v.charCodeAt(0)-10240).reverse());
+                    base=256;
+                }else if(base===1){
+                    if(_match[2].length===1){this.#sign=_sign;this.#digits=new Uint8Array(1);return;}
+                    if(_match[2].length===2){this.#sign=_sign;this.#digits=new Uint8Array([1]);return;}
+                    base=36;
+                    num=new Uint8Array([...(_match[2].length-1).toString(base).map(v=>Number.parseInt(v,base)).reverse()]);
+                }else if(base<=10){num=new Uint8Array([..._match[2]].reverse());}
+                else{num=new Uint8Array([..._match[2]].map(v=>Number.parseInt(v,base)).reverse());}
             }else{
-                if(BigIntType.#CheckCSNum(num)){num=new Uint8Array(num.split(',').reverse());}
+                if(BigIntType.#CheckCSNum(num,base)){num=new Uint8Array(num.split(',').reverse());}
                 else{throw new SyntaxError(`[new BigIntType] num (string / comma separated list) does not have the correct format for base ${base}`);}
             }
         }else if(num.some(v=>v>=base)){throw new SyntaxError(`[new BigIntType] num (Uint8Array) has incorrect values for base ${base}`);}
         switch(base){
-            case 2:
+            case 2://~ 8* digits are 1 8bit digit
                 this.#digits=new Uint8Array(Math.ceil(num.length/8));
                 for(let i=0;i<this.length;i++){
                     this.#digits[i]=num[i*8]+
@@ -259,7 +269,7 @@ class BigIntType{
                         ((num[i*8+7]??0)<<7);
                 }
                 break;
-            case 4:
+            case 4://~ 3* digits are 1 8bit digit
                 this.#digits=new Uint8Array(Math.ceil(num.length/4));
                 for(let i=0;i<this.length;i++){
                     this.#digits[i]=num[i*4]+
@@ -268,7 +278,7 @@ class BigIntType{
                         ((num[i*4+3]??0)*64); //~ 4**3
                 }
                 break;
-            case 8:
+            case 8://! remove (to default:)
                 /**@type {string[]} - digits in base 8*/
                 let b8=Array.from(num,String),
                     /**@type {string[]} - digits for base 256*/
@@ -292,7 +302,7 @@ class BigIntType{
                 __b256.push(String(Number.parseInt(b8.reverse().join(''),8)));
                 this.#digits=new Uint8Array(__b256);
                 break;
-            case 10:
+            case 10://! remove (to default:)
                 /**@type {string[]} - digits in base 10*/
                 let b10=Array.from(num,String),
                     /**@type {string[]} - digits for base 256*/
@@ -316,22 +326,22 @@ class BigIntType{
                 b256.push(b10.reverse().join(''));
                 this.#digits=new Uint8Array(b256);
                 break;
-            case 16:
+            case 16://~ 2* digits are 1 8bit digit
                 this.#digits=new Uint8Array(Math.ceil(num.length/2));
                 for(let i=0;i<this.length;i++){
                     this.#digits[i]=num[i*2]+
                     ((num[i*2+1]??0)*16);
                 }
                 break;
-            case 36:
+            case 36://! remove (to default:)
                 /**@type {string[]} - digits in base 36*/
                 let b36=Array.from(num,String),
                     /**@type {string[]} - digits for base 256*/
-                    _b256=[];
+                    b256_=[];
                 for(;b36.length>2||(b36.length===2&&(Number(b36[1])>7||(b36[1]==='7'&&(Number(b36[0])>=4))));){//~ b36 >=256 (74_b36)
-                    _b256.push('0');
+                    b256_.push('0');
                     for(let i=0;i<8;i++){
-                        if(Number(b36[0])&1){_b256[_b256.length-1]=String(Number(_b256[_b256.length-1])+(1<<i));}
+                        if(Number(b36[0])&1){b256_[b256_.length-1]=String(Number(b256_[b256_.length-1])+(1<<i));}
                         if(b36.length===1&&b36[0]==='0');//~ b36 /2
                         else if(b36.length===1&&b36[0]==='1'){b36[0]='0';}
                         else{
@@ -344,11 +354,70 @@ class BigIntType{
                         }
                     }
                 }
-                _b256.push(String(Number(b36.reverse().join(''))));
-                this.#digits=new Uint8Array(_b256);
+                b256_.push(String(Number(b36.reverse().join(''))));
+                this.#digits=new Uint8Array(b256_);
                 break;
-            case 256:this.#digits=num;break;
-            // TODO case 3,5-15,17-(2**32)       
+            case 256:this.#digits=num;break;//~ copy memory adress of original
+            case 65536://~ each digit is 2* 8bit digits
+                break;
+            case 16777216://~ each digit is 3* 8bit digits
+                break;
+            case 4294967296://~ each digit is 4* 8bit digits
+                break;
+            default:// TODO cases 3, 5-15, and 17-(2**32) - see other TODOs
+                /**@type {string[]} - digits in base N*/
+                let bN=Array.from(num,String),
+                    /**@type {string[]} - digits for base 256*/
+                    b256__=[];
+                /**@type {string[]} - `256` in base `base` as string array (`[0]` is `[0]*base**0`)*/
+                const bMax256=(
+                    base<=36?[...256..toString(base)].map(v=>String(Number.parseInt(v,base))).reverse():(
+                        // TODO 256 in bases 37-255 (x entries [0]=256%base or something like that)
+                        base<256?['todo ↑']:(
+                            base===256?['0','1']:['256']
+                        )
+                    )
+                );
+                for(;bN.length>1||bN[0]!=='0';){// TODO bN >= bMax256
+                    b256__.push('0');
+                    for(let i=0;i<8;i++){
+                        if(Number(bN[0])&1){b256__[b256__.length-1]=String(Number(b256__[b256__.length-1])+(1<<i));}
+                        if(bN.length===1&&bN[0]==='0');//~ bN>>>=1
+                        else if(bN.length===1&&bN[0]==='1'){bN[0]='0';}
+                        else{
+                            if(base&1){//~ if base is odd the carry is special
+                                /**@type {undefined[]|null[]} - carry if `[i]` is `null`*/
+                                let numCarry=Array(bN.length).fill(),
+                                    /**@type {boolean} - true if it's currently durring a carry*/
+                                    numCarryLast=false
+                                for(let i=0;i<bN.length;i++){//~ bN>>>=1 and save carry
+                                    if(Number(bN[i])&1){numCarry[i]=null;}
+                                    bN[i]=String(Number(bN[i])>>>1);
+                                }
+                                for(let i=numCarry.length-1;i>=0;i--){//~ apply carry
+                                    if(numCarryLast){bN[i]=String(Number(bN[i])+Math.floor(base*.5));}
+                                    if(numCarry[i]===null){
+                                        if(numCarryLast){bN[i]=String(Number(bN[i])+1);}
+                                        numCarryLast=!numCarryLast;
+                                    }
+                                }
+                                //~ round up → if(numCarryLast){bN[0]=String(Number(bN[0])+1);}
+                                if(bN[bN.length-1]==='0'){bN.splice(-1,1);}
+                            }else{
+                                // TODO ?
+                                bN[0]=String(Number(bN[0])>>>1);
+                                for(let i=1;i<bN.length;i++){
+                                    if(Number(bN[i])&1){bN[i-1]=String(Number(bN[i-1])+Math.floor(base*.5));}
+                                    bN[i]=String(Number(bN[i])>>>1);
+                                }
+                                if(bN[bN.length-1]==='0'){bN.splice(-1,1);}
+                            }
+                        }
+                    }
+                }
+                b256__.push(bN.reverse().join(''));
+                this.#digits=new Uint8Array(b256__);
+                break;
         }
         this.#digits=BigIntType.#removeLeadingZeros(this.#digits);
         this.#sign=_sign;
@@ -487,7 +556,7 @@ class BigIntType{
         );
         return this;
     }
-    // TODO ↑ more base
+    // TODO ↑ more base (WIP)
     /**
      * __makes a copy of `this` number__
      * @returns {BigIntType} a copy of `this` number
