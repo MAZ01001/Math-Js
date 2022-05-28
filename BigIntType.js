@@ -31,11 +31,11 @@ class BigIntType{
     static #MAX_SIZE=500;
     /**@returns {number} _current_ maximum possible length of a number _(excluding sign)_ */
     static get MAX_SIZE(){return BigIntType.#MAX_SIZE;}
-    /**@throws {RangeError} - if setting this to a number that is not an integer in range `[1-1048576]` - _( `1048576` = 1MiB in RAM )_ */
+    /**@throws {RangeError} - if setting this to a number that is not an integer in range `[1-67108864]` - _( `67108864` = 64MiB in RAM )_ */
     static set MAX_SIZE(n){
         //~ technically, max is 9007199254740991 (Number.MAX_SAFE_INTEGER) but with 1 Byte each entry that's almost 8PiB ! for ONE number
         //~ and chrome browser will only create typed arrays up to 2GiB
-        if(!Number.isInteger(n)||n<1||n>1048576){throw new RangeError("[MAX_SIZE] must be an integer in range [1-1048576]");}
+        if(!Number.isInteger(n)||n<1||n>67108864){throw new RangeError("[MAX_SIZE] must be an integer in range [1-67108864]");}
         return BigIntType.#MAX_SIZE=n;
     }
     /**
@@ -215,7 +215,10 @@ class BigIntType{
             case't':case"text":case"bin-text":case"36":base=36;break;
             case"byte":case"256":base=256;break;
             case"braille":base=0;break;
-            default:throw new SyntaxError("[new BigIntType] base is not an available option");
+            default:// TODO change when converter is ready
+                throw new SyntaxError("[new BigIntType] base is not an available option");
+                // base=Number(base);
+                // if(Number.isNaN(base)|base>67108864){throw new SyntaxError("[new BigIntType] base is not an available option");}
         }
         this.#sign=true;
         if(base===2&&Array.isArray(num)){
@@ -255,7 +258,7 @@ class BigIntType{
                 else{throw new SyntaxError(`[new BigIntType] num (string / comma separated list) does not have the correct format for base ${base}`);}
             }
         }else if(num.some(v=>v>=base)){throw new SyntaxError(`[new BigIntType] num (Uint8Array) has incorrect values for base ${base}`);}
-        switch(base){
+        switch(base){// TODO 2-256 + 65536 + 16777216
             case 2://~ 8* digits are 1 8bit digit
                 this.#digits=new Uint8Array(Math.ceil(num.length/8));
                 for(let i=0;i<this.length;i++){
@@ -358,13 +361,11 @@ class BigIntType{
                 this.#digits=new Uint8Array(b256_);
                 break;
             case 256:this.#digits=num;break;//~ copy memory adress of original
-            case 65536://~ each digit is 2* 8bit digits
+            case 65536://~ each digit is two 8bit digits
                 break;
-            case 16777216://~ each digit is 3* 8bit digits
+            case 16777216://~ each digit is three 8bit digits
                 break;
-            case 4294967296://~ each digit is 4* 8bit digits
-                break;
-            default:// TODO cases 3, 5-15, and 17-(2**32) - see other TODOs
+            default:// TODO cases 3, 5-15, and 17-(2**26) - see other TODOs
                 /**@type {string[]} - digits in base N*/
                 let bN=Array.from(num,String),
                     /**@type {string[]} - digits for base 256*/
