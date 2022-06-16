@@ -146,7 +146,7 @@
 > ## [BigIntType.js](https://github.com/MAZ01001/Math-Js/blob/main/BigIntType.js)
 >
 > >
-> > WIP [2022-03-14]
+> > WIP [2022-06-16]
 > >
 > > + nth-root()
 > > + log_n()
