@@ -1934,11 +1934,11 @@ class BigIntType{
         if(!(n instanceof BigIntType)){throw new TypeError("[modulo] n is not an instance of BigIntType");}
         type=String(type);if(!/^(e|euclid|t|trunc|f|floor|c|ceil|r|round)$/.test(type)){throw new SyntaxError("[modulo] type is not a valid option");}
         if(n.isZero()){throw new RangeError("[modulo] cannot divide by 0");}
-        // ! round → Q = round(A/B) → R = A-(B*Q)
-        // ! trunc → Q = trunc(A/B) → R = A-(B*Q)
-        // ! raise → Q = raise(A/B) → R = A-(B*Q)
-        // ! floor → Q = floor(A/B) → R = A-(B*Q)
-        // ! ceil → Q = ceil(A/B) → R = A-(B*Q)
+        // !  round → Q = round(A/B) → R = A-(B*Q) | round to nearest integer (>=floor(base/2) → round up)
+        // !  trunc → Q = trunc(A/B) → R = A-(B*Q) | round to zero
+        // !  raise → Q = raise(A/B) → R = A-(B*Q) | round away from zero
+        // !  floor → Q = floor(A/B) → R = A-(B*Q) | round to negative infinity
+        // !   ceil → Q = ceil(A/B) → R = A-(B*Q) | round to positive infinity
         // ! euclid → Q = sign(B)*floor(A/abs(B)) → R = A-abs(B)*floor(A/abs(B)) == R = A-(B*Q)
         // TODO new with return Q and R with type !!
         if(this.isZero()||n.isOne){
@@ -2204,7 +2204,7 @@ class BigIntType{
         [!] floor round towards -infinity allways
         [!] ceil round towards +infinity allways
         [!] trunc round towards 0 allways
-        [!] ?outwards? round away from 0 allways
+        [!] ?raise? round away from 0 allways
         [!] round round towards nearest integer (base/2 rounds 'up' and anything smaller rounds 'down', relative to 0)
 
         [!] make a url save base ui32 string for short-ish links
