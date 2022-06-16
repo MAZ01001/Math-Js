@@ -218,4 +218,5 @@
 > + `randomRangeInt(min,max);` genarates a random integer within given range *(including min and max)*
 > + `fixPrecision(n);` attempt of fixing (potential) js float precision errors *(with `Number.EPSILON`)*
 > + `divisionWithRest(A,B);` calculates division of A by B and returns *(integer)* quotient and remainder
+> + `randomBools(x=1)` generate an array, length x, of random booleans
 >
