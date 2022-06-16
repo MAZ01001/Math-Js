@@ -174,13 +174,13 @@ class BigIntType{
      * _( supports numbers from `1` to `4294967296` (incl.) )_
      * @param {string|number} str
      * * base of `num` as a number or string ( case insensitive )
-     * - base 2 ← `'b'`, `"bin"`, `"bits"`, or `"binary"`
+     * - base 2 ← `'b'`, `"bin"`, `"bits"`, `"binary"`, or `"1bit"`
      * - base 3 ← `"ternary"` or `"trinary"`
-     * - base 4 ← `'q'`, or `"quaternary"`
+     * - base 4 ← `'q'`, `"quaternary"`, or `"2bit"`
      * - base 5 ← `"quinary"` or `"pental"`
      * - base 6 ← `"senary"`, `"heximal"`, or `"seximal"`
      * - base 7 ← `"septenary"`
-     * - base 8 ← `'o'`, `"oct"`, or `"octal"`
+     * - base 8 ← `'o'`, `"oct"`, `"octal"`, or `"3bit"`
      * - base 9 ← `"nonary"`
      * - base 10 ← `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`
      * - base 11 ← `"undecimal"`
@@ -188,7 +188,7 @@ class BigIntType{
      * - base 13 ← `"tridecimal"`
      * - base 14 ← `"tetradecimal"`
      * - base 15 ← `"pentadecimal"`
-     * - base 16 ← `'h'`, `"hex"`, `"hexadecimal"`, or `"sexadecimal"`
+     * - base 16 ← `'h'`, `"hex"`, `"hexadecimal"`, `"sexadecimal"`, or `"4bit"`
      * - base 17 ← `"heptadecimal"`
      * - base 18 ← `"octodecimal"`
      * - base 19 ← `"enneadecimal"`
@@ -204,7 +204,7 @@ class BigIntType{
      * - base 29 ← `"enneavigesimal"`
      * - base 30 ← `"trigesimal"`
      * - base 31 ← `"untrigesimal"`
-     * - base 32 ← `"duotrigesimal"`
+     * - base 32 ← `"duotrigesimal"` or `"5bit"`
      * - base 33 ← `"tritrigesimal"`
      * - base 34 ← `"tetratrigesimal"`
      * - base 35 ← `"pentatrigesimal"`
@@ -226,7 +226,7 @@ class BigIntType{
      * - base 58 ← `"octoquinquagesimal"`
      * - base 60 ← `"sexagesimal"` or `"sexagenary"`
      * - base 62 ← `"duosexagesimal"`
-     * - base 64 ← `"tetrasexagesimal"`
+     * - base 64 ← `"tetrasexagesimal"` or `"6bit"`
      * - base 72 ← `"duoseptuagesimal"`
      * - base 80 ← `"octogesimal"`
      * - base 81 ← `"unoctogesimal"`
@@ -244,7 +244,7 @@ class BigIntType{
      * - base 120 ← `"centevigesimal"`
      * - base 121 ← `"centeunvigesimal"`
      * - base 125 ← `"centepentavigesimal"`
-     * - base 128 ← `"centeoctovigesimal"`
+     * - base 128 ← `"centeoctovigesimal"` or `"7bit"`
      * - base 144 ← `"centetetraquadragesimal"`
      * - base 169 ← `"centenovemsexagesimal"`
      * - base 185 ← `"centepentoctogesimal"`
@@ -253,9 +253,33 @@ class BigIntType{
      * - base 210 ← `"duocentedecimal"`
      * - base 216 ← `"duocentehexidecimal"`
      * - base 225 ← `"duocentepentavigesimal"`
-     * - base 256 ← `"duocentehexaquinquagesimal"`, `"byte"`, or `"braille"` ( `"braille"` must be a string with `'⠀'`-`'⣿'` (Unicode Braille Pattern `0x2800`-`0x28FF`) )
+     * - base 256 ← `"duocentehexaquinquagesimal"`, `"byte"`, `"8bit"`, or `"braille"` ( `"braille"` must be a string with `'⠀'`-`'⣿'` (Unicode Braille Pattern `0x2800`-`0x28FF`) )
      * - base 300 ← `"trecentesimal"`
      * - base 360 ← `"trecentosexagesimal"`
+     * - base 512 ← `"9bit"`
+     * - base 1024 ← `"10bit"`
+     * - base 2048 ← `"11bit"`
+     * - base 4096 ← `"12bit"`
+     * - base 8192 ← `"13bit"`
+     * - base 16384 ← `"14bit"`
+     * - base 32768 ← `"15bit"`
+     * - base 65536 ← `"16bit"`
+     * - base 131072 ← `"17bit"`
+     * - base 262144 ← `"18bit"`
+     * - base 524288 ← `"19bit"`
+     * - base 1048576 ← `"20bit"`
+     * - base 2097152 ← `"21bit"`
+     * - base 4194304 ← `"22bit"`
+     * - base 8388608 ← `"23bit"`
+     * - base 16777216 ← `"24bit"`
+     * - base 33554432 ← `"25bit"`
+     * - base 67108864 ← `"26bit"`
+     * - base 134217728 ← `"27bit"`
+     * - base 268435456 ← `"28bit"`
+     * - base 536870912 ← `"29bit"`
+     * - base 1073741824 ← `"30bit"`
+     * - base 2147483648 ← `"31bit"`
+     * - base 4294967296 ← `"32bit"`
      * - any base within 1 to 4294967296 (incl.) can also be a number or a string representing that number
      * @returns {number} the base according to the list above (`"braille"` will be `0`), or `NaN` if not supported
      */
@@ -263,13 +287,13 @@ class BigIntType{
         //~ ( https://en.wikipedia.org/wiki/list_of_numeral_systems#standard_positional_numeral_systems )
         switch(String(str).toLowerCase()){
             //~ ALL YOUR BASE ARE BELONG TO US
-            case'b':case"bin":case"bits":case"binary":return 2;
+            case'b':case"bin":case"bits":case"binary":case"1bit":return 2;
             case"ternary":case"trinary":return 3;
-            case'q':case"quaternary":return 4;
+            case'q':case"quaternary":case"2bit":return 4;
             case"quinary":case"pental":return 5;
             case"senary":case"heximal":case"seximal":return 6;
             case"septenary":return 7;
-            case'o':case"oct":case"octal":return 8;
+            case'o':case"oct":case"octal":case"3bit":return 8;
             case"nonary":return 9;
             case'd':case"dec":case"decimal":case"decimal":case"denary":return 10;
             case"undecimal":return 11;
@@ -277,7 +301,7 @@ class BigIntType{
             case"tridecimal":return 13;
             case"tetradecimal":return 14;
             case"pentadecimal":return 15;
-            case'h':case"hex":case"hexadecimal":case"sexadecimal":return 16;
+            case'h':case"hex":case"hexadecimal":case"sexadecimal":case"4bit":return 16;
             case"heptadecimal":return 17;
             case"octodecimal":return 18;
             case"enneadecimal":return 19;
@@ -293,7 +317,7 @@ class BigIntType{
             case"enneavigesimal":return 29;
             case"trigesimal":return 30;
             case"untrigesimal":return 31;
-            case"duotrigesimal":return 32;
+            case"duotrigesimal":case"5bit":return 32;
             case"tritrigesimal":return 33;
             case"tetratrigesimal":return 34;
             case"pentatrigesimal":return 35;
@@ -315,7 +339,7 @@ class BigIntType{
             case"octoquinquagesimal":return 58;
             case"sexagesimal":case"sexagenary":return 60;
             case"duosexagesimal":return 62;
-            case"tetrasexagesimal":return 64;
+            case"tetrasexagesimal":case"6bit":return 64;
             case"duoseptuagesimal":return 72;
             case"octogesimal":return 80;
             case"unoctogesimal":return 81;
@@ -333,7 +357,7 @@ class BigIntType{
             case"centevigesimal":return 120;
             case"centeunvigesimal":return 121;
             case"centepentavigesimal":return 125;
-            case"centeoctovigesimal":return 128;
+            case"centeoctovigesimal":case"7bit":return 128;
             case"centetetraquadragesimal":return 144;
             case"centenovemsexagesimal":return 169;
             case"centepentoctogesimal":return 185;
@@ -342,10 +366,34 @@ class BigIntType{
             case"duocentedecimal":return 210;
             case"duocentehexidecimal":return 216;
             case"duocentepentavigesimal":return 225;
-            case"duocentehexaquinquagesimal":case"byte":return 256;
+            case"duocentehexaquinquagesimal":case"byte":case"8bit":return 256;
             case"braille":return 0;//~ braille-pattern (unicode)
             case"trecentesimal":return 300;
             case"trecentosexagesimal":return 360;
+            case"9bit":return 512;
+            case"10bit":return 1024;
+            case"11bit":return 2048;
+            case"12bit":return 4096;
+            case"13bit":return 8192;
+            case"14bit":return 16384;
+            case"15bit":return 32768;
+            case"16bit":return 65536;
+            case"17bit":return 131072;
+            case"18bit":return 262144;
+            case"19bit":return 524288;
+            case"20bit":return 1048576;
+            case"21bit":return 2097152;
+            case"22bit":return 4194304;
+            case"23bit":return 8388608;
+            case"24bit":return 16777216;
+            case"25bit":return 33554432;
+            case"26bit":return 67108864;
+            case"27bit":return 134217728;
+            case"28bit":return 268435456;
+            case"29bit":return 536870912;
+            case"30bit":return 1073741824;
+            case"31bit":return 2147483648;
+            case"32bit":return 4294967296;
             //~ for just numbers:
             default:
                 str=Number(str);
@@ -369,13 +417,13 @@ class BigIntType{
      * - `base` `256:"braille"`      → as string `⠀` to `⣿` ( braille-patterns `0x2800` to `0x28FF` ), comma-separated list of numbers, or Uint8Array
      * @param {string|number} base
      * * base of `num` as a number or string ( case insensitive ) - _default `'d'`_
-     * - base 2 ← `'b'`, `"bin"`, `"bits"`, or `"binary"`
+     * - base 2 ← `'b'`, `"bin"`, `"bits"`, `"binary"`, or `"1bit"`
      * - base 3 ← `"ternary"` or `"trinary"`
-     * - base 4 ← `'q'`, or `"quaternary"`
+     * - base 4 ← `'q'`, `"quaternary"`, or `"2bit"`
      * - base 5 ← `"quinary"` or `"pental"`
      * - base 6 ← `"senary"`, `"heximal"`, or `"seximal"`
      * - base 7 ← `"septenary"`
-     * - base 8 ← `'o'`, `"oct"`, or `"octal"`
+     * - base 8 ← `'o'`, `"oct"`, `"octal"`, or `"3bit"`
      * - base 9 ← `"nonary"`
      * - base 10 ← `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`
      * - base 11 ← `"undecimal"`
@@ -383,7 +431,7 @@ class BigIntType{
      * - base 13 ← `"tridecimal"`
      * - base 14 ← `"tetradecimal"`
      * - base 15 ← `"pentadecimal"`
-     * - base 16 ← `'h'`, `"hex"`, `"hexadecimal"`, or `"sexadecimal"`
+     * - base 16 ← `'h'`, `"hex"`, `"hexadecimal"`, `"sexadecimal"`, or `"4bit"`
      * - base 17 ← `"heptadecimal"`
      * - base 18 ← `"octodecimal"`
      * - base 19 ← `"enneadecimal"`
@@ -399,7 +447,7 @@ class BigIntType{
      * - base 29 ← `"enneavigesimal"`
      * - base 30 ← `"trigesimal"`
      * - base 31 ← `"untrigesimal"`
-     * - base 32 ← `"duotrigesimal"`
+     * - base 32 ← `"duotrigesimal"` or `"5bit"`
      * - base 33 ← `"tritrigesimal"`
      * - base 34 ← `"tetratrigesimal"`
      * - base 35 ← `"pentatrigesimal"`
@@ -421,7 +469,7 @@ class BigIntType{
      * - base 58 ← `"octoquinquagesimal"`
      * - base 60 ← `"sexagesimal"` or `"sexagenary"`
      * - base 62 ← `"duosexagesimal"`
-     * - base 64 ← `"tetrasexagesimal"`
+     * - base 64 ← `"tetrasexagesimal"` or `"6bit"`
      * - base 72 ← `"duoseptuagesimal"`
      * - base 80 ← `"octogesimal"`
      * - base 81 ← `"unoctogesimal"`
@@ -439,7 +487,7 @@ class BigIntType{
      * - base 120 ← `"centevigesimal"`
      * - base 121 ← `"centeunvigesimal"`
      * - base 125 ← `"centepentavigesimal"`
-     * - base 128 ← `"centeoctovigesimal"`
+     * - base 128 ← `"centeoctovigesimal"` or `"7bit"`
      * - base 144 ← `"centetetraquadragesimal"`
      * - base 169 ← `"centenovemsexagesimal"`
      * - base 185 ← `"centepentoctogesimal"`
@@ -448,9 +496,33 @@ class BigIntType{
      * - base 210 ← `"duocentedecimal"`
      * - base 216 ← `"duocentehexidecimal"`
      * - base 225 ← `"duocentepentavigesimal"`
-     * - base 256 ← `"duocentehexaquinquagesimal"`, `"byte"`, or `"braille"` ( `"braille"` must be a string with `'⠀'`-`'⣿'` (Unicode Braille Pattern `0x2800`-`0x28FF`) )
+     * - base 256 ← `"duocentehexaquinquagesimal"`, `"byte"`, `"8bit"`, or `"braille"` ( `"braille"` must be a string with `'⠀'`-`'⣿'` (Unicode Braille Pattern `0x2800`-`0x28FF`) )
      * - base 300 ← `"trecentesimal"`
      * - base 360 ← `"trecentosexagesimal"`
+     * - base 512 ← `"9bit"`
+     * - base 1024 ← `"10bit"`
+     * - base 2048 ← `"11bit"`
+     * - base 4096 ← `"12bit"`
+     * - base 8192 ← `"13bit"`
+     * - base 16384 ← `"14bit"`
+     * - base 32768 ← `"15bit"`
+     * - base 65536 ← `"16bit"`
+     * - base 131072 ← `"17bit"`
+     * - base 262144 ← `"18bit"`
+     * - base 524288 ← `"19bit"`
+     * - base 1048576 ← `"20bit"`
+     * - base 2097152 ← `"21bit"`
+     * - base 4194304 ← `"22bit"`
+     * - base 8388608 ← `"23bit"`
+     * - base 16777216 ← `"24bit"`
+     * - base 33554432 ← `"25bit"`
+     * - base 67108864 ← `"26bit"`
+     * - base 134217728 ← `"27bit"`
+     * - base 268435456 ← `"28bit"`
+     * - base 536870912 ← `"29bit"`
+     * - base 1073741824 ← `"30bit"`
+     * - base 2147483648 ← `"31bit"`
+     * - base 4294967296 ← `"32bit"`
      * - any base within 1 to 4294967296 (incl.) can also be a number or a string representing that number
      * @throws {SyntaxError} - if `base` is not an available option _( outside the range of [1-4294967296] (incl.) )_
      * @throws {SyntaxError} - if `base` is `"braille"` and `num` is not a string
@@ -662,13 +734,13 @@ class BigIntType{
      *   (spoiler: it's way less than the spec limit)
      * @param {string|number} base
      * * base of `num` as a number or string ( case insensitive ) - _default `'h'`_
-     * - base 2 ← `'b'`, `"bin"`, `"bits"`, or `"binary"`
+     * - base 2 ← `'b'`, `"bin"`, `"bits"`, `"binary"`, or `"1bit"`
      * - base 3 ← `"ternary"` or `"trinary"`
-     * - base 4 ← `'q'`, or `"quaternary"`
+     * - base 4 ← `'q'`, `"quaternary"`, or `"2bit"`
      * - base 5 ← `"quinary"` or `"pental"`
      * - base 6 ← `"senary"`, `"heximal"`, or `"seximal"`
      * - base 7 ← `"septenary"`
-     * - base 8 ← `'o'`, `"oct"`, or `"octal"`
+     * - base 8 ← `'o'`, `"oct"`, `"octal"`, or `"3bit"`
      * - base 9 ← `"nonary"`
      * - base 10 ← `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`
      * - base 11 ← `"undecimal"`
@@ -676,7 +748,7 @@ class BigIntType{
      * - base 13 ← `"tridecimal"`
      * - base 14 ← `"tetradecimal"`
      * - base 15 ← `"pentadecimal"`
-     * - base 16 ← `'h'`, `"hex"`, `"hexadecimal"`, or `"sexadecimal"`
+     * - base 16 ← `'h'`, `"hex"`, `"hexadecimal"`, `"sexadecimal"`, or `"4bit"`
      * - base 17 ← `"heptadecimal"`
      * - base 18 ← `"octodecimal"`
      * - base 19 ← `"enneadecimal"`
@@ -692,7 +764,7 @@ class BigIntType{
      * - base 29 ← `"enneavigesimal"`
      * - base 30 ← `"trigesimal"`
      * - base 31 ← `"untrigesimal"`
-     * - base 32 ← `"duotrigesimal"`
+     * - base 32 ← `"duotrigesimal"` or `"5bit"`
      * - base 33 ← `"tritrigesimal"`
      * - base 34 ← `"tetratrigesimal"`
      * - base 35 ← `"pentatrigesimal"`
@@ -714,7 +786,7 @@ class BigIntType{
      * - base 58 ← `"octoquinquagesimal"`
      * - base 60 ← `"sexagesimal"` or `"sexagenary"`
      * - base 62 ← `"duosexagesimal"`
-     * - base 64 ← `"tetrasexagesimal"`
+     * - base 64 ← `"tetrasexagesimal"` or `"6bit"`
      * - base 72 ← `"duoseptuagesimal"`
      * - base 80 ← `"octogesimal"`
      * - base 81 ← `"unoctogesimal"`
@@ -732,7 +804,7 @@ class BigIntType{
      * - base 120 ← `"centevigesimal"`
      * - base 121 ← `"centeunvigesimal"`
      * - base 125 ← `"centepentavigesimal"`
-     * - base 128 ← `"centeoctovigesimal"`
+     * - base 128 ← `"centeoctovigesimal"` or `"7bit"`
      * - base 144 ← `"centetetraquadragesimal"`
      * - base 169 ← `"centenovemsexagesimal"`
      * - base 185 ← `"centepentoctogesimal"`
@@ -741,9 +813,33 @@ class BigIntType{
      * - base 210 ← `"duocentedecimal"`
      * - base 216 ← `"duocentehexidecimal"`
      * - base 225 ← `"duocentepentavigesimal"`
-     * - base 256 ← `"duocentehexaquinquagesimal"`, `"byte"`, or `"braille"`
+     * - base 256 ← `"duocentehexaquinquagesimal"`, `"byte"`, `"8bit"`, or `"braille"`
      * - base 300 ← `"trecentesimal"`
      * - base 360 ← `"trecentosexagesimal"`
+     * - base 512 ← `"9bit"`
+     * - base 1024 ← `"10bit"`
+     * - base 2048 ← `"11bit"`
+     * - base 4096 ← `"12bit"`
+     * - base 8192 ← `"13bit"`
+     * - base 16384 ← `"14bit"`
+     * - base 32768 ← `"15bit"`
+     * - base 65536 ← `"16bit"`
+     * - base 131072 ← `"17bit"`
+     * - base 262144 ← `"18bit"`
+     * - base 524288 ← `"19bit"`
+     * - base 1048576 ← `"20bit"`
+     * - base 2097152 ← `"21bit"`
+     * - base 4194304 ← `"22bit"`
+     * - base 8388608 ← `"23bit"`
+     * - base 16777216 ← `"24bit"`
+     * - base 33554432 ← `"25bit"`
+     * - base 67108864 ← `"26bit"`
+     * - base 134217728 ← `"27bit"`
+     * - base 268435456 ← `"28bit"`
+     * - base 536870912 ← `"29bit"`
+     * - base 1073741824 ← `"30bit"`
+     * - base 2147483648 ← `"31bit"`
+     * - base 4294967296 ← `"32bit"`
      * - any base within 2 to 4294967296 (incl.) can also be a number or a string representing that number
      * @returns {string} `this` number as string (in base `base`)
      * @throws {SyntaxError} if `base` is not an available option _( outside the range of [2-4294967296] (incl.) )_
@@ -915,13 +1011,13 @@ class BigIntType{
      *   (spoiler: it's way less than the spec limit)
      * @param {string|number} base
      * * base of `num` as a number or string ( case insensitive ) - _default `'h'`_
-     * - base 2 ← `'b'`, `"bin"`, `"bits"`, or `"binary"`
+     * - base 2 ← `'b'`, `"bin"`, `"bits"`, `"binary"`, or `"1bit"`
      * - base 3 ← `"ternary"` or `"trinary"`
-     * - base 4 ← `'q'`, or `"quaternary"`
+     * - base 4 ← `'q'`, `"quaternary"`, or `"2bit"`
      * - base 5 ← `"quinary"` or `"pental"`
      * - base 6 ← `"senary"`, `"heximal"`, or `"seximal"`
      * - base 7 ← `"septenary"`
-     * - base 8 ← `'o'`, `"oct"`, or `"octal"`
+     * - base 8 ← `'o'`, `"oct"`, `"octal"`, or `"3bit"`
      * - base 9 ← `"nonary"`
      * - base 10 ← `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`
      * - base 11 ← `"undecimal"`
@@ -929,7 +1025,7 @@ class BigIntType{
      * - base 13 ← `"tridecimal"`
      * - base 14 ← `"tetradecimal"`
      * - base 15 ← `"pentadecimal"`
-     * - base 16 ← `'h'`, `"hex"`, `"hexadecimal"`, or `"sexadecimal"`
+     * - base 16 ← `'h'`, `"hex"`, `"hexadecimal"`, `"sexadecimal"`, or `"4bit"`
      * - base 17 ← `"heptadecimal"`
      * - base 18 ← `"octodecimal"`
      * - base 19 ← `"enneadecimal"`
@@ -945,7 +1041,7 @@ class BigIntType{
      * - base 29 ← `"enneavigesimal"`
      * - base 30 ← `"trigesimal"`
      * - base 31 ← `"untrigesimal"`
-     * - base 32 ← `"duotrigesimal"`
+     * - base 32 ← `"duotrigesimal"` or `"5bit"`
      * - base 33 ← `"tritrigesimal"`
      * - base 34 ← `"tetratrigesimal"`
      * - base 35 ← `"pentatrigesimal"`
@@ -967,7 +1063,7 @@ class BigIntType{
      * - base 58 ← `"octoquinquagesimal"`
      * - base 60 ← `"sexagesimal"` or `"sexagenary"`
      * - base 62 ← `"duosexagesimal"`
-     * - base 64 ← `"tetrasexagesimal"`
+     * - base 64 ← `"tetrasexagesimal"` or `"6bit"`
      * - base 72 ← `"duoseptuagesimal"`
      * - base 80 ← `"octogesimal"`
      * - base 81 ← `"unoctogesimal"`
@@ -985,7 +1081,7 @@ class BigIntType{
      * - base 120 ← `"centevigesimal"`
      * - base 121 ← `"centeunvigesimal"`
      * - base 125 ← `"centepentavigesimal"`
-     * - base 128 ← `"centeoctovigesimal"`
+     * - base 128 ← `"centeoctovigesimal"` or `"7bit"`
      * - base 144 ← `"centetetraquadragesimal"`
      * - base 169 ← `"centenovemsexagesimal"`
      * - base 185 ← `"centepentoctogesimal"`
@@ -994,9 +1090,33 @@ class BigIntType{
      * - base 210 ← `"duocentedecimal"`
      * - base 216 ← `"duocentehexidecimal"`
      * - base 225 ← `"duocentepentavigesimal"`
-     * - base 256 ← `"duocentehexaquinquagesimal"`, `"byte"`, or `"braille"`
+     * - base 256 ← `"duocentehexaquinquagesimal"`, `"byte"`, `"8bit"`, or `"braille"`
      * - base 300 ← `"trecentesimal"`
      * - base 360 ← `"trecentosexagesimal"`
+     * - base 512 ← `"9bit"`
+     * - base 1024 ← `"10bit"`
+     * - base 2048 ← `"11bit"`
+     * - base 4096 ← `"12bit"`
+     * - base 8192 ← `"13bit"`
+     * - base 16384 ← `"14bit"`
+     * - base 32768 ← `"15bit"`
+     * - base 65536 ← `"16bit"`
+     * - base 131072 ← `"17bit"`
+     * - base 262144 ← `"18bit"`
+     * - base 524288 ← `"19bit"`
+     * - base 1048576 ← `"20bit"`
+     * - base 2097152 ← `"21bit"`
+     * - base 4194304 ← `"22bit"`
+     * - base 8388608 ← `"23bit"`
+     * - base 16777216 ← `"24bit"`
+     * - base 33554432 ← `"25bit"`
+     * - base 67108864 ← `"26bit"`
+     * - base 134217728 ← `"27bit"`
+     * - base 268435456 ← `"28bit"`
+     * - base 536870912 ← `"29bit"`
+     * - base 1073741824 ← `"30bit"`
+     * - base 2147483648 ← `"31bit"`
+     * - base 4294967296 ← `"32bit"`
      * - any base within 2 to 4294967296 (incl.) can also be a number or a string representing that number
      * @returns {BigIntType} `this` with no changes
      * @throws {SyntaxError} if `base` is not an available option _( outside the range of [2-4294967296] (incl.) )_
