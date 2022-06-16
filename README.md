@@ -163,6 +163,7 @@
 > + adjustable limit `MAX_SIZE:Number` (Range 1 to 67108864 / 64MiB) *(software max is [8PiB-1] - wich could be extended to [16PiB-2] using `Uint16Array` - or even [32PiB-4] using `Uint32Array` with `BigInt`)*
 > + internal values: `sign:Boolean` / `digits:Uint8Array` (base 256 digits) / `length:Number` (length of digit-array)
 > + convert from/to string with radixes 2 to 4294967296 incl. (bases above 10 use digits as CSV) or 256 with unicode-braille-pattern - (supported prefixes `0b`, `0o`, `0x`)
+> + a lot of names for bases to use instead of the base number
 > + comparisons:
 >   + `isOdd()` / `isEven()`
 >   + `A===0` / `A===1` / `A===2`
