@@ -160,15 +160,15 @@
 > > [online calculator [WIP]](https://maz01001.github.io/site/BigIntType_calc.html)
 >
 > + *(uses string arrays internally in private-methods for faster calculations)*
-> + adjustable limit `MAX_SIZE:Number` (Range 1 to 1048576 / 1MiB) *(software max is [8PiB-1] - wich could be extended to [16PiB-2] using `Uint16Array` - or even [32PiB-4] using `Uint32Array` with `BigInt`)*
+> + adjustable limit `MAX_SIZE:Number` (Range 1 to 67108864 / 64MiB) *(software max is [8PiB-1] - wich could be extended to [16PiB-2] using `Uint16Array` - or even [32PiB-4] using `Uint32Array` with `BigInt`)*
 > + internal values: `sign:Boolean` / `digits:Uint8Array` (base 256 digits) / `length:Number` (length of digit-array)
-> + convert from/to string with radix 2, 4, 5, 10, 16, 36, 256 or 256 with unicode-braille-pattern - (supported prefixes `0b`, `0o`, `0x`)
+> + convert from/to string with radixes 2 to 4294967296 incl. (bases above 10 use digits as CSV) or 256 with unicode-braille-pattern - (supported prefixes `0b`, `0o`, `0x`)
 > + comparisons:
 >   + `isOdd()` / `isEven()`
 >   + `A===0` / `A===1` / `A===2`
 >   + `A<B` / `A>B` / `A===B` / `A>=B` / `A<=B`
 > + __chainable methods:__
-> + number constants: `0` / `1` / `2` / `1.79e308` / `MAX_VALUE` / `HelloThere`
+> + number constants: `0` / `1` / `2` / `Infinity` (`1.79e308`) / `MAX_VALUE` / `HelloThere`
 > + logging to console (custom base) without breaking chain
 > + copy/setEqual: `copy()` / `reverseCopy(toOtherNumber)` / `setEqualTo(otherNumber)`
 > + sign: `abs()` / `neg()` (`!A`)
@@ -183,7 +183,7 @@
 > + `GCD(A,B)`
 > + `mapRange(a,b,a2,b2)` with rounding (ceiled, floored or rounded) and limit (cap at a2/b2)
 > + `randomInt(min,max)` (using `Math.random()`)
-> + *↑ (`A=B=BigIntType` and `x=Number`) ↑*
+> + *↑ (`A` and `B` are type `BigIntType` and `x` is type `Number`) ↑*
 >
 ----
 >
