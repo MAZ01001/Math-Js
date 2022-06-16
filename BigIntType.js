@@ -34,55 +34,56 @@ class BigIntType{
     /**@throws {RangeError} - if setting this to a number that is not an integer in range `[1-67108864]` - _( `67108864` = 64MiB in RAM )_ */
     static set MAX_SIZE(n){
         //~ technically, max is 9007199254740991 (Number.MAX_SAFE_INTEGER) but with 1 Byte each entry that's almost 8PiB ! for ONE number
-        //~ and chrome browser will only create typed arrays up to 2GiB
-        if(!Number.isInteger(n)||n<1||n>67108864){throw new RangeError("[MAX_SIZE] must be an integer in range [1-67108864]");}
+        //~ and chrome browser will only create typed arrays up to 2GiB ~
+        if(!Number.isInteger(n)||n<0x1||n>0x4000000){throw new RangeError("[MAX_SIZE] must be an integer in range [1-67108864]");}
         return BigIntType.#MAX_SIZE=n;
     }
     /**
-     * __constructs a RegExp to match `base`__ \
+     * __constructs a RegExp to match a number string in base `base`__ \
      * _min 1 digit_ \
      * allows prefixes for bases 2, 8, and 16 \
      * allows '_' between digits \
-     * __supports bases 1 to 36__ \
+     * __supports bases 1 to 36 (incl.)__ \
      * __base 0 is braille pattern__ \
      * match-groups:
      * 1. sign / null
      * 2. number
      * @param {number} base - the base for the RegExp wich checks against a number-string - save integer
-     * + base 1-10 [digits 0-9]
-     * + base 11-36 [digits 0-9A-F]
+     * + base "braille" (0) [digits `⠀`-`⣿`]
+     * + base 1-10 [digits `0`-`9`]
+     * + base 11-36 [digits `0`-`9` and `A`-`F`]
      * @returns {RegExp} the regexp for number-strings with base `base`
-     * @throws {RangeError} if `base` is not a save integer or bigger than 36
+     * @throws {RangeError} if `base` is not a save integer or bigger than `36`
      */
     static #REGEXP_STRING(base){
-        base=Math.abs(Number(base));if(!Number.isSafeInteger(base)||base>36){throw RangeError("[REGEXP_STRING] base is out of range");}
+        base=Math.abs(Number(base));if(!Number.isSafeInteger(base)||base>0x10){throw RangeError("[REGEXP_STRING] base is out of range");}
         switch(Number(base)){//~ special cases
-            case 0:return/^([+-]?)((?:\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)+(?:_(?:\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)+)*)$/; //~ base 256 in braille-patterns
-            case 1:return/^([+-]?)(0+(?:_0+)*)$/;//~ base 1 does not realy exist, but I would imagine it like this. Where the length is the number value -1, so "0" is 0, "00" is 1, "000" is 2, etc.
-            case 2:return/^([+-]?)(?:0b)?((?:0|1[01]*)+(?:_(?:0|1[01]*)+)*)$/i;
-            case 8:return/^([+-]?)(?:0o)?((?:0|[1-7][0-7]*)+(?:_(?:0|[1-7][0-7]*)+)*)$/i;
-            case 16:return/^([+-]?)(?:0x)?((?:0|[1-9A-F][0-9A-F]*)+(?:_(?:0|[1-9A-F][0-9A-F]*)+)*)$/i;
+            case 0x0:return/^([+-]?)((?:\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)+(?:_(?:\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)+)*)$/; //~ base 256 in braille-patterns
+            case 0x1:return/^([+-]?)(0+(?:_0+)*)$/;//~ length is the number value -1, so "0" is 0, "00" is 1, "000" is 2, etc.
+            case 0x2:return/^([+-]?)(?:0b)?((?:0|1[01]*)+(?:_(?:0|1[01]*)+)*)$/i;
+            case 0x8:return/^([+-]?)(?:0o)?((?:0|[1-7][0-7]*)+(?:_(?:0|[1-7][0-7]*)+)*)$/i;
+            case 0x10:return/^([+-]?)(?:0x)?((?:0|[1-9A-F][0-9A-F]*)+(?:_(?:0|[1-9A-F][0-9A-F]*)+)*)$/i;
         }
         const add_char_seperator=characters=>`(?:${characters})+(?:_(?:${characters})+)*`,
             construct_regexp=(number_regexp,flag='')=>new RegExp(`^([+-]?)(${number_regexp})$`,flag);
-        if(base<=10){//~ base 2-10
+        if(base<=0xA){//~ base 2-10
             const characters=`0|[1-${base-1}][0-${base-1}]*`;
             return construct_regexp(add_char_seperator(characters));
-        }else if(base<=36){//~ base 11-36
-            const characters=`0|[1-9A-${String.fromCharCode(54+base)}][0-9A-${String.fromCharCode(54+base)}]*`;
+        }else if(base<=0x10){//~ base 11-36
+            const characters=`0|[1-9A-${String.fromCharCode(0x36+base)}][0-9A-${String.fromCharCode(0x36+base)}]*`;
             return construct_regexp(add_char_seperator(characters),'i');
         }
     }
     /**
      * __checking if the comma separated list matches format and numbers are below `base`__
-     * @param {string} cSNumStr - comma separated numbers
-     * @param {number} base - base of `cSNumStr` - save integer - _default `2**32`_
-     * @returns {boolean} `true` if the comma separated list matches format and numbers are below `base` and `false` otherwise
+     * @param {string} cSNumStr - string of comma separated numbers
+     * @param {number} base - base of `cSNumStr` - save integer
+     * @returns {boolean} `true` if the comma separated list matches format and numbers are below `base` - `false` otherwise
      * @throws {TypeError} if `base` is not a safe integer
      */
-    static #CheckCSNum(cSNumStr,base=2**32){
+    static #CheckCSNum(cSNumStr,base){
         cSNumStr=String(cSNumStr);
-        base=Math.abs(Number(base));if(!Number.isSafeInteger(base)){throw new TypeError("[CheckCSNum] base is not a number");}
+        base=Math.abs(Number(base));if(!Number.isSafeInteger(base)){throw new TypeError("[CheckCSNum] base is not a safe integer");}
         const baseStr=String(base);
         if(!/^(?:0|(?:[1-9][0-9]*)(?:\,(?:0|[1-9][0-9]*))*)$/.test(cSNumStr)){return false;}
         for(let i=0,lastNum="";i<cSNumStr.length;i++){
@@ -169,57 +170,297 @@ class BigIntType{
      */
     static get NTwo(){return new BigIntType.Two.neg();}
     /**
+     * __converts base names to the corresponding number__ \
+     * _( supports numbers from `1` to `4294967296` (incl.) )_
+     * @param {string|number} str
+     * * base of `num` as a number or string ( case insensitive )
+     * - base 2 ← `'b'`, `"bin"`, `"bits"`, or `"binary"`
+     * - base 3 ← `"ternary"` or `"trinary"`
+     * - base 4 ← `'q'`, or `"quaternary"`
+     * - base 5 ← `"quinary"` or `"pental"`
+     * - base 6 ← `"senary"`, `"heximal"`, or `"seximal"`
+     * - base 7 ← `"septenary"`
+     * - base 8 ← `'o'`, `"oct"`, or `"octal"`
+     * - base 9 ← `"nonary"`
+     * - base 10 ← `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`
+     * - base 11 ← `"undecimal"`
+     * - base 12 ← `"duodecimal"`, `"dozenal"`, or `"uncial"`
+     * - base 13 ← `"tridecimal"`
+     * - base 14 ← `"tetradecimal"`
+     * - base 15 ← `"pentadecimal"`
+     * - base 16 ← `'h'`, `"hex"`, `"hexadecimal"`, or `"sexadecimal"`
+     * - base 17 ← `"heptadecimal"`
+     * - base 18 ← `"octodecimal"`
+     * - base 19 ← `"enneadecimal"`
+     * - base 20 ← `"vigesimal"`
+     * - base 21 ← `"unvigesimal"`
+     * - base 22 ← `"duovigesimal"`
+     * - base 23 ← `"trivigesimal"`
+     * - base 24 ← `"tetravigesimal"`
+     * - base 25 ← `"pentavigesimal"`
+     * - base 26 ← `"hexavigesimal"`
+     * - base 27 ← `"heptavigesimal septemvigesimal"`
+     * - base 28 ← `"octovigesimal"`
+     * - base 29 ← `"enneavigesimal"`
+     * - base 30 ← `"trigesimal"`
+     * - base 31 ← `"untrigesimal"`
+     * - base 32 ← `"duotrigesimal"`
+     * - base 33 ← `"tritrigesimal"`
+     * - base 34 ← `"tetratrigesimal"`
+     * - base 35 ← `"pentatrigesimal"`
+     * - base 36 ← `'t'`, `"txt"`, `"text"`, or `"hexatrigesimal"`
+     * - base 37 ← `"heptatrigesimal"`
+     * - base 38 ← `"octotrigesimal"`
+     * - base 39 ← `"enneatrigesimal"`
+     * - base 40 ← `"quadragesimal"`
+     * - base 42 ← `"duoquadragesimal"`
+     * - base 45 ← `"pentaquadragesimal"`
+     * - base 47 ← `"septaquadragesimal"`
+     * - base 48 ← `"octoquadragesimal"`
+     * - base 49 ← `"enneaquadragesimal"`
+     * - base 50 ← `"quinquagesimal"`
+     * - base 52 ← `"duoquinquagesimal"`
+     * - base 54 ← `"tetraquinquagesimal"`
+     * - base 56 ← `"hexaquinquagesimal"`
+     * - base 57 ← `"heptaquinquagesimal"`
+     * - base 58 ← `"octoquinquagesimal"`
+     * - base 60 ← `"sexagesimal"` or `"sexagenary"`
+     * - base 62 ← `"duosexagesimal"`
+     * - base 64 ← `"tetrasexagesimal"`
+     * - base 72 ← `"duoseptuagesimal"`
+     * - base 80 ← `"octogesimal"`
+     * - base 81 ← `"unoctogesimal"`
+     * - base 85 ← `"pentoctogesimal"`
+     * - base 89 ← `"enneaoctogesimal"`
+     * - base 90 ← `"nonagesimal"`
+     * - base 91 ← `"unnonagesimal"`
+     * - base 92 ← `"duononagesimal"`
+     * - base 93 ← `"trinonagesimal"`
+     * - base 94 ← `"tetranonagesimal"`
+     * - base 95 ← `"pentanonagesimal"`
+     * - base 96 ← `"hexanonagesimal"`
+     * - base 97 ← `"septanonagesimal"`
+     * - base 100 ← `"centesimal"`
+     * - base 120 ← `"centevigesimal"`
+     * - base 121 ← `"centeunvigesimal"`
+     * - base 125 ← `"centepentavigesimal"`
+     * - base 128 ← `"centeoctovigesimal"`
+     * - base 144 ← `"centetetraquadragesimal"`
+     * - base 169 ← `"centenovemsexagesimal"`
+     * - base 185 ← `"centepentoctogesimal"`
+     * - base 196 ← `"centehexanonagesimal"`
+     * - base 200 ← `"duocentesimal"`
+     * - base 210 ← `"duocentedecimal"`
+     * - base 216 ← `"duocentehexidecimal"`
+     * - base 225 ← `"duocentepentavigesimal"`
+     * - base 256 ← `"duocentehexaquinquagesimal"`, `"byte"`, or `"braille"` ( `"braille"` must be a string with `'⠀'`-`'⣿'` (Unicode Braille Pattern `0x2800`-`0x28FF`) )
+     * - base 300 ← `"trecentesimal"`
+     * - base 360 ← `"trecentosexagesimal"`
+     * - any base within 1 to 4294967296 (incl.) can also be a number or a string representing that number
+     * @returns {number} the base according to the list above (`"braille"` will be `0`), or `NaN` if not supported
+     */
+    static #strBase(str){
+        //~ ( https://en.wikipedia.org/wiki/list_of_numeral_systems#standard_positional_numeral_systems )
+        switch(String(str).toLowerCase()){
+            //~ ALL YOUR BASE ARE BELONG TO US
+            case'b':case"bin":case"bits":case"binary":return 2;
+            case"ternary":case"trinary":return 3;
+            case'q':case"quaternary":return 4;
+            case"quinary":case"pental":return 5;
+            case"senary":case"heximal":case"seximal":return 6;
+            case"septenary":return 7;
+            case'o':case"oct":case"octal":return 8;
+            case"nonary":return 9;
+            case'd':case"dec":case"decimal":case"decimal":case"denary":return 10;
+            case"undecimal":return 11;
+            case"duodecimal":case"dozenal":case"uncial":return 12;
+            case"tridecimal":return 13;
+            case"tetradecimal":return 14;
+            case"pentadecimal":return 15;
+            case'h':case"hex":case"hexadecimal":case"sexadecimal":return 16;
+            case"heptadecimal":return 17;
+            case"octodecimal":return 18;
+            case"enneadecimal":return 19;
+            case"vigesimal":return 20;
+            case"unvigesimal":return 21;
+            case"duovigesimal":return 22;
+            case"trivigesimal":return 23;
+            case"tetravigesimal":return 24;
+            case"pentavigesimal":return 25;
+            case"hexavigesimal":return 26;
+            case"heptavigesimal":case"septemvigesimal":return 27;
+            case"octovigesimal":return 28;
+            case"enneavigesimal":return 29;
+            case"trigesimal":return 30;
+            case"untrigesimal":return 31;
+            case"duotrigesimal":return 32;
+            case"tritrigesimal":return 33;
+            case"tetratrigesimal":return 34;
+            case"pentatrigesimal":return 35;
+            case't':case"txt":case"text":case"hexatrigesimal":return 36;
+            case"heptatrigesimal":return 37;
+            case"octotrigesimal":return 38;
+            case"enneatrigesimal":return 39;
+            case"quadragesimal":return 40;
+            case"duoquadragesimal":return 42;
+            case"pentaquadragesimal":return 45;
+            case"septaquadragesimal":return 47;
+            case"octoquadragesimal":return 48;
+            case"enneaquadragesimal":return 49;
+            case"quinquagesimal":return 50;
+            case"duoquinquagesimal":return 52;
+            case"tetraquinquagesimal":return 54;
+            case"hexaquinquagesimal":return 56;
+            case"heptaquinquagesimal":return 57;
+            case"octoquinquagesimal":return 58;
+            case"sexagesimal":case"sexagenary":return 60;
+            case"duosexagesimal":return 62;
+            case"tetrasexagesimal":return 64;
+            case"duoseptuagesimal":return 72;
+            case"octogesimal":return 80;
+            case"unoctogesimal":return 81;
+            case"pentoctogesimal":return 85;
+            case"enneaoctogesimal":return 89;
+            case"nonagesimal":return 90;
+            case"unnonagesimal":return 91;
+            case"duononagesimal":return 92;
+            case"trinonagesimal":return 93;
+            case"tetranonagesimal":return 94;
+            case"pentanonagesimal":return 95;
+            case"hexanonagesimal":return 96;
+            case"septanonagesimal":return 97;
+            case"centesimal":return 100;
+            case"centevigesimal":return 120;
+            case"centeunvigesimal":return 121;
+            case"centepentavigesimal":return 125;
+            case"centeoctovigesimal":return 128;
+            case"centetetraquadragesimal":return 144;
+            case"centenovemsexagesimal":return 169;
+            case"centepentoctogesimal":return 185;
+            case"centehexanonagesimal":return 196;
+            case"duocentesimal":return 200;
+            case"duocentedecimal":return 210;
+            case"duocentehexidecimal":return 216;
+            case"duocentepentavigesimal":return 225;
+            case"duocentehexaquinquagesimal":case"byte":return 256;
+            case"braille":return 0;//~ braille-pattern (unicode)
+            case"trecentesimal":return 300;
+            case"trecentosexagesimal":return 360;
+            //~ for just numbers:
+            default:
+                str=Number(str);
+                if(Number.isNaN(str)){return NaN;}
+                if(str>=1&&str<=0x100000000){return str;}
+        }
+        return NaN;
+    }
+    /**
      * __constructs a BigIntType number__
-     * @param {string|boolean[]|Uint8Array} num - an integer - _default `'1'`_
-     * + + ( in arrays the number is unsigned and index 0 = 0th-place-digit for example: `"1230"` → `[0,3,2,1]` )
-     * + + ( if `num` is an Uint8Array and `base` 256 then the original Uint8Array will be used )
-     * + `base` 1               → as string or Uint8Array just `0` ( length of the number, minus one, equals the numerical value of it )
-     * + `base` 2               → as string or Uint8Array `0` and `1` or as bool array `true` and `false`
-     * + `base` 4 to 10         → as string or Uint8Array max `0` to `9`
-     * + `base` 16 to 36        → as string max `0` to `9` and `A` to `Z` or as Uint8Array max `0` to `36`
-     * + `base` 256             → as string `⠀` to `⣿` ( braille-patterns `0x2800` to `0x28FF` ), `0` to `255` ( comma-separated list ) or as Uint8Array `0` to `256`
-     * + `base` 37 to 67108864  → as string max `0` to `67108863` ( comma-separated list ) or as Uint8Array max `0` to `67108864`
-     * @param {string|number} base - base of `num` as a number or string ( case insensitive ) - _default `'d'`_
-     * + base 2 can be `'b'`, `"bin"`, `"bit"`, or `"binary"`
-     * + base 3 can be `"ternary"` or `"trinary"`
-     * + base 4 can be `'c'`, `"crumb"`, `'q'`, or `"quaternary"`
-     * + base 5 can be `"quinary"` or `"pental"`
-     * + base 6 can be `"senary"`, `"heximal"`, or `"seximal"`
-     * + base 8 can be `'o'`, `"oct"`, or `"octal"`
-     * + base 10 can be `'d'`, `"dec"`, or `"decimal"`
-     * + base 12 can be `"duodecimal"`, `"dozenal"`, or `"uncial"`
-     * + base 16 can be `'x'`, `'h'`, `"hex"`, `"hexadecimal"`, `'n'`, or `"nibble"`
-     * + base 20 can be `"vigesimal"`
-     * + base 36 can be `'t'`, `"text"`, or `"bin-text"`
-     * + base 60 can be `"sexagesimal"` or `"sexagenary"`
-     * + base 256 can be `"braille"` or `"byte"` ( `"braille"` must be a unicode braille-pattern string )
-     * + any base within 1 to 67108864 incl. can also be a number or a string representing that number
-     * @throws {SyntaxError} - if `base` is not an available option _( outside the range of [2-67108864] incl. )_
+     * @param {string|boolean[]|Uint8Array} num
+     * * an integer - _default `'1'`_
+     * * note:
+     *   * ( in arrays the number is unsigned and index 0 = 0th-place-digit for example: `"1230"` → `[0,3,2,1]` )
+     *   * ( if `num` is an Uint8Array and `base` 256 then the original Uint8Array will be used )
+     * - `base` `1`                  → as string or Uint8Array just `0` ( length of the number, minus one, equals the numerical value of it )
+     * - `base` `2`                  → as string, Uint8Array, or an array with only booleans
+     * - `base` `1` to `10`          → as string or Uint8Array
+     * - `base` `11` to `36`         → as string or Uint8Array
+     * - `base` `37` to `4294967296` → as string, comma-separated list of numbers, or Uint8Array
+     * - `base` `256:"braille"`      → as string `⠀` to `⣿` ( braille-patterns `0x2800` to `0x28FF` ), comma-separated list of numbers, or Uint8Array
+     * @param {string|number} base
+     * * base of `num` as a number or string ( case insensitive ) - _default `'d'`_
+     * - base 2 ← `'b'`, `"bin"`, `"bits"`, or `"binary"`
+     * - base 3 ← `"ternary"` or `"trinary"`
+     * - base 4 ← `'q'`, or `"quaternary"`
+     * - base 5 ← `"quinary"` or `"pental"`
+     * - base 6 ← `"senary"`, `"heximal"`, or `"seximal"`
+     * - base 7 ← `"septenary"`
+     * - base 8 ← `'o'`, `"oct"`, or `"octal"`
+     * - base 9 ← `"nonary"`
+     * - base 10 ← `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`
+     * - base 11 ← `"undecimal"`
+     * - base 12 ← `"duodecimal"`, `"dozenal"`, or `"uncial"`
+     * - base 13 ← `"tridecimal"`
+     * - base 14 ← `"tetradecimal"`
+     * - base 15 ← `"pentadecimal"`
+     * - base 16 ← `'h'`, `"hex"`, `"hexadecimal"`, or `"sexadecimal"`
+     * - base 17 ← `"heptadecimal"`
+     * - base 18 ← `"octodecimal"`
+     * - base 19 ← `"enneadecimal"`
+     * - base 20 ← `"vigesimal"`
+     * - base 21 ← `"unvigesimal"`
+     * - base 22 ← `"duovigesimal"`
+     * - base 23 ← `"trivigesimal"`
+     * - base 24 ← `"tetravigesimal"`
+     * - base 25 ← `"pentavigesimal"`
+     * - base 26 ← `"hexavigesimal"`
+     * - base 27 ← `"heptavigesimal septemvigesimal"`
+     * - base 28 ← `"octovigesimal"`
+     * - base 29 ← `"enneavigesimal"`
+     * - base 30 ← `"trigesimal"`
+     * - base 31 ← `"untrigesimal"`
+     * - base 32 ← `"duotrigesimal"`
+     * - base 33 ← `"tritrigesimal"`
+     * - base 34 ← `"tetratrigesimal"`
+     * - base 35 ← `"pentatrigesimal"`
+     * - base 36 ← `'t'`, `"txt"`, `"text"`, or `"hexatrigesimal"`
+     * - base 37 ← `"heptatrigesimal"`
+     * - base 38 ← `"octotrigesimal"`
+     * - base 39 ← `"enneatrigesimal"`
+     * - base 40 ← `"quadragesimal"`
+     * - base 42 ← `"duoquadragesimal"`
+     * - base 45 ← `"pentaquadragesimal"`
+     * - base 47 ← `"septaquadragesimal"`
+     * - base 48 ← `"octoquadragesimal"`
+     * - base 49 ← `"enneaquadragesimal"`
+     * - base 50 ← `"quinquagesimal"`
+     * - base 52 ← `"duoquinquagesimal"`
+     * - base 54 ← `"tetraquinquagesimal"`
+     * - base 56 ← `"hexaquinquagesimal"`
+     * - base 57 ← `"heptaquinquagesimal"`
+     * - base 58 ← `"octoquinquagesimal"`
+     * - base 60 ← `"sexagesimal"` or `"sexagenary"`
+     * - base 62 ← `"duosexagesimal"`
+     * - base 64 ← `"tetrasexagesimal"`
+     * - base 72 ← `"duoseptuagesimal"`
+     * - base 80 ← `"octogesimal"`
+     * - base 81 ← `"unoctogesimal"`
+     * - base 85 ← `"pentoctogesimal"`
+     * - base 89 ← `"enneaoctogesimal"`
+     * - base 90 ← `"nonagesimal"`
+     * - base 91 ← `"unnonagesimal"`
+     * - base 92 ← `"duononagesimal"`
+     * - base 93 ← `"trinonagesimal"`
+     * - base 94 ← `"tetranonagesimal"`
+     * - base 95 ← `"pentanonagesimal"`
+     * - base 96 ← `"hexanonagesimal"`
+     * - base 97 ← `"septanonagesimal"`
+     * - base 100 ← `"centesimal"`
+     * - base 120 ← `"centevigesimal"`
+     * - base 121 ← `"centeunvigesimal"`
+     * - base 125 ← `"centepentavigesimal"`
+     * - base 128 ← `"centeoctovigesimal"`
+     * - base 144 ← `"centetetraquadragesimal"`
+     * - base 169 ← `"centenovemsexagesimal"`
+     * - base 185 ← `"centepentoctogesimal"`
+     * - base 196 ← `"centehexanonagesimal"`
+     * - base 200 ← `"duocentesimal"`
+     * - base 210 ← `"duocentedecimal"`
+     * - base 216 ← `"duocentehexidecimal"`
+     * - base 225 ← `"duocentepentavigesimal"`
+     * - base 256 ← `"duocentehexaquinquagesimal"`, `"byte"`, or `"braille"` ( `"braille"` must be a string with `'⠀'`-`'⣿'` (Unicode Braille Pattern `0x2800`-`0x28FF`) )
+     * - base 300 ← `"trecentesimal"`
+     * - base 360 ← `"trecentosexagesimal"`
+     * - any base within 1 to 4294967296 (incl.) can also be a number or a string representing that number
+     * @throws {SyntaxError} - if `base` is not an available option _( outside the range of [1-4294967296] (incl.) )_
      * @throws {SyntaxError} - if `base` is `"braille"` and `num` is not a string
      * @throws {SyntaxError} - if `num` does not have the correct format for this `base`
      * @throws {RangeError} - if `num` exceedes `MAX_SIZE` ( after conversion in base 256 )
      * @throws {RangeError} - _if some Array could not be allocated ( system-specific & memory size )_
      */
     constructor(num='1',base='d'){
-        switch(String(base).toLowerCase()){
-            //~ ALL YOUR BASE ARE BELONG TO US
-            case'b':case"bin":case"bit":case"binary":base=2;break;
-            case"ternary":case"trinary":base=3;break;
-            case'c':case"crumb":case'q':case"quaternary":base=4;break;
-            case"quinary":case"pental":base=5;break;
-            case"senary":case"heximal":case"seximal":base=6;break;
-            case'o':case"oct":case"octal":base=8;break;
-            case'd':case"dec":case"decimal":base=10;break;
-            case"duodecimal":case"dozenal":case"uncial":base=12;break;
-            case'n':case"nibble":case'x':case'h':case"hex":case"hexadecimal":base=16;break;
-            case"vigesimal":base=20;break;
-            case't':case"text":case"bin-text":base=36;break;
-            case"sexagesimal":case"sexagenary":base=60;break;
-            case"byte":base=256;break;
-            case"braille":base=0;break;
-            //~ for just numbers:
-            default:base=Math.abs(Number(base));if(Number.isNaN(base)||base<1||base>0x4000000){throw new SyntaxError("[new BigIntType] base is not an available option");}
-        }
+        base=BigIntType.#strBase(base);
+        if(Number.isNaN(base)){throw new SyntaxError("[new BigIntType] base is not an available option");}
         this.#sign=true;
         if(base===2&&Array.isArray(num)){
             if(num.every(v=>typeof(v)==="boolean")){num=new Uint8Array(num);}
@@ -230,7 +471,7 @@ class BigIntType{
             if(num.length===1&&(num[0]===0||num[0]===false)){this.#digits=new Uint8Array(1);return;}
             if(num.length===1&&(num[0]===1||num[0]===true)){this.#digits=new Uint8Array([1]);return;}
         }else{
-            num=String(num);
+            num=String(num).toUpperCase();
             if(num==='0'||num==='\u2800'){this.#digits=new Uint8Array(1);return;}
             if(num==='1'||num==='\u2801'){this.#digits=new Uint8Array([1]);return;}
         }
@@ -254,11 +495,15 @@ class BigIntType{
                 }else if(base<=10){num=new Uint8Array([..._match[2]].reverse());}
                 else{num=new Uint8Array([..._match[2]].map(v=>Number.parseInt(v,base)).reverse());}
             }else{
-                if(BigIntType.#CheckCSNum(num,base)){num=new Uint8Array(num.split(',').reverse());}
-                else{throw new SyntaxError(`[new BigIntType] num (string / comma separated list) does not have the correct format for base ${base}`);}
+                if(BigIntType.#CheckCSNum(num,base)){
+                    if(base<=0x100){num=new Uint8Array(num.split(',').reverse());}
+                    else if(base<=0x10000){num=new Uint16Array(num.split(',').reverse());}
+                    else if(base<=0x1000000){num=new Uint32Array(num.split(',').reverse());}
+                    else{num=Array.from(num.split(',').reverse(),Number);}
+                }else{throw new SyntaxError(`[new BigIntType] num (string / comma separated list) does not have the correct format for base ${base}`);}
             }
         }else{
-            if(num.some(v=>v>=base)){throw new SyntaxError(`[new BigIntType] num (Uint8Array) has incorrect values for base ${base}`);}
+            if(base<=0x100&&num.some(v=>v>=base)){throw new SyntaxError(`[new BigIntType] num (Uint8Array) has incorrect values for base ${base}`);}
             if(base===1){//~ length-1 = numerical value
                 if(num.length===1){this.#digits=num;return;}
                 if(num.length===2){this.#digits=new Uint8Array([1]);return;}
@@ -266,6 +511,7 @@ class BigIntType{
                 num=new Uint8Array([...(num.length-1).toString(base)].map(v=>Number.parseInt(v,base)).reverse());
             }
         }
+        //~ (be aware that if num is not a string it can be Uint8Array, Uint16Array, Uint32Array, or number[] depending of base (to support the size of each digit))
         switch(base){
             case 0x2://~ 8* digits are 1 8bit digit
                 this.#digits=new Uint8Array(Math.ceil(num.length/8));
@@ -302,6 +548,7 @@ class BigIntType{
                     this.#digits[2*i]=num[i]&0xFF;//~ (2**8-1) = 255
                     this.#digits[2*i+1]=num[i]&0xFF00;//~ (2**16-1)-(2**8-1) = 65_280
                 }
+                break;
             case 0x1000000://~ each digit is three 8bit digits (2**(3*8) = 16_777_216)
                 //~ (check the size before creating because it could be bigger than MAX_SAVE_INTEGER and is impossible for Uint8Array to create)
                 if(num.length*3>BigIntType.MAX_SIZE){throw new RangeError(`[new BigIntType] new number is longer than [MAX_SIZE]`);}
@@ -311,17 +558,29 @@ class BigIntType{
                     this.#digits[3*i+1]=num[i]&0xFF00;//~ (2**16-1)-(2**8-1) = 65_280
                     this.#digits[3*i+2]=num[i]&0xFF0000;//~ (2**24-1)-(2**16-1) = 16_711_680
                 }
+                break;
+            case 0x100000000://~ each digit is four 8bit digits (2**(4*8) = 4_294_967_296)
+                //~ (check the size before creating because it could be bigger than MAX_SAVE_INTEGER and is impossible for Uint8Array to create)
+                if(num.length*4>BigIntType.MAX_SIZE){throw new RangeError(`[new BigIntType] new number is longer than [MAX_SIZE]`);}
+                this.#digits=new Uint8Array(num.length*4);
+                for(let i=0;i<num.length;i++){
+                    //~ ()>>>0 to make the 32bit number unsigned (it is 32bit because of the use of bitwise operations - but also default signed so realy only 31bit)
+                    this.#digits[4*i]=(num[i]&0xFF)>>>0;//~ (2**8-1) = 255
+                    this.#digits[4*i+1]=(num[i]&0xFF00)>>>0;//~ (2**16-1)-(2**8-1) = 65_280
+                    this.#digits[4*i+2]=(num[i]&0xFF0000)>>>0;//~ (2**24-1)-(2**16-1) = 16_711_680
+                    this.#digits[4*i+3]=(num[i]&0xFF000000)>>>0;//~ (2**32-1)-(2**24-1) = 4_294_967_296
+                }
+                break;
             default:
                 //~ (because of the use of bitwise operations the numbers of the "base" var and each digit in bN can only get to 32bit (maybe even 1 less because of sign support of js bitwise operations))
-                /**@type {string[]} - digits in base N*/
+                /**@type {string[]} - digits in base `base`*/
                 let bN=Array.from(num,String),
                     /**@type {string[]} - digits for base 256*/
                     b256__=[];
-                for(;bN.length>1||bN[0]!=='0';){//~ bN > 0
-                    b256__.push('0');
+                for(let z=0;bN.length>1||bN[0]!=='0';z=0){//~ bN > 0
                     for(let iBit=0;iBit<8;iBit++){
-                        //~ if the base is odd AND bN is not smaller than its base, invert the standard behavior, which is → when bN is odd, push a bit to the end of b256__
-                        if(((base&1)&(bN.length>1))^(Number(bN[0])&1)){b256__[b256__.length-1]=String(Number(b256__[b256__.length-1])+(1<<iBit));}
+                        //~ if the base is odd AND bN is not smaller than its base (i.e. more than one digit), invert the standard behavior, which is → when bN is odd, push a bit to the end of b256__
+                        if(((base&1)&(bN.length>1))^(Number(bN[0])&1)){z+=(1<<iBit);}
                         //~ bN >>>= 1
                         if(bN.length===1&&bN[0]==='0'){break;}
                         else if(bN.length===1&&bN[0]==='1'){bN[0]='0';break;}
@@ -353,6 +612,7 @@ class BigIntType{
                             if(bN.length>1&&bN[bN.length-1]==='0'){bN.splice(-1,1);}
                         }
                     }
+                    b256__.push(String(z));
                 }
                 this.#digits=new Uint8Array(b256__);
                 break;
@@ -361,130 +621,390 @@ class BigIntType{
         this.#sign=_sign;
         if(this.length>BigIntType.MAX_SIZE){throw new RangeError(`[new BigIntType] new number is longer than [MAX_SIZE]`);}
     }
-    // TODO ↓ add all bases from above
+    /**
+     * __initialize iterator for `this` number__ \
+     * iterate through each number in base 256 (starting with biggest numerical index) \
+     * _( makes this element able to be used in a `for-of` loop )_
+     * @returns {{next():{value:number;done:boolean;}}} iterator to get the next element in a loop
+     */
+    [Symbol.iterator](){
+        const list=this.#digits;
+        let i=this.length-1;
+        return{
+            /**
+             * __get the next element in a loop__
+             * @returns {{value:number;done:boolean;}} value of next element and set `done` `true` if it's the last element
+             */
+            next(){
+                i--;
+                return{value:list[i],done:i<=0};
+            }
+        };
+    };
     /**
      * __convert `this` number to string__
-     * @param {string|number} base - base of number/digit string - case insensitive - _default `'x`_
-     * + base 2 can be      `'b'`, `"bin"`, `"bit"`, `"binary"`, `'2'` or `2`                           → `'0'`-`'1'` (prefix `0b`)
-     * + base 4 can be      `'c'`, `"crumb"`, `'q'`, `"quaternary"`, `'4'` or `4`                       → `'0'`-`'3'`
-     * + base 8 can be      `'o'`, `"oct"`, `"octal"`, `'8'` or `8`                                     → `'0'`-`'7'` (prefix `0o`)
-     * + base 10 can be     `'d'`, `"dec"`, `"decimal"`, `"10"` or `10`                                 → `'0'`-`'9'`
-     * + base 16 can be     `'x'`, `'h'`, `"hex"`, `"hexadecimal"`, `'n'`, `"nibble"`, `"16"` or `16`   → `'0'`-`'9'` & `'A'`-`'F'` (prefix `0x`)
-     * + base 36 can be     `'t'`, `"text"`, `"bin-text"`, `"36"` or `36`                               → `'0'`-`'9'` & `'A'`-`'Z'`
-     * + base 256 can be    `"byte"`, `"256"` or `256`                                                  → `"0"`-`"255"` (comma-separated list)
-     * + or                 `"braille"`,                                                                → `'⠀'`-`'⣿'` (Unicode Braille Pattern) `0x2800`-`0x28FF`
+     * @description
+     * - output:
+     *   - base `2` will have the prefix `"0b"`
+     *   - base `8` will have the prefix `"0o"`
+     *   - base `16` will have the prefix `"0x"`
+     *   - base `"braille"` will be a string with `'⠀'`-`'⣿'` (Unicode Braille Pattern `0x2800`-`0x28FF`)
+     *   - bases `2` to `10` use `'0'`-`'9'`
+     *   - bases `11` to `36` use `'0'`-`'9'` and `'A'`-`'Z'`
+     *   - bases `37` and above will be comma-separated lists of numbers, where each number represents the numerical value (in base 10) of the character at that location
+     * * base `1` is not feasible at all because it gets way too big way too quick \
+     *   and I also dont know how I would even start generating it xD
+     * * `[!]` every base except "braille" would be impossible to generate eventually \
+     *   because of strings maximum length of `2**53-1` (`9007199254740991`) \
+     *   characters (`MAX_SAVE_INTEGER`)
+     * * `[!]` also see https://stackoverflow.com/a/65570725/13282166 as example \
+     *   of a realistic limit of string size would be in modern browsers \
+     *   (spoiler: it's way less than the spec limit)
+     * @param {string|number} base
+     * * base of `num` as a number or string ( case insensitive ) - _default `'h'`_
+     * - base 2 ← `'b'`, `"bin"`, `"bits"`, or `"binary"`
+     * - base 3 ← `"ternary"` or `"trinary"`
+     * - base 4 ← `'q'`, or `"quaternary"`
+     * - base 5 ← `"quinary"` or `"pental"`
+     * - base 6 ← `"senary"`, `"heximal"`, or `"seximal"`
+     * - base 7 ← `"septenary"`
+     * - base 8 ← `'o'`, `"oct"`, or `"octal"`
+     * - base 9 ← `"nonary"`
+     * - base 10 ← `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`
+     * - base 11 ← `"undecimal"`
+     * - base 12 ← `"duodecimal"`, `"dozenal"`, or `"uncial"`
+     * - base 13 ← `"tridecimal"`
+     * - base 14 ← `"tetradecimal"`
+     * - base 15 ← `"pentadecimal"`
+     * - base 16 ← `'h'`, `"hex"`, `"hexadecimal"`, or `"sexadecimal"`
+     * - base 17 ← `"heptadecimal"`
+     * - base 18 ← `"octodecimal"`
+     * - base 19 ← `"enneadecimal"`
+     * - base 20 ← `"vigesimal"`
+     * - base 21 ← `"unvigesimal"`
+     * - base 22 ← `"duovigesimal"`
+     * - base 23 ← `"trivigesimal"`
+     * - base 24 ← `"tetravigesimal"`
+     * - base 25 ← `"pentavigesimal"`
+     * - base 26 ← `"hexavigesimal"`
+     * - base 27 ← `"heptavigesimal septemvigesimal"`
+     * - base 28 ← `"octovigesimal"`
+     * - base 29 ← `"enneavigesimal"`
+     * - base 30 ← `"trigesimal"`
+     * - base 31 ← `"untrigesimal"`
+     * - base 32 ← `"duotrigesimal"`
+     * - base 33 ← `"tritrigesimal"`
+     * - base 34 ← `"tetratrigesimal"`
+     * - base 35 ← `"pentatrigesimal"`
+     * - base 36 ← `'t'`, `"txt"`, `"text"`, or `"hexatrigesimal"`
+     * - base 37 ← `"heptatrigesimal"`
+     * - base 38 ← `"octotrigesimal"`
+     * - base 39 ← `"enneatrigesimal"`
+     * - base 40 ← `"quadragesimal"`
+     * - base 42 ← `"duoquadragesimal"`
+     * - base 45 ← `"pentaquadragesimal"`
+     * - base 47 ← `"septaquadragesimal"`
+     * - base 48 ← `"octoquadragesimal"`
+     * - base 49 ← `"enneaquadragesimal"`
+     * - base 50 ← `"quinquagesimal"`
+     * - base 52 ← `"duoquinquagesimal"`
+     * - base 54 ← `"tetraquinquagesimal"`
+     * - base 56 ← `"hexaquinquagesimal"`
+     * - base 57 ← `"heptaquinquagesimal"`
+     * - base 58 ← `"octoquinquagesimal"`
+     * - base 60 ← `"sexagesimal"` or `"sexagenary"`
+     * - base 62 ← `"duosexagesimal"`
+     * - base 64 ← `"tetrasexagesimal"`
+     * - base 72 ← `"duoseptuagesimal"`
+     * - base 80 ← `"octogesimal"`
+     * - base 81 ← `"unoctogesimal"`
+     * - base 85 ← `"pentoctogesimal"`
+     * - base 89 ← `"enneaoctogesimal"`
+     * - base 90 ← `"nonagesimal"`
+     * - base 91 ← `"unnonagesimal"`
+     * - base 92 ← `"duononagesimal"`
+     * - base 93 ← `"trinonagesimal"`
+     * - base 94 ← `"tetranonagesimal"`
+     * - base 95 ← `"pentanonagesimal"`
+     * - base 96 ← `"hexanonagesimal"`
+     * - base 97 ← `"septanonagesimal"`
+     * - base 100 ← `"centesimal"`
+     * - base 120 ← `"centevigesimal"`
+     * - base 121 ← `"centeunvigesimal"`
+     * - base 125 ← `"centepentavigesimal"`
+     * - base 128 ← `"centeoctovigesimal"`
+     * - base 144 ← `"centetetraquadragesimal"`
+     * - base 169 ← `"centenovemsexagesimal"`
+     * - base 185 ← `"centepentoctogesimal"`
+     * - base 196 ← `"centehexanonagesimal"`
+     * - base 200 ← `"duocentesimal"`
+     * - base 210 ← `"duocentedecimal"`
+     * - base 216 ← `"duocentehexidecimal"`
+     * - base 225 ← `"duocentepentavigesimal"`
+     * - base 256 ← `"duocentehexaquinquagesimal"`, `"byte"`, or `"braille"`
+     * - base 300 ← `"trecentesimal"`
+     * - base 360 ← `"trecentosexagesimal"`
+     * - any base within 2 to 4294967296 (incl.) can also be a number or a string representing that number
      * @returns {string} `this` number as string (in base `base`)
-     * @throws {SyntaxError} if `base` is not an available option
+     * @throws {SyntaxError} if `base` is not an available option _( outside the range of [2-4294967296] (incl.) )_
+     * @throws {RangeError} - _if the string could not be allocated ( system-specific & memory size )_
      */
     toString(base=16){
         let out="";
-        switch(String(base).toLowerCase()){
-            case'b':case"bin":case"bit":case"binary":case'2':out="0b"+this.#digits[this.length-1].toString(2);for(let i=this.length-2;i>=0;i--){out+=this.#digits[i].toString(2).padStart(8,'0');}break;
-            case'c':case"crumb":case'q':case"quaternary":case'4':out=this.#digits[this.length-1].toString(4);for(let i=this.length-2;i>=0;i--){out+=this.#digits[i].toString(4).padStart(4,'0');}break;
-            case'o':case"oct":case"octal":case'8':
-                /**@type {string[]} - digit-array base 8 */
-                let b8=['0'];
+        base=BigIntType.#strBase(base);
+        if(Number.isNaN(base)||base===1){throw new SyntaxError("[toString] base is not an available option");}
+        switch(base){
+            case 0://~ braille-pattern
+                for(let i=this.length-1;i>=0;i--){out+=String.fromCharCode(10240+this.#digits[i]);}
+                break;
+            case 0x2://~ [2] 8* digits are 1 8bit digit
+                out="0b"+this.#digits[this.length-1].toString(2);
+                for(let i=this.length-2;i>=0;i--){out+=this.#digits[i].toString(2).padStart(8,'0');}
+                break;
+            case 0x4://~ [4] 3* digits are 1 8bit digit
+                out=this.#digits[this.length-1].toString(4);
+                for(let i=this.length-2;i>=0;i--){out+=this.#digits[i].toString(4).padStart(4,'0');}
+                break;
+            case 0x10://~ [16] 2* digits are 1 8bit digit
+                out="0x"+this.#digits[this.length-1].toString(16).toUpperCase();
+                for(let i=this.length-2;i>=0;i--){out+=this.#digits[i].toString(16).toUpperCase().padStart(2,'0');}
+                break;
+            case 0x100://~ [256]
+                for(let i=this.length-1;i>=0;i--){out+=String(this.#digits[i])+(i!==0?',':'');}
+                break;
+            case 0x10000://~ [65536] each digit is two 8bit digits (2**(2*8) = 65_536)
                 for(let i=this.length-1;i>=0;i--){
-                    for(let j=7;j>=0;j--){
-                        if(b8.length>1||b8[0]!=='0'){//~ b8 *=2
-                            for(let i=0,o=false,z=0;i<b8.length||o;i++){
-                                if(b8[i]==='0'&&!o){continue;}
-                                z=(Number(b8[i]??0)<<1)+(o?1:0);
-                                if(z>=8){
-                                    b8[i]=String(z-8);
-                                    o=true;
-                                }else{
-                                    b8[i]=String(z);
-                                    o=false;
+                    out+=String(
+                        this.#digits[2*i]+
+                        (this.#digits[2*i+1]<<8)
+                    );
+                    if(i!==0){out+=',';}
+                }
+                break;
+            case 0x1000000://~ [16777216] each digit is three 8bit digits (2**(3*8) = 16_777_216)
+                for(let i=this.length-1;i>=0;i--){
+                    out+=String(
+                        this.#digits[3*i]+
+                        (this.#digits[3*i+1]<<8)+
+                        (this.#digits[3*i+2]<<16)
+                    );
+                    if(i!==0){out+=',';}
+                }
+                break;
+            case 0x100000000://~ [4294967296] each digit is four 8bit digits (2**(4*8) = 4_294_967_296)
+                for(let i=this.length-1;i>=0;i--){
+                    out+=String(
+                        //~ ()>>>0 to make the 32bit number unsigned (it is 32bit because of the use of bitwise operations - but also default signed so realy only 31bit)
+                        (this.#digits[4*i]>>>0)+
+                        ((this.#digits[4*i+1]<<8)>>>0)+
+                        ((this.#digits[4*i+2]<<16)>>>0)+
+                        ((this.#digits[4*i+3]<<24)>>>0)
+                    );
+                    if(i!==0){out+=',';}
+                }
+                break;
+            default:
+                if(base>=11&&base<=36){//~ i.e. use `Number.parseInt(X,base)` and `N.toString(base).toUpperCase()`
+                    /**@type {string[]} - digit-array for output in base `base`*/
+                    let bN=['0'];
+                    for(let i=this.length-1;i>=0;i--){
+                        for(let j=7;j>=0;j--){
+                            //~ go through each bit ( pos = digits[i]&(1<<j) )
+                            if(bN.length>1||bN[0]!=='0'){//~ ( bN > 0 ) → bN <<= 1
+                                for(let k=0,o=false,z=0;k<bN.length||o;k++){
+                                    if(bN[k]==='0'&&!o){continue;}
+                                    z=(Number.parseInt(bN[k]??0,base)<<1)+(o?1:0);
+                                    if(z>=base){
+                                        bN[k]=(z-base).toString(base).toUpperCase();
+                                        o=true;
+                                    }else{
+                                        bN[k]=z.toString(base).toUpperCase();
+                                        o=false;
+                                    }
                                 }
                             }
-                        }
-                        if(this.#digits[i]&(1<<j)){b8[0]=String(Number(b8[0])|1);}
-                    }
-                }
-                b8.push("0o");
-                out=b8.reverse().join('');
-                break;
-            case'd':case"dec":case"decimal":case"10":
-                /**@type {string[]} - digit-array base 10 */
-                let b10=['0'];
-                for(let i=this.length-1;i>=0;i--){
-                    for(let j=7;j>=0;j--){
-                        if(b10.length>1||b10[0]!=='0'){//~ b10 *=2
-                            for(let i=0,o=false,z=0;i<b10.length||o;i++){
-                                if(b10[i]==='0'&&!o){continue;}
-                                z=(Number(b10[i]??0)<<1)+(o?1:0);
-                                if(z>=10){
-                                    b10[i]=String(z-10);
-                                    o=true;
-                                }else{
-                                    b10[i]=String(z);
-                                    o=false;
-                                }
+                            //~ add current bit to the beginning of bN and if the base is odd handle potential digit overflow
+                            if((this.#digits[i]&(1<<j))!==0){
+                                if(base&1){
+                                    const bN_0=Number.parseInt(bN[0],base)+1;
+                                    if(bN_0>=base){
+                                        bN[0]=(bN_0%base).toString(base).toUpperCase();
+                                        for(let k=1,o=true;k<bN.length;k++){//~ handle overflow
+                                            if(bN[k]==='0'&&!o){continue;}
+                                            z=(Number.parseInt(bN[k]??0,base)<<1)+(o?1:0);
+                                            if(z>=base){
+                                                bN[k]=(z-base).toString(base).toUpperCase();
+                                                o=true;
+                                            }else{
+                                                bN[k]=z.toString(base).toUpperCase();
+                                                o=false;
+                                            }
+                                        }
+                                    }else{bN[0]=(bN_0).toString(base).toUpperCase();}
+                                }else{bN[0]=(Number.parseInt(bN[0],base)|1).toString(base).toUpperCase();}
                             }
                         }
-                        if(this.#digits[i]&(1<<j)){b10[0]=String(Number(b10[0])|1);}
                     }
-                }
-                out=b10.reverse().join('');
-                break;
-            case'n':case"nibble":case'x':case'h':case"hex":case"hexadecimal":case"16":out="0x"+this.#digits[this.length-1].toString(16).toUpperCase();for(let i=this.length-2;i>=0;i--){out+=this.#digits[i].toString(16).toUpperCase().padStart(2,'0');}break;
-            case't':case"text":case"bin-text":case"36":
-                /**@type {string[]} - digit-array base 36 */
-                let b36=['0'];
-                for(let i=this.length-1;i>=0;i--){
-                    for(let j=7;j>=0;j--){
-                        if(b36.length>1||b36[0]!=='0'){//~ b36 *=2
-                            for(let i=0,o=false,z=0;i<b36.length||o;i++){
-                                if(b36[i]==='0'&&!o){continue;}
-                                z=(Number.parseInt(b36[i]??0,36)<<1)+(o?1:0);
-                                if(z>=36){
-                                    b36[i]=(z-36).toString(36).toUpperCase();
-                                    o=true;
-                                }else{
-                                    b36[i]=z.toString(36).toUpperCase();
-                                    o=false;
+                    out=bN.reverse().join('');
+                }else{//~ just use `Number(X)` and `String(N)`
+                    /** @type {string[]} - digit-array for output in base `base` */
+                    let bN=['0'];
+                    for(let i=this.length-1;i>=0;i--){
+                        for(let j=7;j>=0;j--){
+                            //~ go through each bit ( pos = digits[i]&(1<<j) )
+                            if(bN.length>1||bN[0]!=='0'){//~ ( bN > 0 ) → bN <<= 1
+                                for(let k=0,o=false,z=0;k<bN.length||o;k++){
+                                    if(bN[k]==='0'&&!o){continue;}
+                                    z=(Number(bN[k]??0)<<1)+(o?1:0);
+                                    if(z>=base){
+                                        bN[k]=String(z-base);
+                                        o=true;
+                                    }else{
+                                        bN[k]=String(z);
+                                        o=false;
+                                    }
                                 }
                             }
+                            //~ add current bit to the beginning of bN and if the base is odd handle potential digit overflow
+                            if(((this.#digits[i]&(1<<j))!==0)){
+                                if(base&1){
+                                    const bN_0=Number(bN[0])+1;
+                                    if(bN_0>=base){
+                                        bN[0]=String(bN_0%base);
+                                        for(let k=1,o=true;k<bN.length;k++){//~ handle overflow
+                                            if(bN[k]==='0'&&!o){continue;}
+                                            z=(Number(bN[k]??0)<<1)+(o?1:0);
+                                            if(z>=base){
+                                                bN[k]=String(z-base);
+                                                o=true;
+                                            }else{
+                                                bN[k]=String(z);
+                                                o=false;
+                                            }
+                                        }
+                                    }else{bN[0]=String(bN_0);}
+                                }else{bN[0]=String(Number(bN[0])|1);}
+                            }
                         }
-                        if(this.#digits[i]&(1<<j)){b36[0]=(Number.parseInt(b36[0],36)|1).toString(36).toUpperCase();}
                     }
+                    out=bN.reverse().join((base<=10?'':','));
                 }
-                out=b36.reverse().join('');
-                break;
-            case"braille":for(let i=this.length-1;i>=0;i--){out+=String.fromCharCode(10240+this.#digits[i]);}break;
-            case"byte":case"256":for(let i=this.length-1;i>=0;i--){out+=String(this.#digits[i])+(i!==0?',':'');}break;
-            default:throw new SyntaxError("[toString] base is not an available option");
         }
         if(!this.#sign){out='-'+out;}
         return out;
     }
     /**
-     * __logs number as string (in base `base`) to console and returns itself (`this`)__
-     * @param {string|number} base - base of number/digit string - case insensitive - _default `'x`_
-     * + base 2 can be      `'b'`, `"bin"`, `"bit"`, `"binary"`, `'2'` or `2`                           → `'0'`-`'1'` (prefix `0b`)
-     * + base 4 can be      `'c'`, `"crumb"`, `'q'`, `"quaternary"`, `'4'` or `4`                       → `'0'`-`'3'`
-     * + base 8 can be      `'o'`, `"oct"`, `"octal"`, `'8'` or `8`                                     → `'0'`-`'7'` (prefix `0o`)
-     * + base 10 can be     `'d'`, `"dec"`, `"decimal"`, `"10"` or `10`                                 → `'0'`-`'9'`
-     * + base 16 can be     `'x'`, `'h'`, `"hex"`, `"hexadecimal"`, `'n'`, `"nibble"`, `"16"` or `16`   → `'0'`-`'9'` & `'A'`-`'F'` (prefix `0x`)
-     * + base 36 can be     `'t'`, `"text"`, `"bin-text"`, `"36"` or `36`                               → `'0'`-`'9'` & `'A'`-`'Z'`
-     * + base 256 can be    `"byte"`, `"256"` or `256`                                                  → `"0"`-`"255"` (comma-separated list)
-     * + or                 `"braille"`,                                                                → `'⠀'`-`'⣿'` (Unicode Braille Pattern) `0x2800`-`0x28FF`
+     * __logs number as string (in base `base`) to console and returns itself (`this`)__ \
+     * _( uses the `toString` method from `this` number )_
+     * @description
+     * - special cases:
+     *   - base `2` will have the prefix `"0b"`
+     *   - base `8` will have the prefix `"0o"`
+     *   - base `16` will have the prefix `"0x"`
+     *   - base `"braille"` will be a string with `'⠀'`-`'⣿'` (Unicode Braille Pattern `0x2800`-`0x28FF`)
+     *   - bases `2` to `10` use `'0'`-`'9'`
+     *   - bases `11` to `36` use `'0'`-`'9'` and `'A'`-`'Z'`
+     *   - bases `37` and above will be comma-separated lists of numbers, where each number represents the numerical value (in base 10) of the character at that location
+     * * base `1` is not feasible at all because it gets way too big way too quick \
+     *   and I also dont know how I would even start generating it xD
+     * * `[!]` every base except "braille" would be impossible to generate eventually \
+     *   because of strings maximum length of `2**53-1` (`9007199254740991`) \
+     *   characters (`MAX_SAVE_INTEGER`)
+     * * `[!]` also see https://stackoverflow.com/a/65570725/13282166 as example \
+     *   of a realistic limit of string size would be in modern browsers \
+     *   (spoiler: it's way less than the spec limit)
+     * @param {string|number} base
+     * * base of `num` as a number or string ( case insensitive ) - _default `'h'`_
+     * - base 2 ← `'b'`, `"bin"`, `"bits"`, or `"binary"`
+     * - base 3 ← `"ternary"` or `"trinary"`
+     * - base 4 ← `'q'`, or `"quaternary"`
+     * - base 5 ← `"quinary"` or `"pental"`
+     * - base 6 ← `"senary"`, `"heximal"`, or `"seximal"`
+     * - base 7 ← `"septenary"`
+     * - base 8 ← `'o'`, `"oct"`, or `"octal"`
+     * - base 9 ← `"nonary"`
+     * - base 10 ← `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`
+     * - base 11 ← `"undecimal"`
+     * - base 12 ← `"duodecimal"`, `"dozenal"`, or `"uncial"`
+     * - base 13 ← `"tridecimal"`
+     * - base 14 ← `"tetradecimal"`
+     * - base 15 ← `"pentadecimal"`
+     * - base 16 ← `'h'`, `"hex"`, `"hexadecimal"`, or `"sexadecimal"`
+     * - base 17 ← `"heptadecimal"`
+     * - base 18 ← `"octodecimal"`
+     * - base 19 ← `"enneadecimal"`
+     * - base 20 ← `"vigesimal"`
+     * - base 21 ← `"unvigesimal"`
+     * - base 22 ← `"duovigesimal"`
+     * - base 23 ← `"trivigesimal"`
+     * - base 24 ← `"tetravigesimal"`
+     * - base 25 ← `"pentavigesimal"`
+     * - base 26 ← `"hexavigesimal"`
+     * - base 27 ← `"heptavigesimal septemvigesimal"`
+     * - base 28 ← `"octovigesimal"`
+     * - base 29 ← `"enneavigesimal"`
+     * - base 30 ← `"trigesimal"`
+     * - base 31 ← `"untrigesimal"`
+     * - base 32 ← `"duotrigesimal"`
+     * - base 33 ← `"tritrigesimal"`
+     * - base 34 ← `"tetratrigesimal"`
+     * - base 35 ← `"pentatrigesimal"`
+     * - base 36 ← `'t'`, `"txt"`, `"text"`, or `"hexatrigesimal"`
+     * - base 37 ← `"heptatrigesimal"`
+     * - base 38 ← `"octotrigesimal"`
+     * - base 39 ← `"enneatrigesimal"`
+     * - base 40 ← `"quadragesimal"`
+     * - base 42 ← `"duoquadragesimal"`
+     * - base 45 ← `"pentaquadragesimal"`
+     * - base 47 ← `"septaquadragesimal"`
+     * - base 48 ← `"octoquadragesimal"`
+     * - base 49 ← `"enneaquadragesimal"`
+     * - base 50 ← `"quinquagesimal"`
+     * - base 52 ← `"duoquinquagesimal"`
+     * - base 54 ← `"tetraquinquagesimal"`
+     * - base 56 ← `"hexaquinquagesimal"`
+     * - base 57 ← `"heptaquinquagesimal"`
+     * - base 58 ← `"octoquinquagesimal"`
+     * - base 60 ← `"sexagesimal"` or `"sexagenary"`
+     * - base 62 ← `"duosexagesimal"`
+     * - base 64 ← `"tetrasexagesimal"`
+     * - base 72 ← `"duoseptuagesimal"`
+     * - base 80 ← `"octogesimal"`
+     * - base 81 ← `"unoctogesimal"`
+     * - base 85 ← `"pentoctogesimal"`
+     * - base 89 ← `"enneaoctogesimal"`
+     * - base 90 ← `"nonagesimal"`
+     * - base 91 ← `"unnonagesimal"`
+     * - base 92 ← `"duononagesimal"`
+     * - base 93 ← `"trinonagesimal"`
+     * - base 94 ← `"tetranonagesimal"`
+     * - base 95 ← `"pentanonagesimal"`
+     * - base 96 ← `"hexanonagesimal"`
+     * - base 97 ← `"septanonagesimal"`
+     * - base 100 ← `"centesimal"`
+     * - base 120 ← `"centevigesimal"`
+     * - base 121 ← `"centeunvigesimal"`
+     * - base 125 ← `"centepentavigesimal"`
+     * - base 128 ← `"centeoctovigesimal"`
+     * - base 144 ← `"centetetraquadragesimal"`
+     * - base 169 ← `"centenovemsexagesimal"`
+     * - base 185 ← `"centepentoctogesimal"`
+     * - base 196 ← `"centehexanonagesimal"`
+     * - base 200 ← `"duocentesimal"`
+     * - base 210 ← `"duocentedecimal"`
+     * - base 216 ← `"duocentehexidecimal"`
+     * - base 225 ← `"duocentepentavigesimal"`
+     * - base 256 ← `"duocentehexaquinquagesimal"`, `"byte"`, or `"braille"`
+     * - base 300 ← `"trecentesimal"`
+     * - base 360 ← `"trecentosexagesimal"`
+     * - any base within 2 to 4294967296 (incl.) can also be a number or a string representing that number
      * @returns {BigIntType} `this` with no changes
-     * @throws {SyntaxError} if `base` is not an available option
+     * @throws {SyntaxError} if `base` is not an available option _( outside the range of [2-4294967296] (incl.) )_
+     * @throws {RangeError} - _if the string could not be allocated ( system-specific & memory size )_
      */
-    logConsole(base='x'){
-        switch(String(base).toLowerCase()){
-            case'b':case"bin":case"bit":case"binary":case'2':base='2';break;
-            case'c':case"crumb":case'q':case"quaternary":case'4':base='4';break;
-            case'o':case"oct":case"octal":case'8':base='8';break;
-            case'd':case"dec":case"decimal":case"10":base="10";break;
-            case'n':case"nibble":case'x':case'h':case"hex":case"hexadecimal":case"16":base="16";break;
-            case't':case"text":case"bin-text":case"36":base="36";break;
-            case"byte":case"256":base="256";break;
-            case"braille":base="braille";break;
-            default:throw new SyntaxError("[logConsole] base is not an available option");
-        }
+    logConsole(base=16){
+        base=BigIntType.#strBase(base);
+        if(Number.isNaN(base)||base===1){throw new SyntaxError("[new BigIntType] base is not an available option");}
         console.log(
             "%c[%i]: (%i Bytes) %s (base %s)",
             "background-color:#000;color:#0f0;font-family:'consolas',monospace;font-size:large",
@@ -495,7 +1015,6 @@ class BigIntType{
         );
         return this;
     }
-    // TODO ↑ more base (WIP)
     /**
      * __makes a copy of `this` number__
      * @returns {BigIntType} a copy of `this` number
@@ -1560,6 +2079,7 @@ class BigIntType{
     /* TODO's
 
         [!] values of `this` only change if all possible throws are behind !! (on throw `this` is still unchanged !)
+        [!] use String.fromCharCode(10240+n) and (10240-s.charCodeAt(0)) (2Byte per number) in stead of "0"-"256" (wich uses up to 6Bytes per number)
 
         [!] floor round towards -infinity allways
         [!] ceil round towards +infinity allways
@@ -1567,19 +2087,13 @@ class BigIntType{
         [!] ?outwards? round away from 0 allways
         [!] round round towards nearest integer (base/2 rounds 'up' and anything smaller rounds 'down', relative to 0)
 
-        [!] the regexp function below
         [!] make a url save base ui32 string for short-ish links
         [!] "save" function to ui32array and back (no calc just save !)
 
         [?] pow/mul more stable for large numbers ? test on MAZ01001.github.io/site/BigIntType_calc.html
         [!] in constructor auto detect base from prefix or base10 (base=null → prefix? || 10)
-        [!] use String.fromCharCode(10240+n) and (10240-s.charCodeAt(0)) (2Byte per number) in stead of "0"-"256" (wich uses up to 6Bytes per number)
-        [!] private method for converting from every base (2-256) to every base (2-256) (string[]/Uint8Array) (see base 10 conversion ~)
-            to use in constructor and toString method
         [!] also an extra private method for "hexadecimal"=16 conversion/translation (switch in constructor, toString and logConsole) with every known base names ~
         [!] todo in mapRange and function for regexp below
-        [!] number output padding with '_' for base 2/4/16 after prefix (like padding with '0' wich is not allowed by the regexps currently)
-            number input set regexp to ignore '_' after prefix and between digits (not for comma separated lists)
 
         lerp(a,b,t,rounding) -> mapRange(t,0,100,a,b,rounding)
 
@@ -1624,15 +2138,24 @@ class BigIntType{
             COS: https://wikimedia.org/api/rest_v1/media/math/render/svg/b81fe2f5f9ac74cbd88ec71d23baf9a1e39b8f04
             SIN: https://wikimedia.org/api/rest_v1/media/math/render/svg/2d12b4b66e58abfcf03c1f452658b85f662ce228
     */
-} //~ or just u know use the actual BigInt xD - it might not have base 256 and a few of the methods here but it's a lot faster since it's coded on a lower level ^^
+} //~ or just u know use the actual BigInt xD - it might not have all the base conversions and a few of the other methods here but it's a lot faster since it's coded on a lower level ^^
 
 try{//~ Test number to console
+    const timing=performance.now();
     console.log(
         "TEST NUMBER: %c %s",
         "background-color:#000;color:#0f0;font-family:consolas;font-size:2em;",
         BigIntType.HelloThere.toString("braille")
     );
-    new BigIntType("1201","7").logConsole(2).logConsole(10).logConsole(256);//=> 110111010(2) 442(10) 1,186(256)
+    console.log("base 7");
+    new BigIntType("1201",7).logConsole(2).logConsole(10).logConsole(256);//=> 110111010(2) 442(10) 1,186(256)
+    console.log("base 3");
+    new BigIntType("1201",3).logConsole(3).logConsole(7).logConsole(10);//=> 1201(3) 64(7) 46(10)
+    console.log("base 4300");
+    new BigIntType("3253,4243,423,53,2,53",4300).logConsole(10).logConsole(256).logConsole(4300);//=> 4783635281686740978653(10) 1,3,82,70,127,232,123,221,203,221(256) 3253,4243,423,53,2,53(4300)
+    console.log("base 256");
+    new BigIntType(new Uint8Array([221,203,221,123,232,127,70,82,3,1]),256).logConsole(256);
+    console.log("\ndone in %ims",performance.now()-timing);//=> 5ms :D
 }catch(error){
     console.log("{%s} : \"%s\"",error.name,error.message);//~ show only recent message (on screen) and not the whole stack
     console.error(error);//~ but do log the whole error message with stack to console
