@@ -39,137 +39,6 @@ class BigIntType{
         return BigIntType.#MAX_SIZE=n;
     }
     /**
-     * __constructs a RegExp to match a number string in base `base`__ \
-     * _min 1 digit_ \
-     * allows prefixes for bases 2, 8, and 16 \
-     * allows '_' between digits \
-     * __supports bases 1 to 36 (incl.)__ \
-     * __base 0 is braille pattern__ \
-     * match-groups:
-     * 1. sign / null
-     * 2. number
-     * @param {number} base - the base for the RegExp wich checks against a number-string - save integer
-     * + base "braille" (0) [digits `⠀`-`⣿`]
-     * + base 1-10 [digits `0`-`9`]
-     * + base 11-36 [digits `0`-`9` and `A`-`F`]
-     * @returns {RegExp} the regexp for number-strings with base `base`
-     * @throws {RangeError} if `base` is not a save integer or bigger than `36`
-     */
-    static #REGEXP_STRING(base){
-        base=Math.abs(Number(base));if(!Number.isSafeInteger(base)||base>0x10){throw RangeError("[REGEXP_STRING] base is out of range");}
-        switch(Number(base)){//~ special cases
-            case 0x0:return/^([+-]?)((?:\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)+(?:_(?:\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)+)*)$/; //~ base 256 in braille-patterns
-            case 0x1:return/^([+-]?)(0+(?:_0+)*)$/;//~ length is the number value -1, so "0" is 0, "00" is 1, "000" is 2, etc.
-            case 0x2:return/^([+-]?)(?:0b)?((?:0|1[01]*)+(?:_(?:0|1[01]*)+)*)$/i;
-            case 0x8:return/^([+-]?)(?:0o)?((?:0|[1-7][0-7]*)+(?:_(?:0|[1-7][0-7]*)+)*)$/i;
-            case 0x10:return/^([+-]?)(?:0x)?((?:0|[1-9A-F][0-9A-F]*)+(?:_(?:0|[1-9A-F][0-9A-F]*)+)*)$/i;
-        }
-        const add_char_seperator=characters=>`(?:${characters})+(?:_(?:${characters})+)*`,
-            construct_regexp=(number_regexp,flag='')=>new RegExp(`^([+-]?)(${number_regexp})$`,flag);
-        if(base<=0xA){//~ base 2-10
-            const characters=`0|[1-${base-1}][0-${base-1}]*`;
-            return construct_regexp(add_char_seperator(characters));
-        }else if(base<=0x10){//~ base 11-36
-            const characters=`0|[1-9A-${String.fromCharCode(0x36+base)}][0-9A-${String.fromCharCode(0x36+base)}]*`;
-            return construct_regexp(add_char_seperator(characters),'i');
-        }
-    }
-    /**
-     * __checking if the comma separated list matches format and numbers are below `base`__
-     * @param {string} cSNumStr - string of comma separated numbers
-     * @param {number} base - base of `cSNumStr` - save integer
-     * @returns {boolean} `true` if the comma separated list matches format and numbers are below `base` - `false` otherwise
-     * @throws {TypeError} if `base` is not a safe integer
-     */
-    static #CheckCSNum(cSNumStr,base){
-        cSNumStr=String(cSNumStr);
-        base=Math.abs(Number(base));if(!Number.isSafeInteger(base)){throw new TypeError("[CheckCSNum] base is not a safe integer");}
-        const baseStr=String(base);
-        if(!/^(?:0|(?:[1-9][0-9]*)(?:\,(?:0|[1-9][0-9]*))*)$/.test(cSNumStr)){return false;}
-        for(let i=0,lastNum="";i<cSNumStr.length;i++){
-            if(cSNumStr[i]!=','){
-                lastNum+=cSNumStr[i];
-                if(i<cSNumStr.length-1){continue;}
-            }
-            //~ check lastNum < baseStr
-            if(lastNum.length>baseStr.length){return false;}
-            if(lastNum.length===baseStr.length){
-                for(let j=0;j<baseStr.length;j++){
-                    if(lastNum.charCodeAt(j)>baseStr.charCodeAt(j)){return false;}
-                    if(lastNum.charCodeAt(j)<baseStr.charCodeAt(j)){break;}
-                }
-            }
-            lastNum="";
-        }
-        return true;
-    }
-    /**@type {boolean} - sign of the number - `true` = positive */
-    #sign=true;
-    /**@returns {boolean} sign of the number - `true` = positive */
-    get sign(){return this.#sign;}
-    /**@type {Uint8Array} - the number as unsigned 8bit integer array (base 256) - index 0 is the 0st-digit of the number */
-    #digits=new Uint8Array(1);
-    /**
-     * @returns {Uint8Array} a copy of the digits as an unsigned 8bit integer array (base 256) - index 0 is the 0st-digit of the number
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    get digits(){return this.#digits.slice();}
-    /**@returns {number} number of digits (base 256)*/
-    get length(){return this.#digits.length;}
-    /**
-     * @returns {BigIntType} biggest possible number according to `MAX_SIZE`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    static get MAX_VALUE(){return new BigIntType(new Uint8Array(BigIntType.MAX_SIZE).fill(0xFF),"256");}
-    /**
-     * @returns {BigIntType} "Hello There" in Braille - see `this.toString("braille")`
-     * @throws {RangeError} - if current `MAX_SIZE` is to small - requires 22B
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    static get HelloThere(){
-        if(BigIntType.MAX_SIZE<22){throw new RangeError("[HelloThere] MAX_SIZE is to small");}
-        return new BigIntType(new Uint8Array([0x41,0xEF,0x85,0x5F,0x41,0xEF,0x47,0x67,0x1,0xB9,0x0,0x0,0x47,0xCF,0x40,0xC7,0x40,0xC7,0x41,0xEF,0x47,0x67]),"256");
-    }
-    /**
-     * @returns {BigIntType} Infinity - `2**1024` ~ 1.79e308
-     * @throws {RangeError} - if current `MAX_SIZE` is to small - requires 129B
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    static get Infinity(){
-        if(BigIntType.MAX_SIZE<129){throw new RangeError("[Infinity] MAX_SIZE is to small");}
-        return new BigIntType(new Uint8Array([...new Uint8Array(128),0x1]),"256");
-    }
-    /**
-     * @returns {BigIntType} `0`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    static get Zero(){return new BigIntType(new Uint8Array(1),"256");}
-    /**
-     * @returns {BigIntType} `1`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    static get One(){return new BigIntType(new Uint8Array([0x1]),"256");}
-    /**
-     * @returns {BigIntType} `2`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    static get Two(){return new BigIntType(new Uint8Array([0x2]),"256");}
-    /**
-     * @returns {BigIntType} `-0`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    static get NZero(){return new BigIntType.Zero.neg();}
-    /**
-     * @returns {BigIntType} `-1`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    static get NOne(){return new BigIntType.One.neg();}
-    /**
-     * @returns {BigIntType} `-2`
-     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
-     */
-    static get NTwo(){return new BigIntType.Two.neg();}
-    /**
      * __converts base names to the corresponding number__ \
      * _( supports numbers from `1` to `4294967296` (incl.) )_
      * @param {string|number} str
@@ -402,6 +271,137 @@ class BigIntType{
         }
         return NaN;
     }
+    /**
+     * __constructs a RegExp to match a number string in base `base`__ \
+     * _min 1 digit_ \
+     * allows prefixes for bases 2, 8, and 16 \
+     * allows '_' between digits \
+     * __supports bases 1 to 36 (incl.)__ \
+     * __base 0 is braille pattern__ \
+     * match-groups:
+     * 1. sign / null
+     * 2. number
+     * @param {number} base - the base for the RegExp wich checks against a number-string - save integer
+     * + base "braille" (0) [digits `⠀`-`⣿`]
+     * + base 1-10 [digits `0`-`9`]
+     * + base 11-36 [digits `0`-`9` and `A`-`F`]
+     * @returns {RegExp} the regexp for number-strings with base `base`
+     * @throws {RangeError} if `base` is not a save integer or bigger than `36`
+     */
+    static #REGEXP_STRING(base){
+        base=Math.abs(Number(base));if(!Number.isSafeInteger(base)||base>0x10){throw RangeError("[REGEXP_STRING] base is out of range");}
+        switch(Number(base)){//~ special cases
+            case 0x0:return/^([+-]?)((?:\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)+(?:_(?:\u2800|[\u2801-\u28FF][\u2800-\u28FF]*)+)*)$/; //~ base 256 in braille-patterns
+            case 0x1:return/^([+-]?)(0+(?:_0+)*)$/;//~ length is the number value -1, so "0" is 0, "00" is 1, "000" is 2, etc.
+            case 0x2:return/^([+-]?)(?:0b)?((?:0|1[01]*)+(?:_(?:0|1[01]*)+)*)$/i;
+            case 0x8:return/^([+-]?)(?:0o)?((?:0|[1-7][0-7]*)+(?:_(?:0|[1-7][0-7]*)+)*)$/i;
+            case 0x10:return/^([+-]?)(?:0x)?((?:0|[1-9A-F][0-9A-F]*)+(?:_(?:0|[1-9A-F][0-9A-F]*)+)*)$/i;
+        }
+        const add_char_seperator=characters=>`(?:${characters})+(?:_(?:${characters})+)*`,
+            construct_regexp=(number_regexp,flag='')=>new RegExp(`^([+-]?)(${number_regexp})$`,flag);
+        if(base<=0xA){//~ base 2-10
+            const characters=`0|[1-${base-1}][0-${base-1}]*`;
+            return construct_regexp(add_char_seperator(characters));
+        }else if(base<=0x10){//~ base 11-36
+            const characters=`0|[1-9A-${String.fromCharCode(0x36+base)}][0-9A-${String.fromCharCode(0x36+base)}]*`;
+            return construct_regexp(add_char_seperator(characters),'i');
+        }
+    }
+    /**
+     * __checking if the comma separated list matches format and numbers are below `base`__
+     * @param {string} cSNumStr - string of comma separated numbers
+     * @param {number} base - base of `cSNumStr` - save integer
+     * @returns {boolean} `true` if the comma separated list matches format and numbers are below `base` - `false` otherwise
+     * @throws {TypeError} if `base` is not a safe integer
+     */
+    static #CheckCSNum(cSNumStr,base){
+        cSNumStr=String(cSNumStr);
+        base=Math.abs(Number(base));if(!Number.isSafeInteger(base)){throw new TypeError("[CheckCSNum] base is not a safe integer");}
+        const baseStr=String(base);
+        if(!/^(?:0|(?:[1-9][0-9]*)(?:\,(?:0|[1-9][0-9]*))*)$/.test(cSNumStr)){return false;}
+        for(let i=0,lastNum="";i<cSNumStr.length;i++){
+            if(cSNumStr[i]!=','){
+                lastNum+=cSNumStr[i];
+                if(i<cSNumStr.length-1){continue;}
+            }
+            //~ check lastNum < baseStr
+            if(lastNum.length>baseStr.length){return false;}
+            if(lastNum.length===baseStr.length){
+                for(let j=0;j<baseStr.length;j++){
+                    if(lastNum.charCodeAt(j)>baseStr.charCodeAt(j)){return false;}
+                    if(lastNum.charCodeAt(j)<baseStr.charCodeAt(j)){break;}
+                }
+            }
+            lastNum="";
+        }
+        return true;
+    }
+    /**@type {boolean} - sign of the number - `true` = positive */
+    #sign=true;
+    /**@returns {boolean} sign of the number - `true` = positive */
+    get sign(){return this.#sign;}
+    /**@type {Uint8Array} - the number as unsigned 8bit integer array (base 256) - index 0 is the 0st-digit of the number */
+    #digits=new Uint8Array(1);
+    /**
+     * @returns {Uint8Array} a copy of the digits as an unsigned 8bit integer array (base 256) - index 0 is the 0st-digit of the number
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    get digits(){return this.#digits.slice();}
+    /**@returns {number} number of digits (base 256)*/
+    get length(){return this.#digits.length;}
+    /**
+     * @returns {BigIntType} biggest possible number according to `MAX_SIZE`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static get MAX_VALUE(){return new BigIntType(new Uint8Array(BigIntType.MAX_SIZE).fill(0xFF),"256");}
+    /**
+     * @returns {BigIntType} "Hello There" in Braille - see `this.toString("braille")`
+     * @throws {RangeError} - if current `MAX_SIZE` is to small - requires 22B
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static get HelloThere(){
+        if(BigIntType.MAX_SIZE<22){throw new RangeError("[HelloThere] MAX_SIZE is to small");}
+        return new BigIntType(new Uint8Array([0x41,0xEF,0x85,0x5F,0x41,0xEF,0x47,0x67,0x1,0xB9,0x0,0x0,0x47,0xCF,0x40,0xC7,0x40,0xC7,0x41,0xEF,0x47,0x67]),"256");
+    }
+    /**
+     * @returns {BigIntType} Infinity - `2**1024` ~ 1.79e308
+     * @throws {RangeError} - if current `MAX_SIZE` is to small - requires 129B
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static get Infinity(){
+        if(BigIntType.MAX_SIZE<129){throw new RangeError("[Infinity] MAX_SIZE is to small");}
+        return new BigIntType(new Uint8Array([...new Uint8Array(128),0x1]),"256");
+    }
+    /**
+     * @returns {BigIntType} `0`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static get Zero(){return new BigIntType(new Uint8Array(1),"256");}
+    /**
+     * @returns {BigIntType} `1`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static get One(){return new BigIntType(new Uint8Array([0x1]),"256");}
+    /**
+     * @returns {BigIntType} `2`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static get Two(){return new BigIntType(new Uint8Array([0x2]),"256");}
+    /**
+     * @returns {BigIntType} `-0`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static get NZero(){return new BigIntType.Zero.neg();}
+    /**
+     * @returns {BigIntType} `-1`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static get NOne(){return new BigIntType.One.neg();}
+    /**
+     * @returns {BigIntType} `-2`
+     * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
+     */
+    static get NTwo(){return new BigIntType.Two.neg();}
     /**
      * __constructs a BigIntType number__
      * @param {string|boolean[]|Uint8Array} num
@@ -875,34 +875,31 @@ class BigIntType{
                 for(let i=this.length-1;i>=0;i--){out+=String(this.#digits[i])+(i!==0?',':'');}
                 break;
             case 0x10000://~ [65536] each digit is two 8bit digits (2**(2*8) = 65_536)
-                for(let i=this.length-1;i>=0;i--){
-                    out+=String(
+                for(let i=0;i<this.length;i+=2){
+                    out=String(
                         this.#digits[2*i]+
                         (this.#digits[2*i+1]<<8)
-                    );
-                    if(i!==0){out+=',';}
+                    )+(i!==0?',':'')+out;
                 }
                 break;
             case 0x1000000://~ [16777216] each digit is three 8bit digits (2**(3*8) = 16_777_216)
-                for(let i=this.length-1;i>=0;i--){
-                    out+=String(
+                for(let i=0;i<this.length;i+=3){
+                    out=String(
                         this.#digits[3*i]+
                         (this.#digits[3*i+1]<<8)+
                         (this.#digits[3*i+2]<<16)
-                    );
-                    if(i!==0){out+=',';}
+                    )+(i!==0?',':'')+out;
                 }
                 break;
             case 0x100000000://~ [4294967296] each digit is four 8bit digits (2**(4*8) = 4_294_967_296)
-                for(let i=this.length-1;i>=0;i--){
-                    out+=String(
+                for(let i=0;i<this.length;i+=4){
+                    out=String(
                         //~ ()>>>0 to make the 32bit number unsigned (it is 32bit because of the use of bitwise operations - but also default signed so realy only 31bit)
                         (this.#digits[4*i]>>>0)+
                         ((this.#digits[4*i+1]<<8)>>>0)+
                         ((this.#digits[4*i+2]<<16)>>>0)+
                         ((this.#digits[4*i+3]<<24)>>>0)
-                    );
-                    if(i!==0){out+=',';}
+                    )+(i!==0?',':'')+out;
                 }
                 break;
             default:
@@ -1739,7 +1736,7 @@ class BigIntType{
         /**@type {Uint8Array} - temporary/new digit-array */
         let tmp=new Uint8Array(this.length+1);
         tmp.set(this.#digits,0);
-        for(let i=this.length-1;i>=0;i--){
+        for(let i=tmp.length-1;i>=0;i--){
             tmp[i]<<=x;
             tmp[i]|=((tmp[i-1]??0)&(((1<<x)-1)<<(8-x)))>>>(8-x);//~ add the left x bits from [i-1] to the right of [i] (8bits)
         }
