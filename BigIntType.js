@@ -120,7 +120,7 @@ class BigIntType{
      * @returns {BigIntType} biggest possible number according to `MAX_SIZE`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    static get MAX_VALUE(){return new BigIntType(new Uint8Array(BigIntType.MAX_SIZE).fill(255),"256");}
+    static get MAX_VALUE(){return new BigIntType(new Uint8Array(BigIntType.MAX_SIZE).fill(0xFF),"256");}
     /**
      * @returns {BigIntType} "Hello There" in Braille - see `this.toString("braille")`
      * @throws {RangeError} - if current `MAX_SIZE` is to small - requires 22B
@@ -128,7 +128,7 @@ class BigIntType{
      */
     static get HelloThere(){
         if(BigIntType.MAX_SIZE<22){throw new RangeError("[HelloThere] MAX_SIZE is to small");}
-        return new BigIntType(new Uint8Array([65,239,133,95,65,239,71,103,1,185,0,0,71,207,64,199,64,199,65,239,71,103]),"256");
+        return new BigIntType(new Uint8Array([0x41,0xEF,0x85,0x5F,0x41,0xEF,0x47,0x67,0x1,0xB9,0x0,0x0,0x47,0xCF,0x40,0xC7,0x40,0xC7,0x41,0xEF,0x47,0x67]),"256");
     }
     /**
      * @returns {BigIntType} Infinity - `2**1024` ~ 1.79e308
@@ -137,23 +137,23 @@ class BigIntType{
      */
     static get Infinity(){
         if(BigIntType.MAX_SIZE<129){throw new RangeError("[Infinity] MAX_SIZE is to small");}
-        return new BigIntType(new Uint8Array([...new Uint8Array(128),1]),"256");
+        return new BigIntType(new Uint8Array([...new Uint8Array(128),0x1]),"256");
     }
     /**
      * @returns {BigIntType} `0`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    static get Zero(){return new BigIntType(new Uint8Array([0]),"256");}
+    static get Zero(){return new BigIntType(new Uint8Array(1),"256");}
     /**
      * @returns {BigIntType} `1`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    static get One(){return new BigIntType(new Uint8Array([1]),"256");}
+    static get One(){return new BigIntType(new Uint8Array([0x1]),"256");}
     /**
      * @returns {BigIntType} `2`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    static get Two(){return new BigIntType(new Uint8Array([2]),"256");}
+    static get Two(){return new BigIntType(new Uint8Array([0x2]),"256");}
     /**
      * @returns {BigIntType} `-0`
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
@@ -700,19 +700,25 @@ class BigIntType{
      * @returns {{next():{value:number;done:boolean;}}} iterator to get the next element in a loop
      */
     [Symbol.iterator](){
-        const list=this.#digits;
-        let i=this.length-1;
+        const list=this.#digits.slice();
+        let i=list.length;
         return{
             /**
              * __get the next element in a loop__
-             * @returns {{value:number;done:boolean;}} value of next element and set `done` `true` if it's the last element
+             * @returns {{value:number;done:boolean;}} value of next element and sets `done` `true` if it's the last element
              */
             next(){
                 i--;
-                return{value:list[i],done:i<=0};
+                return{value:list[i],done:i>0};
             }
         };
     };
+    /**
+     * __converts `this` number to `Number` type__ \
+     * _may be +/- `Infinity`_
+     * @returns {Number} `this` number as a `Number` type
+     */
+    toNumber(){return this.isFinite()?Number.parseInt(this.toString("16"),16):(this.#sign?Infinity:-Infinity);}
     /**
      * __convert `this` number to string__
      * @description
@@ -1392,6 +1398,18 @@ class BigIntType{
         if(!(n instanceof BigIntType)){throw new TypeError("[isAbsSmallerOrEqualToAbs] n is not an instance of BigIntType");}
         return !(this.isAbsGreaterThanAbs(n));
     }
+    /**
+     * __determines if `this` number is finite (`Number`)__ \
+     * i.e. smaller than `BigIntType.Infinity` (`2**1024`)
+     * @returns {boolean} `true` if `this` number is finite (`Number`)
+     */
+    isFinite(){return this.isSmallerThan(BigIntType.Infinity);}
+    /**
+     * __determines if `this` number is a safe integer (`Number`)__ \
+     * i.e. smaller or equal to `9007199254740991` (`2**53−1`)
+     * @returns {boolean} `true` if `this` number is a safe integer (`Number`)
+     */
+    isSafeInteger(){return this.isSmallerOrEqualTo(new BigIntType(new Uint8Array([0x100,0x100,0x100,0x100,0x100,0x100,0x1F]),"256"));}
     /**
      * __removes (unnecessary) leading zeros from `digits`__
      * @param {Uint8Array|string[]} digits - digits-array (if `string[]` original will be altered)
