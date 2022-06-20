@@ -1973,18 +1973,20 @@ class BigIntType{
         // !   ceil → Q = ceil(A/B) → R = A-(B*Q) | round to positive infinity
         // ! euclid → Q = sign(B)*floor(A/abs(B)) → R = A-abs(B)*floor(A/abs(B)) == R = A-(B*Q)
         // TODO new with return Q and R with type !!
-        if(this.isZero()||n.isOne){
-            // TODO !!!! make extra divRest public method and use it here and in div ~maybe? !!!!
-            // TODO !!!! best make use of #calc functions whenever possible !!!!
-            switch(type){
-                case'e':case"euclid":return Object.freeze({quotient:this.#sign^n.sign?this.copy().abs().neg():this.copy().abs(),remainder:BigIntType.Zero});
-                case'f':case"floor":return Object.freeze({quotient:this.#sign^n.sign?this.copy().abs().neg():this.copy().abs(),remainder:n.#sign?BigIntType.Zero:BigIntType.NZero});
-                case't':case"trunc":return Object.freeze({quotient:this.#sign^n.sign?this.copy().abs().neg():this.copy().abs(),remainder:this.copy()});
-                case'r':case"round":return Object.freeze({quotient:this.#sign^n.sign?this.copy().abs().neg():this.copy().abs(),remainder:this.copy()});//~ sign pattern changes with rounding direction (here it's down - arbitrarily)
-                case'a':case"raise":return Object.freeze({quotient:this.#sign^n.sign?this.copy().abs().neg():this.copy().abs(),remainder:this.copy().neg()});
-                case'c':case"ceil":return Object.freeze({quotient:this.#sign^n.sign?this.copy().abs().neg():this.copy().abs(),remainder:n.#sign?BigIntType.NZero:BigIntType.Zero});
+        /*
+            if(this.isZero()||n.isOne()){
+                // TODO !!!! make extra divRest public method and use it here and in div ~maybe? !!!!
+                // TODO !!!! best make use of #calc functions whenever possible !!!!
+                switch(type){
+                    case'e':case"euclid":return Object.freeze({quotient:this.#sign^n.sign?this.copy().abs().neg():this.copy().abs(),remainder:BigIntType.Zero});
+                    case'f':case"floor":return Object.freeze({quotient:this.#sign^n.sign?this.copy().abs().neg():this.copy().abs(),remainder:n.#sign?BigIntType.Zero:BigIntType.NZero});
+                    case't':case"trunc":return Object.freeze({quotient:this.#sign^n.sign?this.copy().abs().neg():this.copy().abs(),remainder:this.copy()});
+                    case'r':case"round":return Object.freeze({quotient:this.#sign^n.sign?this.copy().abs().neg():this.copy().abs(),remainder:this.copy()});//~ sign pattern changes with rounding direction (here it's down - arbitrarily)
+                    case'a':case"raise":return Object.freeze({quotient:this.#sign^n.sign?this.copy().abs().neg():this.copy().abs(),remainder:this.copy().neg()});
+                    case'c':case"ceil":return Object.freeze({quotient:this.#sign^n.sign?this.copy().abs().neg():this.copy().abs(),remainder:n.#sign?BigIntType.NZero:BigIntType.Zero});
+                }
             }
-        }
+        */
         // switch(type){
         //     case'e':case"euclid":break;
         //     case't':case"trunc":break;
