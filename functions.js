@@ -355,3 +355,50 @@ function randomBools(x=1){
     for(;x>0;x--){output.push(Math.round(Math.random())===1);}
     return output;
 }
+/**
+ * __creates a range of numbers as an iterable array__
+ * @param {number} start - start of range (incl.)
+ * @param {number} end - end of range (incl. ~ see `overflow`)
+ * @param {number} step - step of range - _default `1`_
+ * @param {boolean} overflow - if `true` the result may be bigger than `end` if it can not land exactly on it with `step` (not smaller than `end`) - _default `false` (not bigger than `end`)_
+ * @returns {}
+ * @throws {TypeError} if `start`, `end`, or `step` are not numbers
+ * @throws {RangeError} if `step` is `0` or `end` is impossible to reach
+ * @throws {RangeError} if the array gets to large
+ */
+function rangeArray(start,end,step,overflow=false){
+    start=Number(start);if(Number.isNaN(start)){throw TypeError("[range_gen] start is not a number");}
+    end=Number(end);if(Number.isNaN(end)){throw TypeError("[range_gen] end is not a number");}
+    step=Number(step);if(Number.isNaN(step)){throw TypeError("[range_gen] step is not a number");}
+    if(step===0){throw RangeError("[range_gen] step must not be 0");}
+    if((end<start&&step>0)||(end>start&&step<0)){throw RangeError("[range_gen] end is impossible to reach");}
+    let arr=[];
+    if(Boolean(overflow)){
+        const max=end+step
+        if(step<0){for(;start>max||start===end;start+=step){arr.push(start);}}
+        else{for(;start<max||start===end;start+=step){arr.push(start);}}
+    }else{
+        if(step<0){for(;start>=end;start+=step){arr.push(start);}}
+        else{for(;start<=end;start+=step){arr.push(start);}}
+    }
+    return arr;
+}//~ this function can also just be → (a,b,n,c)=>Array.from(rangeGenerator(a,b,n,c))
+/**
+ * __creates a generator for given range - iterable__
+ * @param {number} start - start of range (incl.)
+ * @param {number} end - end of range (incl. ~ see `overflow`)
+ * @param {number} step - step of range - _default `1`_
+ * @param {boolean} overflow - if `true` the result may be bigger than `end` if it can not land exactly on it with `step` (not smaller than `end`) - _default `false` (not bigger than `end`)_
+ * @generator @yields {number} the next number in set range
+ * @throws {TypeError} if `start`, `end`, or `step` are not numbers
+ * @throws {RangeError} if `step` is `0` or `end` is impossible to reach
+ */
+function *rangeGenerator(start,end,step=1,overflow=false){
+    start=Number(start);if(Number.isNaN(start)){throw TypeError("[range_gen] start is not a number");}
+    end=Number(end);if(Number.isNaN(end)){throw TypeError("[range_gen] end is not a number");}
+    step=Number(step);if(Number.isNaN(step)){throw TypeError("[range_gen] step is not a number");}
+    if(step===0){throw RangeError("[range_gen] step must not be 0");}
+    if((end<start&&step>0)||(end>start&&step<0)){throw RangeError("[range_gen] end is impossible to reach");}
+    overflow=Boolean(overflow);
+    for(const max=end+step,rev=step<0;overflow?((rev?start>max:start<max)||start===end):(rev?start>=end:start<=end);start+=step){yield start;}
+}
