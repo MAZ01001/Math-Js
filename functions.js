@@ -361,12 +361,12 @@ function randomBools(x=1){
  * @param {number} end - end of range (incl. ~ see `overflow`)
  * @param {number} step - step of range - _default `1`_
  * @param {boolean} overflow - if `true` the result may be bigger than `end` if it can not land exactly on it with `step` (not smaller than `end`) - _default `false` (not bigger than `end`)_
- * @returns {}
+ * @returns {number[]} array with numbers from `start` to `end` (with `step` and `overflow`)
  * @throws {TypeError} if `start`, `end`, or `step` are not numbers
  * @throws {RangeError} if `step` is `0` or `end` is impossible to reach
  * @throws {RangeError} if the array gets to large
  */
-function rangeArray(start,end,step,overflow=false){
+function rangeArray(start,end,step=1,overflow=false){
     start=Number(start);if(Number.isNaN(start)){throw TypeError("[range_gen] start is not a number");}
     end=Number(end);if(Number.isNaN(end)){throw TypeError("[range_gen] end is not a number");}
     step=Number(step);if(Number.isNaN(step)){throw TypeError("[range_gen] step is not a number");}
@@ -392,8 +392,9 @@ function rangeArray(start,end,step,overflow=false){
  * @generator @yields {number} the next number in set range
  * @throws {TypeError} if `start`, `end`, or `step` are not numbers
  * @throws {RangeError} if `step` is `0` or `end` is impossible to reach
+ * @example for(const odd of rangeGenerator(1,99,2)){console.log(odd);} //~ 1 3 5 .. 97 99
  */
-function *rangeGenerator(start,end,step=1,overflow=false){
+function* rangeGenerator(start,end,step=1,overflow=false){
     start=Number(start);if(Number.isNaN(start)){throw TypeError("[range_gen] start is not a number");}
     end=Number(end);if(Number.isNaN(end)){throw TypeError("[range_gen] end is not a number");}
     step=Number(step);if(Number.isNaN(step)){throw TypeError("[range_gen] step is not a number");}
