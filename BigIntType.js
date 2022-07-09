@@ -2133,14 +2133,14 @@ class BigIntType{
                 exp[i]=String.fromCharCode((exp[i]).charCodeAt(0)>>>1);
                 exp[i]=String.fromCharCode((exp[i]).charCodeAt(0)|((exp[i+1]??'\x00').charCodeAt(0)&1)<<7);
             }
-            if(exp.every(v=>v==='\x00')){break;}
+            if(BigIntType.#removeLeadingZeros(exp).every(v=>v==='\x00')){break;}
             BigIntType.#removeLeadingZeros(base);
             for(karatsubaLen=1;karatsubaLen<base.length;karatsubaLen*=2);//~ base*=base
             base=BigIntType.#calcKaratsuba(
                 [...base,...new Array(karatsubaLen-base.length).fill('\x00')],
                 [...base,...new Array(karatsubaLen-base.length).fill('\x00')]
             );
-            if(result.length>0x80000000||base.length>0x80000000){throw new RangeError("[pow] would result in a number longer than MAX_SIZE");}//~ safety? (2GiB)
+            if(result.length>0x80000000||base.length>0x80000000){throw new RangeError("[pow] numbers exceeded 2GB during calculation");}//~ safety? (2GiB)
         }
         BigIntType.#removeLeadingZeros(result);
         if(result.length>BigIntType.MAX_SIZE){throw new RangeError("[pow] would result in a number longer than MAX_SIZE");}
@@ -2177,24 +2177,13 @@ class BigIntType{
         rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[mapRange] rounding is not a valid option");}
         limit=Boolean(limit);
         try{
-            // TODO ~ could be faster with BigIntType.#calc... methods (divRest and karazuba need extra handeling) also no false "larger than max size" throw
-            // let num=BigIntType.#toStringArray(this.#digits),
-            //     il=BigIntType.#toStringArray(initialLow.#digits),
-            //     ih=BigIntType.#toStringArray(initialHigh.#digits),
-            //     fl=BigIntType.#toStringArray(finalLow.#digits),
-            //     fh=BigIntType.#toStringArray(finalHigh.#digits);
-            // TODO #calcMul ? 2x ?
-            /*
-                 ( ( ix - il ) * ( fh - fl ) )
-                +( ( ih - il ) * fl )
-                -------------------
-                    ( ih - il )
-            */
             initialHigh=initialHigh.copy().sub(initialLow);
-            this.sub(initialLow)
+            this.setEqualTo(
+                this.copy().sub(initialLow)
                 .mul(finalHigh.copy().sub(finalLow))
                 .add(initialHigh.copy().mul(finalLow))
-                .div(initialHigh,rounding);
+                .div(initialHigh,rounding)
+            );
         }catch(e){throw(e instanceof RangeError)?new RangeError("[mapRange] would result in a number longer than MAX_SIZE"):e;}
         if(limit){
             if(this.isSmallerThan(finalLow)){this.setEqualTo(finalLow);}
