@@ -338,4 +338,6 @@
 > + `fixPrecision(n);` attempt of fixing (potential) js float precision errors *(with `Number.EPSILON`)*
 > + `divisionWithRest(A,B);` calculates division of A by B and returns *(integer)* quotient and remainder
 > + `randomBools(x=1)` generate an array, length x, of random booleans
+> + `rangeArray(start,end,step=1,overflow=false);` creates a range of numbers as an iterable array
+> + `rangeGenerator(start,end,step=1,overflow=false);` creates a generator for given range - iterable
 >
