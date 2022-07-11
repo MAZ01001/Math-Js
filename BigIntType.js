@@ -1417,7 +1417,7 @@ class BigIntType{
      * i.e. smaller or equal to `9007199254740991` (`2**53−1`)
      * @returns {boolean} `true` if `this` number is a safe integer (`Number`)
      */
-    isSafeInteger(){return this.isSmallerOrEqualTo(new BigIntType(new Uint8Array([0x100,0x100,0x100,0x100,0x100,0x100,0x1F]),"256"));}
+    isSafeInteger(){return this.isSmallerOrEqualTo(new BigIntType(new Uint8Array([0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0x1F]),"256"));}
     /**
      * __removes (unnecessary) leading zeros from `digits`__
      * @param {Uint8Array|string[]} digits - digits-array (if `string[]` original will be altered)
@@ -1562,8 +1562,8 @@ class BigIntType{
      * @returns {string[]} `A + B` (modified `A`)
      */
     static #calcAdd(A,B){
-        /**@type {number} - length of the longer array */
-        const len=Math.max(A.length,B.length);
+        /**@type {number} - length of the smaller number */
+        const len=Math.min(A.length,B.length);
         for(let i=0,o=false,z=0;i<len||o;i++){//~ o:boolean overflow to next digit | z:number last calculation
             z=(A[i]??'\x00').charCodeAt(0)+(B[i]??'\x00').charCodeAt(0)+(o?1:0);
             if(z>=256){
@@ -1583,8 +1583,8 @@ class BigIntType{
      * @returns {Readonly<{_sign:boolean;_digits:string[]}>} `A - B` (modified `A` with sign)
      */
     static #calcSub(A,B){
-        /**@type {number} - length of the longer number */
-        const len=Math.max(A.length,B.length);
+        /**@type {number} - length of the smaller number */
+        const len=Math.min(A.length,B.length);
         /**@type {boolean} - current sign of number */
         let sign=true;
         for(let i=len-1,z=0,first=i;i>=0;i--){//~ z:number last calculation | first:number current index of the first digit
@@ -2015,6 +2015,64 @@ class BigIntType{
             case'r':case"round":this.setEqualTo(R.copy().sub(n.copy().abs().half('c')).#sign?(this.#sign?R.sub(n.copy().abs()):n.copy().abs().sub(R)):(this.#sign?R:R.neg()));break;
         }
         return this;
+        /* TODO more testing on types
+            A % B = {Q;R} (Integers only !)
+
+            +-N +-0 = ERROR
+
+            +0  +N  = trunc{ Q: +0 R: +0 } floor{ Q: +0 R: +0 } euclid{ Q: +0 R: +0 } round{ Q: +0 R: +-0 } ceil{ Q: +0 R: -0 } raise{ Q: +0 R: -0 }
+            +0  -N  = trunc{ Q: -0 R: +0 } floor{ Q: -0 R: -0 } euclid{ Q: -0 R: +0 } round{ Q: -0 R: +-0 } ceil{ Q: -0 R: +0 } raise{ Q: -0 R: -0 }
+            -0  +N  = trunc{ Q: -0 R: -0 } floor{ Q: -0 R: +0 } euclid{ Q: -0 R: +0 } round{ Q: -0 R: -+0 } ceil{ Q: -0 R: -0 } raise{ Q: -0 R: +0 }
+            -0  -N  = trunc{ Q: +0 R: -0 } floor{ Q: +0 R: -0 } euclid{ Q: +0 R: +0 } round{ Q: +0 R: -+0 } ceil{ Q: +0 R: +0 } raise{ Q: +0 R: +0 }
+
+            +N  +1  = trunc{ Q: +N R: +0 } floor{ Q: +N R: +0 } euclid{ Q: +N R: +0 } round{ Q: +N R: +-0 } ceil{ Q: +N R: -0 } raise{ Q: +N R: -0 }
+            +N  -1  = trunc{ Q: -N R: +0 } floor{ Q: -N R: -0 } euclid{ Q: -N R: +0 } round{ Q: -N R: +-0 } ceil{ Q: -N R: +0 } raise{ Q: -N R: -0 }
+            -N  +1  = trunc{ Q: -N R: -0 } floor{ Q: -N R: +0 } euclid{ Q: -N R: +0 } round{ Q: -N R: -+0 } ceil{ Q: -N R: -0 } raise{ Q: -N R: +0 }
+            -N  -1  = trunc{ Q: +N R: -0 } floor{ Q: +N R: -0 } euclid{ Q: +N R: +0 } round{ Q: +N R: -+0 } ceil{ Q: +N R: +0 } raise{ Q: +N R: +0 }
+
+            +3  +5  = trunc{ Q: +0 R: +3 } floor{ Q: +0 R: +3 } euclid{ Q: +0 R: +3 } round{ Q: +1 R: -2 } ceil{ Q: +1 R: -2 } raise{ Q: +1 R: -2 }
+            +3  -5  = trunc{ Q: -0 R: +3 } floor{ Q: -1 R: -2 } euclid{ Q: -0 R: +3 } round{ Q: -1 R: -2 } ceil{ Q: -0 R: +3 } raise{ Q: -1 R: -2 }
+            -3  +5  = trunc{ Q: -0 R: -3 } floor{ Q: -1 R: +2 } euclid{ Q: -1 R: +2 } round{ Q: -1 R: +2 } ceil{ Q: -0 R: -3 } raise{ Q: -1 R: +2 }
+            -3  -5  = trunc{ Q: +0 R: -3 } floor{ Q: +0 R: -3 } euclid{ Q: +1 R: +2 } round{ Q: +1 R: +2 } ceil{ Q: +1 R: +2 } raise{ Q: +1 R: +2 }
+
+            +5  +3  = trunc{ Q: +1 R: +2 } floor{ Q: +1 R: +2 } euclid{ Q: +1 R: +2 } round{ Q: +2 R: -1 } ceil{ Q: +2 R: -1 } raise{ Q: +2 R: -1 }
+            +5  -3  = trunc{ Q: -1 R: +2 } floor{ Q: -2 R: -1 } euclid{ Q: -1 R: +2 } round{ Q: -2 R: -1 } ceil{ Q: -1 R: +2 } raise{ Q: -2 R: -1 }
+            -5  +3  = trunc{ Q: -1 R: -2 } floor{ Q: -2 R: +1 } euclid{ Q: -2 R: +1 } round{ Q: -2 R: +1 } ceil{ Q: -1 R: -2 } raise{ Q: -2 R: +1 }
+            -5  -3  = trunc{ Q: +1 R: -2 } floor{ Q: +1 R: -2 } euclid{ Q: +2 R: +1 } round{ Q: +2 R: +1 } ceil{ Q: +2 R: +1 } raise{ Q: +2 R: +1 }
+
+            ? 5/3 = 1 2/3 ~ 1.6666...
+            ? 3/5 = 3/5 ~ 0.6
+
+            ! round is, when rounding up, like raise (above) and when rounding down, like trunc (below)
+
+            ? 4/3 = 1 1/3 ~ 1.3333...
+
+            +4  +3  = round{ Q: +1 R: +1 } trunc{ Q: +1 R: +1 }
+            +4  -3  = round{ Q: -1 R: +1 } trunc{ Q: -1 R: +1 }
+            -4  +3  = round{ Q: -1 R: -1 } trunc{ Q: -1 R: -1 }
+            -4  -3  = round{ Q: +1 R: -1 } trunc{ Q: +1 R: -1 }
+
+            to achive A%B → Q;R → A=B*Q+R (thus R=A-B*Q in all cases)
+            also usefull for A/B to Q+(R/B) (improper fraction to mixed fraction) (to improper fraction → N+(A/B) == ((N*B)+A)/B )
+
+            ! the floor function rounds towards negative infinity (downwards always)
+            ! the ceil function rounds towards positive infinity (upwards always)
+            ! the round function rounds towards the nearest integer (base/2 rounds up, anything smaller rounds down, relative to zero) (~ 'cause it's undecided for top 2 cases use rounded down the sign for R ~)
+            ! the trunc function rounds towards zero (removes the digits after decimal point ~ next (abs) smaller integer)
+            ! ~~ the raise function rounds away from zero (reverse direction of trunc ~ next (abs) larger integer) (~ no official name ~)
+            ! the sign function returns ([=0] → 0), ([>0] → +1), or ([<0] → -1)
+            ! the abs function returns the absolute value of a number (sign set positive)
+
+            round → Q = round(A/B) → R = A-(B*Q)
+            trunc → Q = trunc(A/B) → R = A-(B*Q)
+            raise → Q = raise(A/B) → R = A-(B*Q)
+            floor → Q = floor(A/B) → R = A-(B*Q)
+            ceil → Q = ceil(A/B) → R = A-(B*Q)
+            euclid ↓
+                [B>0] → Q = floor(A/B)
+                [B<0] → Q = ceil(A/B)
+                or  Q = sign(B)*floor(A/abs(B)) → R = A-abs(B)*floor(A/abs(B)) ~~ R = A-(B*Q)
+        */
     }
     /**
      * __Karatsubas Multiplication Algorithm__ \
