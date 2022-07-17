@@ -1701,14 +1701,14 @@ class BigIntType{
                 switch(rounding){
                     case'c':case"ceil":this.#digits=new Uint8Array([1]);break;
                     case'f':case"floor":this.#digits=new Uint8Array([0]);break;
-                    case'r':case"round":this.#digits=new Uint8Array([x===this.length?(this.#digits[x-1]>=128?1:0):0]);break;
+                    case'r':case"round":this.#digits=new Uint8Array([x===this.length?(this.#digits[x-1]>=0x80?1:0):0]);break;
                 }
             }else{
                 const _last=this.#digits[x-1];
                 this.#digits=this.#digits.slice(x);
                 switch(rounding){
-                    case'c':case"ceil":if(_last!==0){this.inc();}break;
-                    case'r':case"round":if(_last>=128){this.inc();}break;
+                    case'c':case"ceil":if(_last!==0x0){this.inc();}break;
+                    case'r':case"round":if(_last>=0x80){this.inc();}break;
                 }
             }
         }
@@ -1945,6 +1945,23 @@ class BigIntType{
         }
         this.#sign=!(this.#sign^n.#sign);
         return this;
+    }
+    /**
+     * __WIP__
+     * @param {string} rounding - []
+     * @param {BigIntType} remainder - []
+     * @param {BigIntType} divisor - []
+     * @returns {BigIntType} `0` or `1` depending on the rounding
+     */
+    static #round_qr(rounding,remainder,divisor){// TODO <rounding for divrest>
+        return BigIntType.Zero;
+        // ? {quotient + //→ } ←// gdc(q,r) → (divisor) → divrest(q,r) → (remainder) →→ [rounding] 1|0 //
+        // quotient & remainder ~ divRest (A/B)
+        // !  round → round to nearest integer (>=floor(base/2) → round up)
+        // !  trunc → round to zero
+        // !  raise → round away from zero
+        // !  floor → round to negative infinity
+        // !   ceil → round to positive infinity
     }
     /**
      * __calculates modulo `n` of `this` number__ \
