@@ -1828,18 +1828,29 @@ class BigIntType{
     /**
      * __calculates half of `this` number__ \
      * _modifies the original_
-     * @param {string} rounding - _default `'c'`_
+     * @param {string} rounding - _default `'r'`_
+     * + `'r'` or `"round"` for rounding to the nearest integer
      * + `'c'` or `"ceil"` for rounding up the result
      * + `'f'` or `"floor"` for rounding down the result
      * @returns {BigIntType} `this / 2` (`this` modified)
      * @throws {SyntaxError} - if `rounding` is not a valid option
      * @throws {RangeError} - _if some Array could not be allocated (system-specific & memory size)_
      */
-    half(rounding='c'){// TODO more rounding types
+    half(rounding='r'){// TODO more rounding types
         rounding=String(rounding);if(!/^(c|ceil|f|floor)$/.test(rounding)){throw new SyntaxError("[half] rounding is not a valid option");}
         if(this.isZero()){return this;}
-        if(this.isOdd()&&(rounding==='c'||rounding==="ceil")){return this.bitShiftR(1).inc();}
-        else{return this.bitShiftR(1);}
+        const this_isOdd=this.isOdd();
+        this.bitShiftR(1);
+        if(this_isOdd){
+            switch(rounding){
+                case'c':case"ceil":
+                case'r':case"round":
+                    this.inc();
+                break;
+                // case'f':case"floor":break;
+            }
+        }
+        return this;
     }
     /**
      * __calculates double of `this` number__ \
@@ -1902,9 +1913,11 @@ class BigIntType{
      * _modifies the original_
      * @param {BigIntType} n - divisor
      * @param {string} rounding - _default `'r'`_
-     * + `'r'` or `"round"` for rounded division result
-     * + `'f'` or `"floor"` for floored division result
-     * + `'c'` or `"ceil"` for ceiled division result
+     * - `'r'` or `"round"` - round to nearest integer
+     * - `'t'` or `"trunc"` - rounds towards `0`
+     * - `'a'` or `"raise"` - rounds away from `0`
+     * - `'f'` or `"floor"` - rounds towards `- Infinity`
+     * - `'c'` or `"ceil"`  - rounds towards `+ Infinity`
      * @returns {BigIntType} `this / n` (`this` modified)
      * @throws {TypeError} - if `n` is not an instance of `BigIntType`
      * @throws {RangeError} - if `n` is `0`
@@ -1913,18 +1926,22 @@ class BigIntType{
      */
     div(n,rounding='r'){// TODO more rounding types
         if(!(n instanceof BigIntType)){throw new TypeError("[div] n is not an instance of BigIntType");}
-        rounding=String(rounding);if(!/^(r|round|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[div] rounding is not a valid option");}
+        rounding=String(rounding);if(!/^(r|round|t|trunc|a|raise|f|floor|c|ceil)$/.test(rounding)){throw new SyntaxError("[div] rounding is not a valid option");}
         // dividend / divisor = quotient + remainder / divisor
         if(n.isZero()){throw new RangeError("[div] n is 0");}
         if(this.isZero()||n.isOne()){return n.#sign?this:this.neg();}
         if(n.length>1&&n.#digits.every((v,i,a)=>(i<a.length-1&&v===0)||(i===a.length-1&&v===1))){this.times256ToThePowerOf(1-n.length,rounding);}
         else if(this.isAbsSmallerThanAbs(n)){
+            this.#round_qr(rounding,this,n);
             switch(rounding){
-                case'c':case"ceil":this.#digits=new Uint8Array([1]);break;
-                case'f':case"floor":this.#digits=new Uint8Array([0]);break;
-                case'r':case"round":this.#digits=new Uint8Array([n.isAbsGreaterThanAbs(this.copy().double())?0:1]);break;
+                // TODO ~ sign ? before ?
+                // case't':case"trunc":return this;
+                // case'a':case"raise":return this.inc();
+                case'c':case"ceil":this.#digits=new Uint8Array([0x1]);break;
+                case'f':case"floor":this.#digits=new Uint8Array([0x0]);break;
+                case'r':case"round":this.#digits=new Uint8Array([this.isAbsSmallerThanAbs(n.copy().half('r'))?0x1:0x0]);break;
             }
-        }else if(this.isEqualTo(n)){this.#digits=new Uint8Array([1]);}
+        }else if(this.isEqualTo(n)){this.#digits=new Uint8Array([0x1]);}
         else{
             /**@type {BigIntType[]}*/
             let [q,r]=(({quotient,remainder})=>[
@@ -1932,6 +1949,9 @@ class BigIntType{
                 new BigIntType(remainder,"256")
             ])(BigIntType.#calcDivRest(this.#digits,n.#digits));
             switch(rounding){
+                // TODO
+                // case't':case"trunc":return this;
+                // case'a':case"raise":return this.inc();
                 case'c':case"ceil":
                     if(!(r.isZero())){q.inc();}
                     this.#digits=q.#digits;
@@ -1945,23 +1965,6 @@ class BigIntType{
         }
         this.#sign=!(this.#sign^n.#sign);
         return this;
-    }
-    /**
-     * __WIP__
-     * @param {string} rounding - []
-     * @param {BigIntType} remainder - []
-     * @param {BigIntType} divisor - []
-     * @returns {BigIntType} `0` or `1` depending on the rounding
-     */
-    static #round_qr(rounding,remainder,divisor){// TODO <rounding for divrest>
-        return BigIntType.Zero;
-        // ? {quotient + //→ } ←// gdc(q,r) → (divisor) → divrest(q,r) → (remainder) →→ [rounding] 1|0 //
-        // quotient & remainder ~ divRest (A/B)
-        // !  round → round to nearest integer (>=floor(base/2) → round up)
-        // !  trunc → round to zero
-        // !  raise → round away from zero
-        // !  floor → round to negative infinity
-        // !   ceil → round to positive infinity
     }
     /**
      * __calculates modulo `n` of `this` number__ \
@@ -2029,7 +2032,7 @@ class BigIntType{
             case't':case"trunc":this.setEqualTo(this.#sign?R:R.neg());break;
             case'f':case"floor":this.setEqualTo(n.#sign?(this.#sign?R:n.copy().abs().sub(R)):(this.#sign?R.sub(n.copy().abs()):R.neg()));break;
             case'c':case"ceil":this.setEqualTo(n.#sign?(this.#sign?R.sub(n.copy().abs()):R.neg()):(this.#sign?R:n.copy().abs().sub(R)));break;
-            case'r':case"round":this.setEqualTo(R.copy().sub(n.copy().abs().half('c')).#sign?(this.#sign?R.sub(n.copy().abs()):n.copy().abs().sub(R)):(this.#sign?R:R.neg()));break;
+            case'r':case"round":this.setEqualTo(R.copy().sub(n.copy().abs().half('r')).#sign?(this.#sign?R.sub(n.copy().abs()):n.copy().abs().sub(R)):(this.#sign?R:R.neg()));break;
         }
         return this;
         /* TODO more testing on types
