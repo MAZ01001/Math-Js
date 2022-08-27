@@ -403,3 +403,14 @@ function* rangeGenerator(start,end,step=1,overflow=false){
     overflow=Boolean(overflow);
     for(const max=end+step,rev=step<0;overflow?((rev?start>max:start<max)||start===end):(rev?start>=end:start<=end);start+=step){yield start;}
 }
+/**
+ * __measures the width of the given text (with the given font) in pixels__
+ * @param {string} text - a string
+ * @param {string} font - a css font declaration - _default from computed style of document body_
+ * @returns {number} the width of the text in pixels
+ */
+function getTextWidth(text,font=null){
+    const cnv2d=this.cnv2d??(this.cnv2d=document.createElement('canvas').getContext('2d'));
+    cnv2d.font=font??window.getComputedStyle(document.body).font;
+    return cnv2d.measureText(text).width;
+}
