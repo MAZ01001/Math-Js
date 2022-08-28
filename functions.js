@@ -404,13 +404,28 @@ function* rangeGenerator(start,end,step=1,overflow=false){
     for(const max=end+step,rev=step<0;overflow?((rev?start>max:start<max)||start===end):(rev?start>=end:start<=end);start+=step){yield start;}
 }
 /**
- * __measures the width of the given text (with the given font) in pixels__
- * @param {string} text - a string
- * @param {string} font - a css font declaration - _default from computed style of document body_
- * @returns {number} the width of the text in pixels
+ * __measures the dimensions of a given `text` in pixels (sub-pixel accurate)__ \
+ * [!] only works in the context of `HTML` ie. a browser [!]
+ * @param {string} text - the string to calculate the dimensions of in pixels
+ * @param {HTMLElement} element - HTML element to get the font informations from - _default `document.body`_
+ * @param {string} pseudoElt - if set get the pseudo-element of `element`, for example `":after"` - _default `null` (no pseudo element, `element` itself)_
+ * @returns {Readonly<{width:number;height:number;lineHeight:number;}>} the dimensions of the text in pixels (sub-pixel accurate)
+ * @throws {Error} if `Window` or `Document` are not defined (not in HTML context)
+ * @throws {TypeError} if `element` is not a HTML `Element`
  */
-function getTextWidth(text,font=null){
-    const cnv2d=this.cnv2d??(this.cnv2d=document.createElement('canvas').getContext('2d'));
-    cnv2d.font=font??window.getComputedStyle(document.body).font;
-    return cnv2d.measureText(text).width;
+function getTextDimensions(text,element=document.body,pseudoElt=null){
+    if(
+        (typeof Window)===(typeof undefined)
+        ||(typeof Document)===(typeof undefined)
+    )throw new Error("[getTextDimensions] called outside the context of HTML (Window and Document are not defined)");
+    if(element instanceof Element)throw new TypeError("[getTextDimensions] element is not a HTMLElement");
+    text=String(text);
+    const cnv2d=this.cnv2d??(this.cnv2d=document.createElement("canvas").getContext("2d")),
+        elementCSS=window.getComputedStyle(element,pseudoElt);
+    cnv2d.font=elementCSS.font;
+    return Object.freeze({
+        width:cnv2d.measureText(text).width,
+        height:elementCSS.fontSize,
+        lineHeight:elementCSS.lineHeight
+    });
 }
