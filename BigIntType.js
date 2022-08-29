@@ -2116,6 +2116,7 @@ class BigIntType{
             P3Calc2=BigIntType.#removeLeadingZeros(BigIntType.#calcAdd(Yh.slice(),Yl)),
             P3Count=1;
         for(const max=Math.max(P3Calc1.length,P3Calc2.length);P3Count<max;P3Count*=2);
+        //~ on a maximum this function calls itself, I think, `MAX_SIZE*1.5` times. That might be to many ie. Error !
         let [P1,P2,P3]=[
             BigIntType.#calcKaratsuba(Xh,Yh),
             BigIntType.#calcKaratsuba(Xl,Yl),
