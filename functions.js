@@ -429,3 +429,51 @@ function getTextDimensions(text,element=document.body,pseudoElt=null){
         lineHeight:elementCSS.lineHeight
     });
 }
+/**
+ * __copy data to clipboard__ \
+ * [!] only works in the context of `HTML` ie. a browser [!] \
+ * _might not work for non-chromium-browsers, because of the permission check_
+ * @param {string|Blob} data - a text or rich-content in the form of a `Blob`
+ * @returns {Promise} resolves the promise if the copying of `data` to the clipboard was successful and rejects the promise when:
+ * - `Document` is not defined (not in HTML context)
+ * - `Document` is not in focus
+ * - `navigator.permissions.query` is not defined (can not check for permissions to write to the clipboard)
+ * - has no permission to write to the clipboard (or in a non-chromium-browser)
+ * @example
+ *   setTimeout(
+ *       ()=>copyToClipboard("Hello, World!").then(
+ *           ()=>console.log("success"),
+ *           reason=>console.log("error: %O",reason)
+ *       ),3000
+ *   ); //~ with 3 seconds to focus on the document
+ */
+function copyToClipboard(data){
+    return new Promise((resolve,reject)=>{
+        if((typeof Document)===(typeof undefined)){
+            reject("called outside the context of HTML (Document is not defined)");
+            return;
+        }
+        if(!document.hasFocus()){
+            reject("HTML document must be in focus");
+            return;
+        }
+        if(
+            (typeof Navigator)===undefined
+            ||(typeof Permissions)===undefined
+            ||(typeof (navigator?.permissions?.query??undefined))!=="function"
+        ){
+            reject("`navigator.permissions.query` is not defined");
+            return;
+        }
+        navigator.permissions.query(Object.freeze({name:"clipboard-write"})).then(result=>{
+            if(result.state==="granted"){
+                if(data instanceof Blob)
+                    navigator.clipboard.write([new ClipboardItem(Object.freeze({[data.type]:data}))])
+                    .then(()=>resolve(),reason=>reject(reason));
+                else
+                    navigator.clipboard.writeText(String(data))
+                    .then(()=>resolve(),reason=>reject(reason));
+            }else reject("no permission to write to the clipboard (or in a non-chromium-browser)");
+        },reason=>reject(reason));
+    });
+}
