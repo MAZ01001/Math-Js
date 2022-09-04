@@ -407,18 +407,18 @@ function* rangeGenerator(start,end,step=1,overflow=false){
  * __measures the dimensions of a given `text` in pixels (sub-pixel accurate)__ \
  * [!] only works in the context of `HTML` ie. a browser [!]
  * @param {string} text - the string to calculate the dimensions of in pixels
- * @param {HTMLElement} element - HTML element to get the font informations from - _default `document.body`_
+ * @param {Element} element - (HTML) element to get the font informations from - _default `document.body`_
  * @param {string} pseudoElt - if set get the pseudo-element of `element`, for example `":after"` - _default `null` (no pseudo element, `element` itself)_
  * @returns {Readonly<{width:number;height:number;lineHeight:number;}>} the dimensions of the text in pixels (sub-pixel accurate)
  * @throws {Error} if `Window` or `Document` are not defined (not in HTML context)
- * @throws {TypeError} if `element` is not a HTML `Element`
+ * @throws {TypeError} if `element` is not an (HTML) `Element`
  */
 function getTextDimensions(text,element=document.body,pseudoElt=null){
     if(
         (typeof Window)===(typeof undefined)
         ||(typeof Document)===(typeof undefined)
     )throw new Error("[getTextDimensions] called outside the context of HTML (Window and Document are not defined)");
-    if(element instanceof Element)throw new TypeError("[getTextDimensions] element is not a HTMLElement");
+    if(!(element instanceof Element))throw new TypeError("[getTextDimensions] element is not an (HTML) element");
     text=String(text);
     const cnv2d=this.cnv2d??(this.cnv2d=document.createElement("canvas").getContext("2d")),
         elementCSS=window.getComputedStyle(element,pseudoElt);
