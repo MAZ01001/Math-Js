@@ -485,18 +485,21 @@ function copyToClipboard(data){
  * Depending on the browser and operating system, the movementX units
  * may be a physical pixel, a logical pixel, or a CSS pixel. \
  * _(see [this issue on GitHub](https://github.com/w3c/pointerlock/issues/42) for more information on the topic)_
- * @returns {function(offsetElement?:Element):Readonly<{page:number[];client:number[];offset:number[];screen:number[];movement:number[];}>} a function that when called returns: \
- * a readonly object with the following attributes:
+ * @returns {(offsetElement?:Element)=>Readonly<{page:number[];client:number[];offset:number[];screen:number[];movement:number[];}>} a function: \
+ * [__param__] `offsetElement` (optional) of type `Element` - HTML element for calculating relative / offset mouse position - _default `null`_ \
+ * [__returns__] a readonly object with the following attributes, stored as sealed arrays (`[X,Y]`):
  * - `page`       : the mouse position on the rendered page (actual page size >= browser window)
  * - `client`     : the mouse position on the visible portion on the rendered page (browser window)
  * - `offset`     : the mouse position on the rendered page relative to an elements position
  * - `screen`     : the mouse position on the screen (all monitors together form one continuous screen)
- * - `movement`   : the distance the mouse moved from the previous event (`screen`)
+ * - `movement`   : the distance the mouse moved from the previous `screen` position
  *
- * each attriubute is stored as a sealed array (`[X,Y]`) \
- * (values other than `offset` will be updated live)
+ * [__throws__] `TypeError` if `offsetElement` is set but is not an (HTML) `Element`
  * @throws {Error} if `Window` or `Document` are not defined (not in HTML context)
- * @throws {TypeError} if `offsetElement` is not a HTML `Element` __(from the returned function)__
+ * @example
+ * const mousePos = getMousePos(),
+ *     log = setInterval( () => console.log( JSON.stringify( mousePos() ) ), 1000 );
+ * // clearInterval( log );
  */
 function getMousePos(){
     if(
@@ -505,15 +508,15 @@ function getMousePos(){
     )throw new Error("[getMousePos] called outside the context of HTML (Window and Document are not defined)");
     if(typeof this.obj==="undefined"){
         /**
-         * @type {Readonly<{page:number[];client:number[];offset:number[];screen:number[];movement:number[];}>} - various mouse positions
-         * @description mouse `[X,Y]` positions (sealed array)
+         * @type {{page:number[];client:number[];offset:number[];screen:number[];movement:number[];}} - various mouse positions (sealed object)
+         * @description mouse `[X,Y]` positions (sealed arrays)
          * - `page`       : position on the rendered page (actual page size >= browser window)
          * - `client`     : position on the visible portion on the rendered page (browser window)
          * - `offset`     : relative position on the rendered page (to an elements position)
          * - `screen`     : position on screen (from top left of all monitors)
-         * - `movement`   : distance moved from previous event (`screen`)
+         * - `movement`   : distance moved from previous `screen` position
          */
-        this.obj=Object.freeze({
+        this.obj=Object.seal({
             page:Object.seal([0,0]),
             client:Object.seal([0,0]),
             offset:Object.seal([0,0]),
@@ -534,10 +537,10 @@ function getMousePos(){
      * - `client`     : position on the visible portion on the rendered page (browser window)
      * - `offset`     : relative position on the rendered page (to an elements position)
      * - `screen`     : position on screen (from top left of all monitors)
-     * - `movement`   : distance moved from previous event (`screen`)
-     * @throws {TypeError} if `offsetElement` is not a HTML `Element`
+     * - `movement`   : distance moved from previous `screen` position
+     * @throws {TypeError} if `offsetElement` is set but is not an (HTML) `Element`
      */
-    return (offsetElement=null)=>{
+    return(offsetElement=null)=>{
         if(offsetElement===null)this.obj.offset=[0,0];
         else{
             if(!(offsetElement instanceof Element))throw new TypeError("[getMousePos][function] offsetElement is not an (HTML) element");
@@ -545,6 +548,6 @@ function getMousePos(){
             this.obj.offset[0]=this.obj.page[0]-offsetElementBCR.x;
             this.obj.offset[1]=this.obj.page[1]-offsetElementBCR.y;
         }
-        return this.obj;
+        return Object.freeze({...this.obj});
     };
 }
