@@ -477,3 +477,74 @@ function copyToClipboard(data){
         },reason=>reject(reason));
     });
 }
+/**
+ * __gets different mouse positions__ \
+ * [!] only works in the context of `HTML` ie. a browser [!]
+ * @description __Warning__:
+ * Browsers use different units for movementX and screenX than what the specification defines.
+ * Depending on the browser and operating system, the movementX units
+ * may be a physical pixel, a logical pixel, or a CSS pixel. \
+ * _(see [this issue on GitHub](https://github.com/w3c/pointerlock/issues/42) for more information on the topic)_
+ * @returns {function(offsetElement?:Element):Readonly<{page:number[];client:number[];offset:number[];screen:number[];movement:number[];}>} a function that when called returns: \
+ * a readonly object with the following attributes:
+ * - `page`       : the mouse position on the rendered page (actual page size >= browser window)
+ * - `client`     : the mouse position on the visible portion on the rendered page (browser window)
+ * - `offset`     : the mouse position on the rendered page relative to an elements position
+ * - `screen`     : the mouse position on the screen (all monitors together form one continuous screen)
+ * - `movement`   : the distance the mouse moved from the previous event (`screen`)
+ *
+ * each attriubute is stored as a sealed array (`[X,Y]`) \
+ * (values other than `offset` will be updated live)
+ * @throws {Error} if `Window` or `Document` are not defined (not in HTML context)
+ * @throws {TypeError} if `offsetElement` is not a HTML `Element` __(from the returned function)__
+ */
+function getMousePos(){
+    if(
+        (typeof Window)===(typeof undefined)
+        ||(typeof Document)===(typeof undefined)
+    )throw new Error("[getMousePos] called outside the context of HTML (Window and Document are not defined)");
+    if(typeof this.obj==="undefined"){
+        /**
+         * @type {Readonly<{page:number[];client:number[];offset:number[];screen:number[];movement:number[];}>} - various mouse positions
+         * @description mouse `[X,Y]` positions (sealed array)
+         * - `page`       : position on the rendered page (actual page size >= browser window)
+         * - `client`     : position on the visible portion on the rendered page (browser window)
+         * - `offset`     : relative position on the rendered page (to an elements position)
+         * - `screen`     : position on screen (from top left of all monitors)
+         * - `movement`   : distance moved from previous event (`screen`)
+         */
+        this.obj=Object.freeze({
+            page:Object.seal([0,0]),
+            client:Object.seal([0,0]),
+            offset:Object.seal([0,0]),
+            screen:Object.seal([0,0]),
+            movement:Object.seal([0,0]),
+        });
+        document.addEventListener("mousemove",e=>{
+            this.obj.page=[e.pageX,e.pageY];
+            this.obj.client=[e.clientX,e.clientY];
+            this.obj.screen=[e.screenX,e.screenY];
+            this.obj.movement=[e.movementX,e.movementY];
+        },{passive:true});
+    }
+    /**
+     * @param {Element} offsetElement - HTML element for calculating relative / offset mouse position - _default `null`_
+     * @returns {Readonly<{page:number[];client:number[];offset:number[];screen:number[];movement:number[];}>} mouse `[X,Y]` positions (sealed array)
+     * - `page`       : position on the rendered page (actual page size >= browser window)
+     * - `client`     : position on the visible portion on the rendered page (browser window)
+     * - `offset`     : relative position on the rendered page (to an elements position)
+     * - `screen`     : position on screen (from top left of all monitors)
+     * - `movement`   : distance moved from previous event (`screen`)
+     * @throws {TypeError} if `offsetElement` is not a HTML `Element`
+     */
+    return (offsetElement=null)=>{
+        if(offsetElement===null)this.obj.offset=[0,0];
+        else{
+            if(!(offsetElement instanceof Element))throw new TypeError("[getMousePos][function] offsetElement is not an (HTML) element");
+            const offsetElementBCR=offsetElement.getBoundingClientRect();
+            this.obj.offset[0]=this.obj.page[0]-offsetElementBCR.x;
+            this.obj.offset[1]=this.obj.page[1]-offsetElementBCR.y;
+        }
+        return this.obj;
+    };
+}
