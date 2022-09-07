@@ -324,7 +324,6 @@
 > > also see [`other-projects/useful.js`](https://github.com/MAZ01001/other-projects#usefuljs)
 >
 > + `mapRange(n,x,y,x2,y2,limit=false);` map number from one range to another
-> + `roundDecimal(n,dec=0);` rounds number to decimal place
 > + `toPercent(n,x,y);` calculates percent of number in range *("progress")*
 > + `deg2rad(deg);` DEG to RAD
 > + `rad2deg(rad);` RAD to DEG

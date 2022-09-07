@@ -25,46 +25,6 @@ function mapRange(n,x,y,x2,y2,limit=false){
     return o;
 }
 /**
- * __rounds given number to given decimal place__
- * @param {number} n - initial number
- * @param {number} dec - number of decimal places to round to - _default `0`_
- * @returns {number} rounded number
- * @throws {TypeError} if `n` is not a number or `dec` is not a whole finite number
- * @description idea from [P5.js round function](https://github.com/processing/p5.js/blob/main/src/math/calculation.js#:~:text=p5.prototype.round)
- */
-function roundDecimal(n,dec=0){
-    n=Number(n);if(Number.isNaN(n)){throw new TypeError('[roundDecimal] n is not a number.');}
-    dec=Math.abs(Number(dec));if(!Number.isFinite(dec)||!Number.isInteger(dec)){throw new TypeError('[roundDecimal] dec is not a whole finite number.');}
-    if(/[eE]/.test(n.toString())){
-        let[,f,s,x]=[...n.toString().match(/^([+-]?[0-9]+(?:\.[0-9]+)?)[eE]([+-]?)([0-9]+)$/)];
-        if(s!=='-'){
-            n=Math.round(f+'e'+(+x+dec));
-            if(/[eE]/.test(n.toString())){
-                [,f,s,x]=[...n.toString().match(/^([+-]?[0-9]+(?:\.[0-9]+)?)[eE]([+-]?)([0-9]+)$/)];
-                if(s!=='-')return Number(f+'e'+(+x-dec));
-                else return Number(f+'e'+(-x+dec));
-            }else{
-                [,f]=[...n.toString().match(/^([+-]?[0-9]+(?:\.[0-9]+)?)$/)];
-                return Number(f+'e-'+dec);
-            }
-        }else{
-            n=Math.round(f+'e'+(-x-dec));
-            if(/[eE]/.test(n.toString())){
-                [,f,s,x]=[...n.toString().match(/^([+-]?[0-9]+(?:\.[0-9]+)?)[eE]([+-]?)([0-9]+)$/)];
-                if(s!=='-')return Number(f+'e'+(-x+dec));
-                else return Number(f+'e'+(+x-dec));
-            }else{
-                [,f]=[...n.toString().match(/^([+-]?[0-9]+(?:\.[0-9]+)?)$/)];
-                return Number(f+'e-'+dec);
-            }
-        }
-    }else{
-        let[,f,x]=[...Math.round(n+'e'+dec).toString().match(/^([+-]?[0-9]+(?:\.[0-9]+)?)(?:[eE]\+?([0-9]+))?$/)];
-        if(x!==undefined){return Number(f+'e'+(+x-dec));}
-        else{return Number(f+'e-'+dec);}
-    }
-}
-/**
  * __calculates percentage of a number within bounds__
  * @param {number} n initial number
  * @param {number} x lower bound
