@@ -1,13 +1,13 @@
 # [Math-Js](https://github.com/MAZ01001/Math-Js)
 
-+ [[Polynomial.js]](#polynomialjs)
-+ [[Fraction.js]](#fractionjs)
-+ [[Matrix.js]](#matrixjs)
-+ [[Vector.js]](#vectorjs)
-+ [[ComplexNumber.js]](#complexnumberjs)
-+ [[BigIntType.js]](#biginttypejs)
-+ [[PerfectComplex.js]](#perfectcomplexjs)
-+ [[functions.js]](#functionsjs)
++ [Polynomial.js](#polynomialjs)
++ [Fraction.js](#fractionjs)
++ [Matrix.js](#matrixjs)
++ [Vector.js](#vectorjs)
++ [ComplexNumber.js](#complexnumberjs)
++ [BigIntType.js](#biginttypejs)
++ [PerfectComplex.js](#perfectcomplexjs)
++ [functions.js](#functionsjs)
 
 > ## [Polynomial.js](https://github.com/MAZ01001/Math-Js/blob/main/Polynomial.js)
 >
@@ -172,7 +172,7 @@
 >       + `0b` for base `2`
 >       + `0o` for base `8`
 >       + `0x` for base `16`
->   + <details open><summary>supported base names to use instead of numbers:</summary>
+>   + <details closed><summary>All supported base names to use instead of numbers:</summary>
 >
 >     + base `2` as `'b'`, `"bin"`, `"bits"`, `"binary"`, or `"1bit"`
 >     + base `3` as `"ternary"` or `"trinary"`
