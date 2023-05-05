@@ -1,4 +1,4 @@
-# [Math-Js](https://github.com/MAZ01001/Math-Js)
+# Math with JavaScript
 
 + [Polynomial.js](#polynomialjs)
 + [Fraction.js](#fractionjs)
@@ -146,7 +146,7 @@
 > ## [BigIntType.js](https://github.com/MAZ01001/Math-Js/blob/main/BigIntType.js)
 >
 > >
-> > WIP [2022-06-16]
+> > WIP [2023-05-05]
 > >
 > > + "// todo ..."-s
 > > + nth-root()
