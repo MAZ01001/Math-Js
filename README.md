@@ -165,113 +165,114 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
       - `0o` for base `8`
       - `0x` for base `16`
   - <details closed><summary>All supported base names to use instead of numbers:</summary>
-
-    - base `2` as `'b'`, `"bin"`, `"bits"`, `"binary"`, or `"1bit"`
-    - base `3` as `"ternary"` or `"trinary"`
-    - base `4` as `'q'`, `"quaternary"`, or `"2bit"`
-    - base `5` as `"quinary"` or `"pental"`
-    - base `6` as `"senary"`, `"heximal"`, or `"seximal"`
-    - base `7` as `"septenary"`
-    - base `8` as `'o'`, `"oct"`, `"octal"`, or `"3bit"`
-    - base `9` as `"nonary"`
-    - base `10` as `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`
-    - base `11` as `"undecimal"`
-    - base `12` as `"duodecimal"`, `"dozenal"`, or `"uncial"`
-    - base `13` as `"tridecimal"`
-    - base `14` as `"tetradecimal"`
-    - base `15` as `"pentadecimal"`
-    - base `16` as `'h'`, `"hex"`, `"hexadecimal"`, `"sexadecimal"`, or `"4bit"`
-    - base `17` as `"heptadecimal"`
-    - base `18` as `"octodecimal"`
-    - base `19` as `"enneadecimal"`
-    - base `20` as `"vigesimal"`
-    - base `21` as `"unvigesimal"`
-    - base `22` as `"duovigesimal"`
-    - base `23` as `"trivigesimal"`
-    - base `24` as `"tetravigesimal"`
-    - base `25` as `"pentavigesimal"`
-    - base `26` as `"hexavigesimal"`
-    - base `27` as `"heptavigesimal septemvigesimal"`
-    - base `28` as `"octovigesimal"`
-    - base `29` as `"enneavigesimal"`
-    - base `30` as `"trigesimal"`
-    - base `31` as `"untrigesimal"`
-    - base `32` as `"duotrigesimal"` or `"5bit"`
-    - base `33` as `"tritrigesimal"`
-    - base `34` as `"tetratrigesimal"`
-    - base `35` as `"pentatrigesimal"`
-    - base `36` as `'t'`, `"txt"`, `"text"`, or `"hexatrigesimal"`
-    - base `37` as `"heptatrigesimal"`
-    - base `38` as `"octotrigesimal"`
-    - base `39` as `"enneatrigesimal"`
-    - base `40` as `"quadragesimal"`
-    - base `42` as `"duoquadragesimal"`
-    - base `45` as `"pentaquadragesimal"`
-    - base `47` as `"septaquadragesimal"`
-    - base `48` as `"octoquadragesimal"`
-    - base `49` as `"enneaquadragesimal"`
-    - base `50` as `"quinquagesimal"`
-    - base `52` as `"duoquinquagesimal"`
-    - base `54` as `"tetraquinquagesimal"`
-    - base `56` as `"hexaquinquagesimal"`
-    - base `57` as `"heptaquinquagesimal"`
-    - base `58` as `"octoquinquagesimal"`
-    - base `60` as `"sexagesimal"` or `"sexagenary"`
-    - base `62` as `"duosexagesimal"`
-    - base `64` as `"tetrasexagesimal"` or `"6bit"`
-    - base `72` as `"duoseptuagesimal"`
-    - base `80` as `"octogesimal"`
-    - base `81` as `"unoctogesimal"`
-    - base `85` as `"pentoctogesimal"`
-    - base `89` as `"enneaoctogesimal"`
-    - base `90` as `"nonagesimal"`
-    - base `91` as `"unnonagesimal"`
-    - base `92` as `"duononagesimal"`
-    - base `93` as `"trinonagesimal"`
-    - base `94` as `"tetranonagesimal"`
-    - base `95` as `"pentanonagesimal"`
-    - base `96` as `"hexanonagesimal"`
-    - base `97` as `"septanonagesimal"`
-    - base `100` as `"centesimal"`
-    - base `120` as `"centevigesimal"`
-    - base `121` as `"centeunvigesimal"`
-    - base `125` as `"centepentavigesimal"`
-    - base `128` as `"centeoctovigesimal"` or `"7bit"`
-    - base `144` as `"centetetraquadragesimal"`
-    - base `169` as `"centenovemsexagesimal"`
-    - base `185` as `"centepentoctogesimal"`
-    - base `196` as `"centehexanonagesimal"`
-    - base `200` as `"duocentesimal"`
-    - base `210` as `"duocentedecimal"`
-    - base `216` as `"duocentehexidecimal"`
-    - base `225` as `"duocentepentavigesimal"`
-    - base `256` as `"duocentehexaquinquagesimal"`, `"byte"`, or `"8bit"`
-    - base `300` as `"trecentesimal"`
-    - base `360` as `"trecentosexagesimal"`
-    - base `512` as `"9bit"`
-    - base `1024` as `"10bit"`
-    - base `2048` as `"11bit"`
-    - base `4096` as `"12bit"`
-    - base `8192` as `"13bit"`
-    - base `16384` as `"14bit"`
-    - base `32768` as `"15bit"`
-    - base `65536` as `"16bit"`
-    - base `131072` as `"17bit"`
-    - base `262144` as `"18bit"`
-    - base `524288` as `"19bit"`
-    - base `1048576` as `"20bit"`
-    - base `2097152` as `"21bit"`
-    - base `4194304` as `"22bit"`
-    - base `8388608` as `"23bit"`
-    - base `16777216` as `"24bit"`
-    - base `33554432` as `"25bit"`
-    - base `67108864` as `"26bit"`
-    - base `134217728` as `"27bit"`
-    - base `268435456` as `"28bit"`
-    - base `536870912` as `"29bit"`
-    - base `1073741824` as `"30bit"`
-    - base `2147483648` as `"31bit"`
-    - base `4294967296` as `"32bit"`
+      <ul>
+        <li>base `2` as `'b'`, `"bin"`, `"bits"`, `"binary"`, or `"1bit"`</li>
+        <li>base `3` as `"ternary"` or `"trinary"`</li>
+        <li>base `4` as `'q'`, `"quaternary"`, or `"2bit"`</li>
+        <li>base `5` as `"quinary"` or `"pental"`</li>
+        <li>base `6` as `"senary"`, `"heximal"`, or `"seximal"`</li>
+        <li>base `7` as `"septenary"`</li>
+        <li>base `8` as `'o'`, `"oct"`, `"octal"`, or `"3bit"`</li>
+        <li>base `9` as `"nonary"`</li>
+        <li>base `10` as `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`</li>
+        <li>base `11` as `"undecimal"`</li>
+        <li>base `12` as `"duodecimal"`, `"dozenal"`, or `"uncial"`</li>
+        <li>base `13` as `"tridecimal"`</li>
+        <li>base `14` as `"tetradecimal"`</li>
+        <li>base `15` as `"pentadecimal"`</li>
+        <li>base `16` as `'h'`, `"hex"`, `"hexadecimal"`, `"sexadecimal"`, or `"4bit"`</li>
+        <li>base `17` as `"heptadecimal"`</li>
+        <li>base `18` as `"octodecimal"`</li>
+        <li>base `19` as `"enneadecimal"`</li>
+        <li>base `20` as `"vigesimal"`</li>
+        <li>base `21` as `"unvigesimal"`</li>
+        <li>base `22` as `"duovigesimal"`</li>
+        <li>base `23` as `"trivigesimal"`</li>
+        <li>base `24` as `"tetravigesimal"`</li>
+        <li>base `25` as `"pentavigesimal"`</li>
+        <li>base `26` as `"hexavigesimal"`</li>
+        <li>base `27` as `"heptavigesimal septemvigesimal"`</li>
+        <li>base `28` as `"octovigesimal"`</li>
+        <li>base `29` as `"enneavigesimal"`</li>
+        <li>base `30` as `"trigesimal"`</li>
+        <li>base `31` as `"untrigesimal"`</li>
+        <li>base `32` as `"duotrigesimal"` or `"5bit"`</li>
+        <li>base `33` as `"tritrigesimal"`</li>
+        <li>base `34` as `"tetratrigesimal"`</li>
+        <li>base `35` as `"pentatrigesimal"`</li>
+        <li>base `36` as `'t'`, `"txt"`, `"text"`, or `"hexatrigesimal"`</li>
+        <li>base `37` as `"heptatrigesimal"`</li>
+        <li>base `38` as `"octotrigesimal"`</li>
+        <li>base `39` as `"enneatrigesimal"`</li>
+        <li>base `40` as `"quadragesimal"`</li>
+        <li>base `42` as `"duoquadragesimal"`</li>
+        <li>base `45` as `"pentaquadragesimal"`</li>
+        <li>base `47` as `"septaquadragesimal"`</li>
+        <li>base `48` as `"octoquadragesimal"`</li>
+        <li>base `49` as `"enneaquadragesimal"`</li>
+        <li>base `50` as `"quinquagesimal"`</li>
+        <li>base `52` as `"duoquinquagesimal"`</li>
+        <li>base `54` as `"tetraquinquagesimal"`</li>
+        <li>base `56` as `"hexaquinquagesimal"`</li>
+        <li>base `57` as `"heptaquinquagesimal"`</li>
+        <li>base `58` as `"octoquinquagesimal"`</li>
+        <li>base `60` as `"sexagesimal"` or `"sexagenary"`</li>
+        <li>base `62` as `"duosexagesimal"`</li>
+        <li>base `64` as `"tetrasexagesimal"` or `"6bit"`</li>
+        <li>base `72` as `"duoseptuagesimal"`</li>
+        <li>base `80` as `"octogesimal"`</li>
+        <li>base `81` as `"unoctogesimal"`</li>
+        <li>base `85` as `"pentoctogesimal"`</li>
+        <li>base `89` as `"enneaoctogesimal"`</li>
+        <li>base `90` as `"nonagesimal"`</li>
+        <li>base `91` as `"unnonagesimal"`</li>
+        <li>base `92` as `"duononagesimal"`</li>
+        <li>base `93` as `"trinonagesimal"`</li>
+        <li>base `94` as `"tetranonagesimal"`</li>
+        <li>base `95` as `"pentanonagesimal"`</li>
+        <li>base `96` as `"hexanonagesimal"`</li>
+        <li>base `97` as `"septanonagesimal"`</li>
+        <li>base `100` as `"centesimal"`</li>
+        <li>base `120` as `"centevigesimal"`</li>
+        <li>base `121` as `"centeunvigesimal"`</li>
+        <li>base `125` as `"centepentavigesimal"`</li>
+        <li>base `128` as `"centeoctovigesimal"` or `"7bit"`</li>
+        <li>base `144` as `"centetetraquadragesimal"`</li>
+        <li>base `169` as `"centenovemsexagesimal"`</li>
+        <li>base `185` as `"centepentoctogesimal"`</li>
+        <li>base `196` as `"centehexanonagesimal"`</li>
+        <li>base `200` as `"duocentesimal"`</li>
+        <li>base `210` as `"duocentedecimal"`</li>
+        <li>base `216` as `"duocentehexidecimal"`</li>
+        <li>base `225` as `"duocentepentavigesimal"`</li>
+        <li>base `256` as `"duocentehexaquinquagesimal"`, `"byte"`, or `"8bit"`</li>
+        <li>base `300` as `"trecentesimal"`</li>
+        <li>base `360` as `"trecentosexagesimal"`</li>
+        <li>base `512` as `"9bit"`</li>
+        <li>base `1024` as `"10bit"`</li>
+        <li>base `2048` as `"11bit"`</li>
+        <li>base `4096` as `"12bit"`</li>
+        <li>base `8192` as `"13bit"`</li>
+        <li>base `16384` as `"14bit"`</li>
+        <li>base `32768` as `"15bit"`</li>
+        <li>base `65536` as `"16bit"`</li>
+        <li>base `131072` as `"17bit"`</li>
+        <li>base `262144` as `"18bit"`</li>
+        <li>base `524288` as `"19bit"`</li>
+        <li>base `1048576` as `"20bit"`</li>
+        <li>base `2097152` as `"21bit"`</li>
+        <li>base `4194304` as `"22bit"`</li>
+        <li>base `8388608` as `"23bit"`</li>
+        <li>base `16777216` as `"24bit"`</li>
+        <li>base `33554432` as `"25bit"`</li>
+        <li>base `67108864` as `"26bit"`</li>
+        <li>base `134217728` as `"27bit"`</li>
+        <li>base `268435456` as `"28bit"`</li>
+        <li>base `536870912` as `"29bit"`</li>
+        <li>base `1073741824` as `"30bit"`</li>
+        <li>base `2147483648` as `"31bit"`</li>
+        <li>base `4294967296` as `"32bit"`</li>
+      </ul>
     </details>
 - comparisons:
   - `isOdd()` / `isEven()`
