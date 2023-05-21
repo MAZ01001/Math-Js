@@ -17,12 +17,16 @@ function mapRange(n,x,y,x2,y2,limit=false){
     y=Number(y);  if(Number.isNaN(y)) throw new TypeError('[mapRange] y is not a number.');
     x2=Number(x2);if(Number.isNaN(x2))throw new TypeError('[mapRange] x2 is not a number.');
     y2=Number(y2);if(Number.isNaN(y2))throw new TypeError('[mapRange] y2 is not a number.');
-    const o=((n-x)/(y-x))*(y2-x2)+x2;
     if(limit){
-        if(x2>y2)[x2,y2]=[y2,x2];
-        return Math.max(Math.min(o,y2),x2);
+        if(x<y){
+            if(n<x)return x2;
+            if(n>y)return y2;
+        }else{
+            if(n>x)return x2;
+            if(n<y)return y2;
+        }
     }
-    return o;
+    return((n-x)/(y-x))*(y2-x2)+x2;
 }
 /**
  * __calculates percentage of a number within bounds__
