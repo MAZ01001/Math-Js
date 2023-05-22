@@ -351,7 +351,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 >
 > WIP
 >
-> idea: ~BigIntType~ BigInt > Fraction > ComplexNumber
+> idea: ~BigIntType~ BigInt > Fraction / Infinity > ComplexNumber
 >
 
 ----
@@ -373,8 +373,8 @@ some useful math functions
 - `padNum(n,first=0,last=0);` pad number in respect to the decimal point
 - `euclideanModulo(a,b);` calculates the modulo of two whole numbers (the euclidean way with only positive remainder)
 - `fixFloat(n);` an attempt of fixing float precision errors in JS (without strings)
-- `randomRange(min,max);` genarates a random number within given range (including min and max)
-- `randomRangeInt(min,max);` genarates a random integer within given range (including min and max)
+- `randomRange(min,max);` genarates a random number within given range (inclusive)
+- `randomRangeInt(min,max);` genarates a random integer within given range (inclusive)
 - `fixPrecision(n);` attempt of fixing (potential) js float precision errors (with `Number.EPSILON`)
 - `divisionWithRest(A,B);` calculates division of A by B and returns (integer) quotient and remainder
 - `randomBools(x=1)` generate an array, length x, of random booleans
