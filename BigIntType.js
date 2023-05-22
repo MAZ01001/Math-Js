@@ -1970,7 +1970,7 @@ class BigIntType{
         /**@readonly @type {number} ceiled division (towards +infinity)*/     CEIL:7,
         /**@readonly @type {number} truncated division (towards zero)*/       TRUNC:8,
         /**@readonly @type {number} raised division (away from zero)*/        RAISE:9,
-        //~ should match `BigIntType.Round` up to this point (enum values)
+        //~ enum values must match `BigIntType.Round` up to this point
         /**@readonly @type {number} euclidean division (positive remainder)*/ EUCLID:0xA,
         /* ---- examples ----
             ~~~~ 3 % 5 → 3 / 5 = 0 + 3 / 5 → round up
