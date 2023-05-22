@@ -2265,7 +2265,7 @@ class BigIntType{
         if(n.isPOne())return this;
         if(!n.#sign)throw new RangeError("[pow] can not calculate the inverse of numbers other than 1");
         let calcDigits=Uint8Array.of(1);
-        for(let base=this.#digits,exp=n.#digits;;){
+        for(let base=this.#digits,exp=n.#digits.slice();;){
             //~ exp even → result*=base
             if(exp[0]&1)calcDigits=BigIntType.#calcKaratsuba(...BigIntType.#padToPowerOfTwo(calcDigits,base));
             //~ exp>>>=1
