@@ -2357,6 +2357,7 @@ class BigIntType{
      */
     static randomInt(min=BigIntType.Zero,max=BigIntType.Infinity){
         // TODO use custom PRNG to get random bytes ?!
+        //? https://research.kudelskisecurity.com/2020/07/28/the-definitive-guide-to-modulo-bias-and-how-to-avoid-it/
         try{
             return new BigIntType(Uint8Array.from(Math.random().toString(2).substring(2),Number),2).mapRange(
                 BigIntType.Zero,new BigIntType(Uint8Array.of(0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xF),0x100),
