@@ -175,7 +175,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
     - `A *= (256 ** x)` with [rounding](#supported-rounding-types "see supported rounding types") - (digit-shifts)
     - `A **= 2` / `A **= 3`
   - bitwise operations:
-    - `A >>>= x` / `A <<= x` / `A &= B` / `A |= B` / `A ^= B` / `A =~ A`
+    - `A >>>= x` / `A <<= x` / `A &= B` / `A |= B` / `A ^= B` / `A ~= A`
   - `GCD(A, B)`
   - `mapRange(a, b, a2, b2)` with [rounding](#supported-rounding-types "see supported rounding types") and limit (cap at a2 / b2)
 - `randomInt(min, max)` (using `Math.random()`)
