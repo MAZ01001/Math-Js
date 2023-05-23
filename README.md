@@ -147,7 +147,7 @@ arbitrary precision integer using JS's Uint8Array (unsigned 8-bit integer array)
 human "readable" code with lots of documentation (js-doc & some comments) and descriptive error throws
 
 >
-> [__BigIntType online calculator__ WIP](https://maz01001.github.io/site/BigIntType_calc.html)
+> [__BigIntType online calculator__ WIP](https://maz01001.github.io/site/biginttype_calc.html)
 >
 
 - adjustable limit `MAX_SIZE:Number` (Range 1 to 67108864 / 64MiB) (software max is [8PiB-1] - wich could be extended to [16PiB-2] using `Uint16Array` - or even [32PiB-4] using `Uint32Array` and `BigInt`)
