@@ -62,7 +62,7 @@ class BigIntType{
      * - base 7 ← `"septenary"`
      * - base 8 ← `'o'`, `"oct"`, `"octal"`, or `"3bit"`
      * - base 9 ← `"nonary"`
-     * - base 10 ← `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`
+     * - base 10 ← `'d'`, `"dec"`, `"decimal"`, or `"denary"`
      * - base 11 ← `"undecimal"`
      * - base 12 ← `"duodecimal"`, `"dozenal"`, or `"uncial"`
      * - base 13 ← `"tridecimal"`
@@ -178,7 +178,7 @@ class BigIntType{
             case"septenary":return 7;
             case'o':case"oct":case"octal":case"3bit":return 8;
             case"nonary":return 9;
-            case'd':case"dec":case"decimal":case"decimal":case"denary":return 0xA;
+            case'd':case"dec":case"decimal":case"denary":return 0xA;
             case"undecimal":return 0xB;
             case"duodecimal":case"dozenal":case"uncial":return 0xC;
             case"tridecimal":return 0xD;
@@ -426,7 +426,7 @@ class BigIntType{
      * - base 7 ← `"septenary"`
      * - base 8 ← `'o'`, `"oct"`, `"octal"`, or `"3bit"`
      * - base 9 ← `"nonary"`
-     * - base 10 ← `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`
+     * - base 10 ← `'d'`, `"dec"`, `"decimal"`, or `"denary"`
      * - base 11 ← `"undecimal"`
      * - base 12 ← `"duodecimal"`, `"dozenal"`, or `"uncial"`
      * - base 13 ← `"tridecimal"`
@@ -775,7 +775,7 @@ class BigIntType{
      * - base 7 ← `"septenary"`
      * - base 8 ← `'o'`, `"oct"`, `"octal"`, or `"3bit"`
      * - base 9 ← `"nonary"`
-     * - base 10 ← `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`
+     * - base 10 ← `'d'`, `"dec"`, `"decimal"`, or `"denary"`
      * - base 11 ← `"undecimal"`
      * - base 12 ← `"duodecimal"`, `"dozenal"`, or `"uncial"`
      * - base 13 ← `"tridecimal"`
@@ -1042,7 +1042,7 @@ class BigIntType{
      * - base 7 ← `"septenary"`
      * - base 8 ← `'o'`, `"oct"`, `"octal"`, or `"3bit"`
      * - base 9 ← `"nonary"`
-     * - base 10 ← `'d'`, `"dec"`, `"decimal"`, `"decimal"` or `"denary"`
+     * - base 10 ← `'d'`, `"dec"`, `"decimal"`, or `"denary"`
      * - base 11 ← `"undecimal"`
      * - base 12 ← `"duodecimal"`, `"dozenal"`, or `"uncial"`
      * - base 13 ← `"tridecimal"`
@@ -2341,7 +2341,7 @@ class BigIntType{
         if(!(A instanceof BigIntType))throw new TypeError("[GCD] a is not an instance of BigIntType");
         if(!(B instanceof BigIntType))throw new TypeError("[GCD] b is not an instance of BigIntType");
         let[first,second]=A.isAbsSmallerThanAbs(B)?[B.#digits,A.#digits]:[A.#digits,B.#digits];
-        for(let last=new Uint8Array();last=BigIntType.#calcDivRest(first,second)[1],last.length>1||last[0]!==0;[first,second]=[second,last]);
+        for(let last=BigIntType.#calcDivRest(first,second)[1];last.length>1||last[0]!==0;[first,second]=[second,last])last=BigIntType.#calcDivRest(first,second)[1];
         return new BigIntType(second.slice(),0x100);
     }
     /**
