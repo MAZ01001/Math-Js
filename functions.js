@@ -415,3 +415,54 @@ function* rangeGenerator(start,end,step=1,overflow=false){
         start+=step
     )yield start;
 }
+/**
+ * __get a function to get random numbers like `Math.random` but from a given seed__ \
+ * uses `MurmurHash3` for seeding and `sfc32` for generating 32bit values
+ * @param {string?} seed - a string used as the seed - defaults to current timestamp (in hex)
+ * @returns {()=>number} a function to generate random 32bit unsigned integers [0 to 0xFFFFFFFF inclusive] \
+ * to get [0.0 to 1.0 inclusive] divide by 0xFFFFFFFF \
+ * or by 0x100000000 to exclude the 1.0
+ * @example
+ * rng32bit("seed")();            //=> 3595049765 [0 to 0xFFFFFFFF inclusive]
+ * rng32bit("seed")()/0xFFFFFFFF; //=> 0.8370377509475307 [0.0 to 1.0 inclusive]
+ * @throws {TypeError} - if `seed` is not a string (not when it is null/undefined)
+ */
+function rng32bit(seed){
+    if(seed==null)seed=Date.now().toString(0x10);
+    if(typeof seed!=="string")throw new TypeError("[rng32bit] seed is not a string");
+    //~ MurmurHash3
+    let h=0x811C9DC5>>>0;
+    for(let i=0;i<seed.length;i++){
+        const char=(k=>(k<<0xF)|(k>>>0x11))(Math.imul(seed.charCodeAt(i),0xCC9E2D51));
+        h^=Math.imul(char,0x1B873593);
+        h=(h<<0xD)|(h>>>0x13);
+        h=(Math.imul(h,5)+0xE6546B64)|0;
+    }
+    h^=seed.length;
+    const getSeed=()=>{
+        h^=h>>>0x10;
+        h=Math.imul(h,0x85EBCA6B);
+        h^=h>>>0xD;
+        h=Math.imul(h,0xC2B2AE35);
+        h^=h>>>0x10;
+        return h>>>0;
+    };
+    let a=getSeed(),
+        b=getSeed(),
+        c=getSeed(),
+        d=getSeed();
+    return function(){
+        //~ sfc32
+        a|=0;
+        b|=0;
+        c|=0;
+        d|=0;
+        let val=(((a+b)|0)+d)|0;
+        d=(++d)|0;
+        a=b^(b>>>9);
+        b=(c+(c<<3))|0;
+        c=(c<<0x15)|(c>>>0xB);
+        c=(c+val)|0;
+        return val>>>0;
+    }
+}
