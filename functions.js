@@ -26,7 +26,7 @@ function mapRange(n,x,y,x2,y2,limit=false){
             if(n<y)return y2;
         }
     }
-    return((n-x)/(y-x))*(y2-x2)+x2;
+    return((n-x)*(y2-x2)+(y-x)*x2)/(y-x);
 }
 /**
  * __calculates percentage of a number within bounds__
