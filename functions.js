@@ -1,3 +1,5 @@
+//@ts-check
+"use strict";
 /**
  * __calculates new bounds/scale for given number `n`__ \
  * _(number can be out of bounds)_
@@ -39,6 +41,7 @@ function mapRange(n,x,y,x2,y2,limit=false){
  * @description _same as `mapRange(n,x,y,0,1);`
  */
 function toPercent(n,x,y){
+    "use strict";
     n=Number(n);if(Number.isNaN(n))throw new TypeError('[toPercent] n is not a number.');
     x=Number(x);if(Number.isNaN(x))throw new TypeError('[toPercent] x is not a number.');
     y=Number(y);if(Number.isNaN(y))throw new TypeError('[toPercent] y is not a number.');
@@ -52,6 +55,7 @@ function toPercent(n,x,y){
  * @throws {TypeError} if `deg` is not a number
  */
 function deg2rad(deg){
+    "use strict";
     deg=Number(deg);if(Number.isNaN(deg))throw new TypeError('[deg2rad] deg is not a number.');
     return deg*(180/Math.PI);
 }
@@ -62,6 +66,7 @@ function deg2rad(deg){
  * @throws {TypeError} if `rad` is not a number
  */
 function rad2deg(rad){
+    "use strict";
     rad=Number(rad);if(Number.isNaN(rad))throw new TypeError('[rad2deg] rad is not a number.');
     return rad*(Math.PI/180);
 }
@@ -75,6 +80,7 @@ function rad2deg(rad){
  * @description used to shorten fractions (see example)
  */
 function gcd(A,B){
+    "use strict";
     A=Math.abs(Number(A));if(!Number.isInteger(A))throw new TypeError('[gcd] A is not a integer.');
     B=Math.abs(Number(B));if(!Number.isInteger(B))throw new TypeError('[gcd] B is not a integer.');
     for(
@@ -107,7 +113,7 @@ function dec2frac(dec,loop_last=0,max_den=0,max_iter=1e6){
     max_den=Math.abs(Number(max_den));    if(!Number.isInteger(max_den))  throw new TypeError('[dec2frac] max_den is not a whole number.');
     max_iter=Math.abs(Number(max_iter));  if(!Number.isInteger(max_iter)) throw new TypeError('[dec2frac] max_iter is not a whole number.');
     let sign=(dec<0?-1:1),
-        nint,ndec=Math.abs(dec),
+        nint,ndec=Math.abs(dec),ndecstr=ndec.toString(),
         num,pnum=1,ppnum=0,
         den,pden=0,ppden=1,
         iter=0;
@@ -122,6 +128,7 @@ function dec2frac(dec,loop_last=0,max_den=0,max_iter=1e6){
      * @returns {Readonly<{a:number;b:number;c:number;n:number;s:string}>} fraction
      */
     const __end=(si,W,N,D,I,S)=>{
+        "use strict";
         if(N===D)return Object.freeze({a:si*(W+1),b:0,c:1,n:I,s:S});
         if(N>D){
             const _t=N/D;
@@ -129,34 +136,33 @@ function dec2frac(dec,loop_last=0,max_den=0,max_iter=1e6){
             W+=Math.floor(_t);
             N-=Math.floor(_t)*D;
         }
-        const _gcd=(
-            (A,B)=>{
-                for(
-                    [A,B]=A<B?[B,A]:[A,B];
-                    A%B>0;
-                    [A,B]=[B,A%B]
-                );
-                return B;
-            }
-        )(N,D);
+        const _gcd=((A,B)=>{
+            "use strict";
+            for(
+                [A,B]=A<B?[B,A]:[A,B];
+                A%B>0;
+                [A,B]=[B,A%B]
+            );
+            return B;
+        })(N,D);
         N/=_gcd;
         D/=_gcd;
         return Object.freeze({a:si*W,b:N,c:D,n:I,s:S});
     };
-    if(loop_last>0&&!/e/.test(ndec.toString())){
+    if(loop_last>0&&!/e/.test(ndecstr)){
         if(max_den===0){
-            [,nint,ndec]=[...ndec.toString().match(/^([0-9]+)\.([0-9]+)$/)];
+            [,nint,ndecstr]=[...(ndecstr.match(/^([0-9]+)\.([0-9]+)$/)??[])];
             nint=Number.parseInt(nint);
-            if(loop_last>ndec.length)loop_last=ndec.length;
-            const _l=10**(ndec.length-loop_last),
-                _r=Number.parseInt('9'.repeat(loop_last)+'0'.repeat(ndec.length-loop_last));
-            num=(Number(ndec.slice(-loop_last))*_l)
-                +(Number(ndec.slice(0,-loop_last))*_r);
+            if(loop_last>ndecstr.length)loop_last=ndecstr.length;
+            const _l=10**(ndecstr.length-loop_last),
+                _r=Number.parseInt('9'.repeat(loop_last)+'0'.repeat(ndecstr.length-loop_last));
+            num=(Number(ndecstr.slice(-loop_last))*_l)
+                +(Number(ndecstr.slice(0,-loop_last))*_r);
             den=_l*_r;
             if(!Number.isFinite(nint+(num/den)))return __end(sign,nint,num,den,iter,'infinity');
             return __end(sign,nint,num,den,iter,'precision');
         }
-        const _l=dec.toString().match(/^[0-9]+\.([0-9]+)$/)[1];
+        const _l=dec.toString().match(/^[0-9]+\.([0-9]+)$/)?.[1]??'0';
         if(loop_last>_l.length)loop_last=_l.length;
         dec=Number(dec.toString()+_l.substring(_l.length-loop_last).repeat(22));
         ndec=Math.abs(dec);
@@ -200,12 +206,12 @@ function padNum(n,first=0,last=0){
     first=Math.abs(Number(first));if(!Number.isInteger(first))throw new TypeError('[padNum] first is not a whole number.');
     last=Math.abs(Number(last));  if(!Number.isInteger(last)) throw new TypeError('[padNum] last is not a whole number.');
     if(/[eE]/.test(n.toString())){
-        let [,s,i,d,x]=[...n.toString().match(/^([+-]?)([0-9]+)(?:\.([0-9]+))?([eE][+-]?[0-9]+)$/)];
+        let [,s,i,d,x]=[...(n.toString().match(/^([+-]?)([0-9]+)(?:\.([0-9]+))?([eE][+-]?[0-9]+)$/)??[])];
         if(!d)d='0';
         if(!s)s='+';
         return s+i.padStart(first,' ')+'.'+d.padEnd(last,'0')+x;
     }
-    let [,s,i,d]=[...n.toString().match(/^([+-]?)([0-9]+)(?:\.([0-9]+))?$/)];
+    let [,s,i,d]=[...(n.toString().match(/^([+-]?)([0-9]+)(?:\.([0-9]+))?$/)??[])];
     if(!d)d='0';
     if(!s)s='+';
     return s+i.padStart(first,' ')+'.'+d.padEnd(last,'0');
@@ -220,6 +226,7 @@ function padNum(n,first=0,last=0){
  * @description `a-(|b|*floor(a/|b|))`
  */
 function euclideanModulo(a,b){
+    "use strict";
     a=Number(a);if(!Number.isFinite(a))throw new TypeError('[euclideanModulo] a is not a finite number.');
     b=Number(b);if(!Number.isFinite(b))throw new TypeError('[euclideanModulo] b is not a finite number.');
     return a-(Math.abs(b)*Math.floor(a/Math.abs(b)));
@@ -239,6 +246,7 @@ function euclideanModulo(a,b){
  * fixFloat(.3-.4);//=> -0.10000000000000003 -> -0.1
  */
 function fixFloat(n){
+    "use strict";
     n=Number(n);if(Number.isNaN(n))throw new TypeError('[fixFloat] n is not a number.');
     return((n.toString().match(/(?<=\.)([0-9]+([0-9]+)\2+[0-9]+)?$/)||[,''])[1].length>=16)?n-Number.EPSILON*n:n;
 }
@@ -251,6 +259,7 @@ function fixFloat(n){
  * @throws {TypeError} - if `min` or `max` are not numbers
  */
 function randomRange(min,max){
+    "use strict";
     min=Number(min);if(Number.isNaN(min))throw new TypeError('[randomRange] min is not a number.');
     max=Number(max);if(Number.isNaN(max))throw new TypeError('[randomRange] max is not a number.');
     if(min>max)[min,max]=[max,min];
@@ -269,6 +278,7 @@ function randomRange(min,max){
  * @throws {TypeError} - if `min` or `max` are not save integers
  */
 function randomRangeInt(min,max){
+    "use strict";
     min=Number(min);if(Number.isSafeInteger(min))throw new TypeError('[randomRangeInt] min is not a save integer.');
     max=Number(max);if(Number.isSafeInteger(max))throw new TypeError('[randomRangeInt] max is not a save integer.');
     if(min>max)[min,max]=[max,min];
@@ -286,6 +296,7 @@ function randomRangeInt(min,max){
  * and if it is, it returns this integer, else the initial number `n`
  */
 function fixPrecision(n){
+    "use strict";
     n=Number(n);if(Number.isNaN(n))throw new TypeError('[fixPrecision] n is not a number.');
     if(Number.isInteger(n))return n;
     if(Math.abs(n)<Number.EPSILON)return 0;
@@ -302,6 +313,7 @@ function fixPrecision(n){
  * @throws {RangeError} if `B` is 0 (division by 0)
  */
 function divisionWithRest(A,B){
+    "use strict";
     A=Math.abs(Number(A));if(!Number.isFinite(A))throw new TypeError('[divisionWithRest] A is not a finite number');
     B=Math.abs(Number(B));if(!Number.isFinite(B))throw new TypeError('[divisionWithRest] B is not a finite number');
     let Q=0,
@@ -428,6 +440,7 @@ function* rangeGenerator(start,end,step=1,overflow=false){
  * @throws {TypeError} - if `seed` is not a string (not when it is null/undefined)
  */
 function rng32bit(seed){
+    "use strict";
     if(seed==null)seed=Date.now().toString(0x10);
     if(typeof seed!=="string")throw new TypeError("[rng32bit] seed is not a string");
     //~ MurmurHash3
@@ -451,7 +464,8 @@ function rng32bit(seed){
         b=getSeed(),
         c=getSeed(),
         d=getSeed();
-    return function(){
+    return()=>{
+        "use strict";
         //~ sfc32
         a|=0;
         b|=0;
@@ -464,5 +478,5 @@ function rng32bit(seed){
         c=(c<<0x15)|(c>>>0xB);
         c=(c+val)|0;
         return val>>>0;
-    }
+    };
 }
