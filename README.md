@@ -381,4 +381,3 @@ some useful math functions
 - `rangeArray(start,end,step=1,overflow=false);` creates a range of numbers as an iterable array
 - `rangeGenerator(start,end,step=1,overflow=false);` creates a generator for given range - iterable
 - `rng32bit(seed);` gives a function to generate random 32bit unsigned integers, with a seed (string), using `MurmurHash3` for seeding and `sfc32` for generating 32bit values
-- `bitwiseModulo(x,mod);` calculates the modulo of two 32bit integers by using bitwise opperations

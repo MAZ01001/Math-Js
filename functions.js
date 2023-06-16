@@ -480,20 +480,3 @@ function rng32bit(seed){
         return val>>>0;
     };
 }
-/**
- * __calculates the modulo of two 32bit integers by using bitwise opperations__
- * @param {number} x - a safe integer (can be negative)
- * @param {number} mod - a 32bit integer (must be positive and <= 4294967296)
- * @returns {number} - a positive 32bit integer lower than `mod`
- */
-function bitwiseModulo(x,mod){
-    "use strict";
-    if(typeof x!=="number")throw new TypeError("[bitwiseModulo] x is not a number");
-    if(typeof mod!=="number")throw new TypeError("[bitwiseModulo] mod is not a number");
-    if(!Number.isSafeInteger(x))throw new TypeError("[bitwiseModulo] x is not a safe integer");
-    if(!Number.isInteger(mod)||mod>0x100000000)throw new TypeError("[bitwiseModulo] mod is not a 32bit integer");
-    if(mod<0)throw new TypeError("[bitwiseModulo] mod is negative");
-    const xLowerBits=Math.abs(x)&(mod-1);
-    if(x<0)return(mod-xLowerBits)&(mod-1);
-    return xLowerBits;
-}
