@@ -284,14 +284,14 @@ class ComplexNumber{
                 let tmpRe=0,tmpIm=0,last=1;
                 for(let k=0;k<=n;k++){
                     switch(k%4){
-                        case 0:tmpRe+=last*(re**(n-k))*(im**k);break;
-                        case 1:tmpIm+=last*(re**(n-k))*(im**k);break;
-                        case 2:tmpRe-=last*(re**(n-k))*(im**k);break;
-                        case 3:tmpIm-=last*(re**(n-k))*(im**k);break;
+                        case 0:tmpRe+=last*(this.real**(n-k))*(this.imaginary**k);break;
+                        case 1:tmpIm+=last*(this.real**(n-k))*(this.imaginary**k);break;
+                        case 2:tmpRe-=last*(this.real**(n-k))*(this.imaginary**k);break;
+                        case 3:tmpIm-=last*(this.real**(n-k))*(this.imaginary**k);break;
                     }
                     last=Math.floor(last*((n+1-k)/k));
                 }
-                [re,im]=[tmpRe,tmpIm];
+                [this.real,this.imaginary]=[tmpRe,tmpIm];
                 break;
         }
         return this;
