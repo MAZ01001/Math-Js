@@ -6,7 +6,7 @@
 - [Vector.js](#vectorjs)
 - [ComplexNumber.js](#complexnumberjs)
 - [BigIntType.js](#biginttypejs)
-- [PerfectComplex.js](#perfectcomplexjs)
+- [BigIntFractionComplex.js](#bigintfractioncomplexjs)
 - [functions.js](#functionsjs)
 
 ## [Polynomial.js](./Polynomial.js)
@@ -346,12 +346,12 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 
 *more details/documentation in the file itself via js-docs (`/** */`) and additional commenting with `//~`*
 
-## [PerfectComplex.js](./PerfectComplex.js)
+## [BigIntFractionComplex.js](./BigIntFractionComplex.js)
 
 >
 > WIP
 >
-> idea: ~BigIntType~ BigInt > Fraction / Infinity > ComplexNumber
+> idea: BigInt >> Fraction & Infinity >> ComplexNumber
 >
 
 ----
