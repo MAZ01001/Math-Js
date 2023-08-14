@@ -480,3 +480,67 @@ function rng32bit(seed){
         return val>>>0;
     };
 }
+/**
+ * __calculates value noise for given coordinates__ \
+ * uses quintic interpolation for mixing numbers, and a quick (non-cryptographic) hash function to get random noise from coordinates \
+ * _the output is allways the same for the same input_
+ * @param {number} x - X position
+ * @param {number} y - Y position
+ * @returns {number} the noise value for this pixel [0 to 1]
+ * @example
+ * const size=Object.freeze([1920,1080]),
+ *     exampleNoise=new ImageData(...size,{colorSpace:"srgb"});
+ * for(let x=0,y=0;y<size[1]&&x<size[0];++x>=size[0]?(x=0,y++):0){
+ *     const pixel=valueNoise(x*.008,y*.008)*127
+ *         +valueNoise(x*.016,y*.016)*63.5
+ *         +valueNoise(x*.032,y*.032)*31.75
+ *         +valueNoise(x*.064,y*.064)*15.875
+ *         +valueNoise(x*.128,y*.128)*7.9375;
+ *         //// +valueNoise(x*.256,y*.256)*3.96875
+ *         //// +valueNoise(x*.512,y*.512)*1.984375;
+ *     exampleNoise.data.set([pixel,pixel,pixel,0xFF],(y*size[0]+x)*4);
+ * }
+ * document.body.style.backgroundImage=(()=>{
+ *     "use strict";
+ *     const canvas=document.createElement("canvas");
+ *     canvas.width=size[0];
+ *     canvas.height=size[1];
+ *     canvas.getContext("2d")?.putImageData(exampleNoise,0,0);
+ *     return`url(${canvas.toDataURL("image/png")})`;
+ * })();
+ */
+function valueNoise(x,y){
+    "use strict";
+    /**
+     * ## Gets random noise from a given coordinate
+     * similar to a hash function (non-cryptographic ofc)
+     * @param {number} x - X position
+     * @param {number} y - Y position
+     * @returns {number} random noise [0 to 1]
+     */
+    const getNoise=(x,y)=>{
+        "use strict";
+        const hash=(Math.imul(x,0xDEADBEEF)^Math.imul(y,0xCAFEAFFE))*Math.E;
+        return hash-Math.floor(hash);
+    };
+    /**
+     * ## Quintic interpolation between two numbers
+     * @param {number} a - start point
+     * @param {number} b - end point
+     * @param {number} t - percentage [0 to 1]
+     * @returns {number} number between {@linkcode a} and {@linkcode b}
+     */
+    const qLerp=(a,b,t)=>{
+        "use strict";
+        return(b-a)*(6*t*t*t*t*t-15*t*t*t*t+10*t*t*t)+a;
+        //// return(b-a)*(3*t*t-2*t*t*t)+a;
+        //// return(b-a)*t+a;
+    };
+    const[xi,yi]=[~~x,~~y],
+        [xf,yf]=[x-xi,y-yi],
+        tl=getNoise(xi,yi),
+        tr=getNoise(xi+1,yi),
+        bl=getNoise(xi,yi+1),
+        br=getNoise(xi+1,yi+1);
+    return qLerp(qLerp(tl,tr,xf),qLerp(bl,br,xf),yf);
+}
