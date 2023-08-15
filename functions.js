@@ -544,3 +544,40 @@ function valueNoise(x,y){
         br=getNoise(xi+1,yi+1);
     return qLerp(qLerp(tl,tr,xf),qLerp(bl,br,xf),yf);
 }
+/**
+ * __approximates {@linkcode Math.sin}__ \
+ * more accurate for numbers that result in numbers closer to 0 \
+ * __testing__: \
+ * at around 42'000 calls it's slightly faster that {@linkcode Math.sin} and at 10'000'000 calls it's around 8 times faster \
+ * _each call: `sin( Number.MAX_SAFE_INTEGER * (Math.random()<0.5?-Math.random():Math.random()) * Math.PI )`_
+ * @param {number} x - angle (in radians)
+ * @returns {number} the sine of {@linkcode x}
+ */
+function sinAprx(x){
+    "use strict";
+    /**
+     * __approximates a quarter of the sin function__ \
+     * uses two terms of the sinus Taylor series - with a small modification so that `sinTaylor(PI/2)===1`
+     * @param {number} x - angle (in radians) [0 to TAU]
+     * @returns {number} _approximately_ sin of {@linkcode x} for {@linkcode x} in [0 to TAU]
+     */
+    const sinTaylor=x=>{
+        "use strict";
+        //// return-x*x*x*.14727245910375517+x; //~ up to 9.0 times faster at 10'000'000 samples
+        const x3=x*x*x;
+        return x3*x*x*.0078601762643174863936-x3*.16666666666666666666+x; //~ up to 8.2 times faster at 10'000'000 samples
+        //// return-x3*x3*x*.00019176333712570+x3*x*x*.00833333333333333-x3*.16666666666666667+x; //~ up to 7.4 times faster at 10'000'000 samples
+        //// return x3*x3*x3*.00000269488462426-x3*x3*x*.00019841269841270+x3*x*x*.00833333333333333-x3*.16666666666666667+x; //~ up to 7.3 times faster at 10'000'000 samples
+    };
+    const PI_2=Math.PI*.5,
+        PI2=Math.PI*2;
+    if((x%=PI2)>0){
+        if(x<=PI_2)return sinTaylor(x);
+        if(x<=Math.PI+PI_2)return sinTaylor(Math.PI-x);
+        return-sinTaylor(PI2-x);
+    }
+    if(x>=-PI_2)return-sinTaylor(-x);
+    if(x>=-Math.PI)return-sinTaylor(Math.PI+x);
+    if(x>=-Math.PI-PI_2)return sinTaylor(-Math.PI-x);
+    return sinTaylor(PI2+x);
+}
