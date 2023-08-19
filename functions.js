@@ -232,25 +232,6 @@ function euclideanModulo(a,b){
     return a-(Math.abs(b)*Math.floor(a/Math.abs(b)));
 }
 /**
- * __an attempt of fixing float precision errors in JS__ \
- * _without strings_
- * @param {number} n a number
- * @returns {number} a number
- * @throws {TypeError} if `n` is not a number
- * @description
- * does not always work, in which case, it just returns the same number \
- * so it should not alter the number in a wrong way
- * @example
- * fixFloat(.2/.3);//=> 0.6666666666666667 -> 0.6666666666666666
- * fixFloat(.9-.7);//=> 0.20000000000000007 -> 0.2
- * fixFloat(.3-.4);//=> -0.10000000000000003 -> -0.1
- */
-function fixFloat(n){
-    "use strict";
-    n=Number(n);if(Number.isNaN(n))throw new TypeError('[fixFloat] n is not a number.');
-    return((n.toString().match(/(?<=\.)([0-9]+([0-9]+)\2+[0-9]+)?$/)||[,''])[1].length>=16)?n-Number.EPSILON*n:n;
-}
-/**
  * __genarates a random number within given range__ \
  * _(including `min` and `max`)_
  * @param {number} min - lower bound
@@ -284,24 +265,6 @@ function randomRangeInt(min,max){
     if(min>max)[min,max]=[max,min];
     //~ NOTE: `Math.random();` includes 0 but not 1 !
     return Math.floor(Math.random()*((++max)-min))+min;
-}
-/**
- * __checks for js float inaccuracy in a number__ \
- * _and attempts to fix the (potential) float precision error_
- * @param {number} n - initial number
- * @throws {TypeError} - if `n` is not a number
- * @returns {number} the fixed number
- * @description it checks if the difference of `n` and its nearest integer (`n` rounded) is smaller than EPSILON \
- * (EPSILON is the difference between 1 and the smallest value greater than 1, which is representable as a number value) \
- * and if it is, it returns this integer, else the initial number `n`
- */
-function fixPrecision(n){
-    "use strict";
-    n=Number(n);if(Number.isNaN(n))throw new TypeError('[fixPrecision] n is not a number.');
-    if(Number.isInteger(n))return n;
-    if(Math.abs(n)<Number.EPSILON)return 0;
-    const m=Math.round(n);
-    return Math.abs(Math.abs(m)-Math.abs(n))<Number.EPSILON?m:n;
 }
 /**
  * __divides one number from another one__ \
