@@ -298,17 +298,16 @@ function divisionWithRest(A,B){
     //~ → https://github.com/MAZ01001/Math-Js/blob/cafda120f3464dcd433a0816df4461c0e42a545e/BigIntType.js#L978
 }
 /**
- * __generate an array of random bools__
- * @param {number} x - number of bools to generate
- * @returns {boolean[]} bool array with `x` entries
- * @throws {TypeError} if `x` is not a safe integer
+ * __generate a set amount of random booleans__
+ * @param {number} x - amount of booleans to generate
+ * @generator
+ * @yields {number} a random boolean (via `Math.random()`)
+ * @throws {TypeError} if {@linkcode x} is not a positive safe integer
+ * @example for(const rng of randomBools(3))console.log("%O",rng);
  */
-function randomBools(x=1){
-    x=Math.abs(Number(x));if(!Number.isSafeInteger(x))throw new TypeError('[randomBool] x is not a safe integer');
-    /** @type {boolean[]} */
-    let output=[];
-    for(;x>0;x--)output.push(Math.round(Math.random())===1);
-    return output;
+function*randomBools(x=1){
+    if(typeof x!=="number"||x<0||!Number.isSafeInteger(x))throw new TypeError('[randomBools] x is not a positive safe integer');
+    while(x-->0)yield Math.random()<.5;
 }
 /**
  * __creates a range of numbers as an iterable array__
