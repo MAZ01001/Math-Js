@@ -179,7 +179,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
   - `GCD(A, B)`
   - `mapRange(a, b, a2, b2)` with [rounding](#supported-rounding-types "see supported rounding types") and limit (cap at a2 / b2)
 - `randomInt(min, max)` (using `Math.random()`)
-- *↑ (`A` and `B` are type `BigIntType` and `x` is type `Number`) ↑*
+- _↑ (`A` and `B` are type `BigIntType` and `x` is type `Number`) ↑_
 
 ### Supported numerical bases
 
@@ -344,7 +344,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
   </table>
 </details>
 
-*more details/documentation in the file itself via js-docs (`/** */`) and additional commenting with `//~`*
+_more details/documentation in the file itself via js-docs (`/** */`) and additional commenting with `//~`_
 
 ## [BigIntFractionComplex.js](./BigIntFractionComplex.js)
 
@@ -364,22 +364,207 @@ some useful math functions
 > also see [`other-projects/useful.js`](https://github.com/MAZ01001/other-projects#usefuljs)
 >
 
-- `mapRange(n,x,y,x2,y2,limit=false);` map number from one range to another
-- `toPercent(n,x,y);` calculates percent of number in range ("progress")
-- `deg2rad(deg);` DEG to RAD
-- `rad2deg(rad);` RAD to DEG
-- `gcd(A,B);` calculates the greatest common divisor of A and B
-- `dec2frac(dec,loop_last=0,max_den=0,max_iter=1e6);` estimates a decimal number with a fraction
-- `padNum(n,first=0,last=0);` pad number in respect to the decimal point
-- `euclideanModulo(a,b);` calculates the modulo of two whole numbers (the euclidean way with only positive remainder)
-- `fixFloat(n);` an attempt of fixing float precision errors in JS (without strings)
-- `randomRange(min,max);` genarates a random number within given range (inclusive)
-- `randomRangeInt(min,max);` genarates a random integer within given range (inclusive)
-- `fixPrecision(n);` attempt of fixing (potential) js float precision errors (with `Number.EPSILON`)
-- `divisionWithRest(A,B);` calculates division of A by B and returns (integer) quotient and remainder
-- `randomBools(x=1)` generate an array, length x, of random booleans
-- `rangeArray(start,end,step=1,overflow=false);` creates a range of numbers as an iterable array
-- `rangeGenerator(start,end,step=1,overflow=false);` creates a generator for given range - iterable
-- `rng32bit(seed);` gives a function to generate random 32bit unsigned integers, with a seed (string), using `MurmurHash3` for seeding and `sfc32` for generating 32bit values
-- `valueNoise(x,y);` calculates value noise for given coordinates
-- `sinAprx(x);` approximates `Math.PI`
+### `mapRange`
+
+translate the given number to another range
+
+```typescript
+function mapRange(n: number, x: number, y: number, x2: number, y2: number, limit?: boolean | undefined): number
+mapRange(0.5, 0, 1, 0, 100); //=> 50
+mapRange(3, 0, 1, 0, 100); //=> 300
+mapRange(3, 0, 1, 0, 100, true); //=> 100
+```
+
+### `toPercent`
+
+calculates the percentage of the given number within the given range
+
+```typescript
+function toPercent(n: number, x: number, y: number): number
+toPercent(150, 100, 200); //=> 0.5 = 50%
+```
+
+### `deg2rad`
+
+converts the given angle from DEG to RAD
+
+```typescript
+function deg2rad(deg: number): number
+```
+
+### `rad2deg`
+
+converts the given angle from RAD to DEG
+
+```typescript
+function rad2deg(rad: number): number
+```
+
+### `gcd`
+
+calculates the greatest common divisor of A and B (integers)
+
+```typescript
+function gcd(A: number, B: number): number
+gcd(45, 100); //=> 5 → (45/5)/(100/5) → 9/20
+```
+
+### `dec2frac`
+
+converts a decimal number to an improper-fraction (rough estimation)
+
+```typescript
+function dec2frac(dec: number, loop_last?: number | undefined, max_den?: number | undefined, max_iter?: number | undefined): Readonly<{
+    a: number;
+    b: number;
+    c: number;
+    i: number;
+    r: string;
+}>
+dec2frac(0.12, 2); //=> { a:0, b:4, c:33, i:0, r:"precision" } → 0+4/33 → 0.121212121212...
+```
+
+### `padNum`
+
+convert number to string with padding \
+format: `[sign] [padded start ' '] [.] [padded end '0'] [e ~]`
+
+```typescript
+function padNum(n: number | string, first?: number | undefined, last?: number | undefined): string
+padNum("1.23e2", 3, 5); //=> "+  1.23000e2"
+```
+
+### `euclideanModulo`
+
+calculates the modulo of two whole numbers (euclidean division)
+
+$$\large a-\left(\lvert b\rvert\cdot\left\lfloor\dfrac{a}{\lvert b\rvert}\right\rfloor\right)$$
+
+```typescript
+function euclideanModulo(a: number, b: number): number
+```
+
+### `randomRange`
+
+genarates a random number within given range (inclusive)
+
+_gets a random number via `Math.random()` and assumes that this number is in range [0 to (1 - `Number.EPSILON`)] (inclusive)_
+
+```typescript
+function randomRange(min: number, max: number): number
+```
+
+### `randomRangeInt`
+
+genarates a random integer within given range (inclusive)
+
+```typescript
+function randomRangeInt(min: number, max: number): number
+```
+
+### `divisionWithRest`
+
+division with two unsigned numbers
+
+$$\large\dfrac{A}{B}=Q+\dfrac{R}{B}$$
+
+```typescript
+function divisionWithRest(A: number, B: number): readonly [number, number]
+divisionWithRest(5, 3); //=> [1, 2] → 1+2/3
+```
+
+also see [`Math-Js/BigIntType.js : #calcDivRest`](https://github.com/MAZ01001/Math-Js/blob/ca71710d50a5fa57e5cb76410cc33df8c1e688d4/BigIntType.js#L1880 "Permalink to #calcDivRest method in Math-Js/BigIntType.js") for a solution with arbitrary-length-integers
+
+### `randomBools`
+
+generate a set amount of random booleans \
+_generator function_
+
+```typescript
+function randomBools(amount?: number | undefined): Generator<boolean, any, unknown>
+for(const rng of randomBools(3))console.log("%O",rng);
+```
+
+### `rangeGenerator`
+
+creates a generator for given range - iterable \
+_use `Array.from()` to create a normal `number[]` array_
+
+```typescript
+function rangeGenerator(start: number, end: number, step?: number | undefined, overflow?: boolean | undefined): Generator<number, void, unknown>
+for(const odd of rangeGenerator(1, 100, 2))console.log(odd); //~ 1 3 5 .. 97 99
+```
+
+### `rng32bit`
+
+get a function to get random numbers like Math.random but from a given seed \
+_uses `MurmurHash3` for seeding and `sfc32` for generating 32bit values_
+
+```typescript
+function rng32bit(seed?: string | undefined): () => number
+rng32bit("seed")();            //=> 3595049765 [0 to 0xFFFFFFFF inclusive]
+rng32bit("seed")()/0xFFFFFFFF; //=> 0.8370377509475307 [0.0 to 1.0 inclusive]
+```
+
+### `valueNoise`
+
+calculates value noise for given coordinates \
+uses quintic interpolation for mixing numbers, and a quick (non-cryptographic) hash function to get random noise from coordinates \
+_the output is allways the same for the same input_
+
+```typescript
+function valueNoise(x: number, y: number): number
+```
+
+#### example render
+
+```javascript
+const size = Object.freeze([1920, 1080]),
+    exampleNoise = new ImageData(...size, {colorSpace: "srgb"});
+for(let x = 0, y = 0; y < size[1] && x < size[0]; ++x >= size[0] ? (x = 0, y++) : 0){
+    const pixel = valueNoise(x * 0.008, y * 0.008) * 127
+        + valueNoise(x * 0.016, y * 0.016) * 63.5
+        + valueNoise(x * 0.032, y * 0.032) * 31.75
+        + valueNoise(x * 0.064, y * 0.064) * 15.875
+        + valueNoise(x * 0.128, y * 0.128) * 7.9375;
+        //// + valueNoise(x * 0.256, y * 0.256) * 3.96875
+        //// + valueNoise(x * 0.512, y * 0.512) * 1.984375;
+    exampleNoise.data.set([pixel, pixel, pixel, 0xFF], (y * size[0] + x) * 4);
+}
+document.body.style.backgroundImage = (() => {
+    "use strict";
+    const canvas = document.createElement("canvas");
+    canvas.width = size[0];
+    canvas.height = size[1];
+    canvas.getContext("2d")?.putImageData(exampleNoise, 0, 0);
+    return `url(${ canvas.toDataURL("image/png") })`;
+})();
+```
+
+### `sinAprx`
+
+approximates `Math.sin()` \
+_more accurate for numbers that result in numbers closer to `0`_
+
+```typescript
+function sinAprx(x: number): number
+```
+
+#### testing performance
+
+```javascript
+// → at around 42'000 calls it's slightly faster that `Math.sin()` and at 10'000'000 calls it's around 8 times faster (on my machine via nodejs)
+const samples = 10000000,
+    rngScale = 8;
+const rng = new Array(samples>>>rngScale);
+for(let i = 0; i < rng.length; i++) rng[i] = Math.random() < 0.5 ? -Math.random() : Math.random();
+const a = performance.now();
+for(let i = 0; i < samples; i++) _ = sinAprx(Number.MAX_SAFE_INTEGER * rng[i >>> rngScale] * Math.PI);
+const b = performance.now();
+for(let i = 0; i < samples; i++) _ = Math.sin(Number.MAX_SAFE_INTEGER * rng[i >>> rngScale] * Math.PI);
+const c = performance.now();
+console.log(
+    "%i samples\nAprx %f ms (%f ms each)\nSin %f ms (%f ms each)\napprox.: %f times faster",
+    samples, (b - a).toFixed(4), ((b - a) / samples).toFixed(4), (c - b).toFixed(4), ((c - b) / samples).toFixed(4), ((c - b) / (b - a)).toFixed(4)
+);
+```
