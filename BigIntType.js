@@ -1,5 +1,6 @@
 //@ts-check
 "use strict";
+// TODO add "use strict"; to every function and change jsdocs to {@linkcode [optional_param]} == null ? set default val : (typecheck ? throw : 0) and copy to HTML page
 /**
  * __Class for arbitrarily large integers with typed arrays__ \
  * can natively convert `BigIntType` numbers to `BigInt` or `String` when needed
