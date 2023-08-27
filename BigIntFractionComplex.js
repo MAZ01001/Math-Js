@@ -32,5 +32,16 @@ class BigIntFractionComplex{
         this._real_=real;
         this._imaginary_=imaginary;
     }
+    /**
+     * __get the object (string) descriptor__
+     * @readonly
+     */
+    get[Symbol.toStringTag](){return "BigIntFractionComplex"}
     // TODO
-}
+};
+
+module.exports=BigIntFractionComplex;
+//~ import like this
+// const BigIntFractionComplex = require("./BigIntFractionComplex.js");
+// Object.freeze(BigIntFractionComplex.prototype);
+// Object.freeze(BigIntFractionComplex);
