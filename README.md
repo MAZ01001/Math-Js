@@ -1,4 +1,4 @@
-# Math with JavaScript
+# Math in JavaScript
 
 - [Polynomial.js](#polynomialjs)
 - [Fraction.js](#fractionjs)
@@ -6,8 +6,31 @@
 - [Vector.js](#vectorjs)
 - [ComplexNumber.js](#complexnumberjs)
 - [BigIntType.js](#biginttypejs)
+  - [Supported numerical bases](#supported-numerical-bases "Scroll to section: Supported numerical bases")
+    - [Supported numerical base names](#supported-numerical-base-names "Scroll to section: Supported numerical base names")
+  - [Supported rounding types](#supported-rounding-types "Scroll to section: Supported rounding types")
+  - [Supported modulo types](#supported-modulo-types "Scroll to section: Supported modulo types")
+    - [Modulo examples](#modulo-examples "Scroll to section: Modulo examples")
 - [BigIntFractionComplex.js](#bigintfractioncomplexjs)
 - [functions.js](#functionsjs)
+  - [`mapRange`](#maprange "Scroll to function: `mapRange`")
+  - [`toPercent`](#topercent "Scroll to function: `toPercent`")
+  - [`deg2rad`](#deg2rad "Scroll to function: `deg2rad`")
+  - [`rad2deg`](#rad2deg "Scroll to function: `rad2deg`")
+  - [`gcd`](#gcd "Scroll to function: `gcd`")
+  - [`dec2frac`](#dec2frac "Scroll to function: `dec2frac`")
+  - [`padNum`](#padnum "Scroll to function: `padNum`")
+  - [`euclideanModulo`](#euclideanmodulo "Scroll to function: `euclideanModulo`")
+  - [`randomRange`](#randomrange "Scroll to function: `randomRange`")
+  - [`randomRangeInt`](#randomrangeint "Scroll to function: `randomRangeInt`")
+  - [`divisionWithRest`](#divisionwithrest "Scroll to function: `divisionWithRest`")
+  - [`randomBools`](#randombools "Scroll to function: `randomBools`")
+  - [`rangeGenerator`](#rangegenerator "Scroll to function: `rangeGenerator`")
+  - [`rng32bit`](#rng32bit "Scroll to function: `rng32bit`")
+  - [`valueNoise`](#valuenoise "Scroll to function: `valueNoise`")
+    - [example render](#example-render "Scroll to section: example render")
+  - [`sinAprx`](#sinaprx "Scroll to function: `sinAprx`")
+    - [testing performance](#testing-performance "Scroll to section: testing performance")
 
 ## [Polynomial.js](./Polynomial.js)
 
@@ -29,6 +52,9 @@
   - antiderivative formula
   - set delta x
 
+Scroll [UP](#polynomialjs "Scroll to start of section: Polynomial.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ## [Fraction.js](./Fraction.js)
 
 - make fraction directly/from decimal/-string
@@ -43,6 +69,9 @@
   - another fraction
 - raise fraction to nth power
 - chainable methods
+
+Scroll [UP](#fractionjs "Scroll to start of section: Fraction.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ## [Matrix.js](./Matrix.js)
 
@@ -74,6 +103,9 @@
   - delete
 - check matrix stats
 
+Scroll [UP](#matrixjs "Scroll to start of section: Matrix.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ## [Vector.js](./Vector.js)
 
 >
@@ -99,6 +131,9 @@
   - subtraction
   - inversion
   - scale by constant (multiply number)
+
+Scroll [UP](#vectorjs "Scroll to start of section: Vector.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ## [ComplexNumber.js](./ComplexNumber.js)
 
@@ -132,6 +167,9 @@
   - `π/4`
   - `e^i`
   - `i^i`
+
+Scroll [UP](#complexnumberjs "Scroll to start of section: ComplexNumber.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ## [BigIntType.js](./BigIntType.js)
 
@@ -181,6 +219,9 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 - `randomInt(min, max)` (using `Math.random()`)
 - _↑ (`A` and `B` are type `BigIntType` and `x` is type `Number`) ↑_
 
+Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ### Supported numerical bases
 
 >
@@ -201,6 +242,9 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
     (in base 10 / with `0-9`)
   - `"braille"` is in base 256 but uses braille patterns (`U+2800` to `U+28FF` inclusive) as digit-charset
 
+Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 #### Supported numerical base names
 
 >
@@ -208,63 +252,67 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 >
 
 <details closed><summary>click to show table</summary>
-  <table>
-    <tr><th style="text-align:right">base</th><th>names</th><th>|</th><th style="text-align:right">base</th><th>names</th></tr>
-    <tr><td style="text-align:right">2</td><td><code>b</code> / <code>bin</code> / <code>bits</code> / <code>binary</code> / <code>1bit</code></td><td>|</td><td style="text-align:right">72</td><td><code>duoseptuagesimal</code></td></tr>
-    <tr><td style="text-align:right">3</td><td><code>ternary</code> / <code>trinary</code></td><td>|</td><td style="text-align:right">80</td><td><code>octogesimal</code></td></tr>
-    <tr><td style="text-align:right">4</td><td><code>q</code> / <code>quaternary</code> / <code>2bit</code></td><td>|</td><td style="text-align:right">81</td><td><code>unoctogesimal</code></td></tr>
-    <tr><td style="text-align:right">5</td><td><code>quinary</code> / <code>pental</code></td><td>|</td><td style="text-align:right">85</td><td><code>pentoctogesimal</code></td></tr>
-    <tr><td style="text-align:right">6</td><td><code>senary</code> / <code>heximal</code> / <code>seximal</code></td><td>|</td><td style="text-align:right">89</td><td><code>enneaoctogesimal</code></td></tr>
-    <tr><td style="text-align:right">7</td><td><code>septenary</code></td><td>|</td><td style="text-align:right">90</td><td><code>nonagesimal</code></td></tr>
-    <tr><td style="text-align:right">8</td><td><code>o</code> / <code>oct</code> / <code>octal</code> / <code>3bit</code></td><td>|</td><td style="text-align:right">91</td><td><code>unnonagesimal</code></td></tr>
-    <tr><td style="text-align:right">9</td><td><code>nonary</code></td><td>|</td><td style="text-align:right">92</td><td><code>duononagesimal</code></td></tr>
-    <tr><td style="text-align:right">10</td><td><code>d</code> / <code>dec</code> / <code>decimal</code> / <code>denary</code></td><td>|</td><td style="text-align:right">93</td><td><code>trinonagesimal</code></td></tr>
-    <tr><td style="text-align:right">11</td><td><code>undecimal</code></td><td>|</td><td style="text-align:right">94</td><td><code>tetranonagesimal</code></td></tr>
-    <tr><td style="text-align:right">12</td><td><code>duodecimal</code> / <code>dozenal</code> / <code>uncial</code></td><td>|</td><td style="text-align:right">95</td><td><code>pentanonagesimal</code></td></tr>
-    <tr><td style="text-align:right">13</td><td><code>tridecimal</code></td><td>|</td><td style="text-align:right">96</td><td><code>hexanonagesimal</code></td></tr>
-    <tr><td style="text-align:right">14</td><td><code>tetradecimal</code></td><td>|</td><td style="text-align:right">97</td><td><code>septanonagesimal</code></td></tr>
-    <tr><td style="text-align:right">15</td><td><code>pentadecimal</code></td><td>|</td><td style="text-align:right">100</td><td><code>centesimal</code></td></tr>
-    <tr><td style="text-align:right">16</td><td><code>h</code> / <code>hex</code> / <code>hexadecimal</code> / <code>sexadecimal</code> / <code>4bit</code></td><td>|</td><td style="text-align:right">120</td><td><code>centevigesimal</code></td></tr>
-    <tr><td style="text-align:right">17</td><td><code>heptadecimal</code></td><td>|</td><td style="text-align:right">121</td><td><code>centeunvigesimal</code></td></tr>
-    <tr><td style="text-align:right">18</td><td><code>octodecimal</code></td><td>|</td><td style="text-align:right">125</td><td><code>centepentavigesimal</code></td></tr>
-    <tr><td style="text-align:right">19</td><td><code>enneadecimal</code></td><td>|</td><td style="text-align:right">128</td><td><code>centeoctovigesimal</code> / <code>7bit</code></td></tr>
-    <tr><td style="text-align:right">20</td><td><code>vigesimal</code></td><td>|</td><td style="text-align:right">144</td><td><code>centetetraquadragesimal</code></td></tr>
-    <tr><td style="text-align:right">21</td><td><code>unvigesimal</code></td><td>|</td><td style="text-align:right">169</td><td><code>centenovemsexagesimal</code></td></tr>
-    <tr><td style="text-align:right">22</td><td><code>duovigesimal</code></td><td>|</td><td style="text-align:right">185</td><td><code>centepentoctogesimal</code></td></tr>
-    <tr><td style="text-align:right">23</td><td><code>trivigesimal</code></td><td>|</td><td style="text-align:right">196</td><td><code>centehexanonagesimal</code></td></tr>
-    <tr><td style="text-align:right">24</td><td><code>tetravigesimal</code></td><td>|</td><td style="text-align:right">200</td><td><code>duocentesimal</code></td></tr>
-    <tr><td style="text-align:right">25</td><td><code>pentavigesimal</code></td><td>|</td><td style="text-align:right">210</td><td><code>duocentedecimal</code></td></tr>
-    <tr><td style="text-align:right">26</td><td><code>hexavigesimal</code></td><td>|</td><td style="text-align:right">216</td><td><code>duocentehexidecimal</code></td></tr>
-    <tr><td style="text-align:right">27</td><td><code>heptavigesimal</code> / <code>septemvigesimal</code></td><td>|</td><td style="text-align:right">225</td><td><code>duocentepentavigesimal</code></td></tr>
-    <tr><td style="text-align:right">28</td><td><code>octovigesimal</code></td><td>|</td><td style="text-align:right">256</td><td><code>duocentehexaquinquagesimal</code> / <code>byte</code> / <code>8bit</code></td></tr>
-    <tr><td style="text-align:right">29</td><td><code>enneavigesimal</code></td><td>|</td><td style="text-align:right">300</td><td><code>trecentesimal</code></td></tr>
-    <tr><td style="text-align:right">30</td><td><code>trigesimal</code></td><td>|</td><td style="text-align:right">360</td><td><code>trecentosexagesimal</code></td></tr>
-    <tr><td style="text-align:right">31</td><td><code>untrigesimal</code></td><td>|</td><td style="text-align:right">512</td><td><code>9bit</code></td></tr>
-    <tr><td style="text-align:right">32</td><td><code>duotrigesimal</code> / <code>5bit</code></td><td>|</td><td style="text-align:right">1024</td><td><code>10bit</code></td></tr>
-    <tr><td style="text-align:right">33</td><td><code>tritrigesimal</code></td><td>|</td><td style="text-align:right">2048</td><td><code>11bit</code></td></tr>
-    <tr><td style="text-align:right">34</td><td><code>tetratrigesimal</code></td><td>|</td><td style="text-align:right">4096</td><td><code>12bit</code></td></tr>
-    <tr><td style="text-align:right">35</td><td><code>pentatrigesimal</code></td><td>|</td><td style="text-align:right">8192</td><td><code>13bit</code></td></tr>
-    <tr><td style="text-align:right">36</td><td><code>t</code> / <code>txt</code> / <code>text</code> / <code>hexatrigesimal</code></td><td>|</td><td style="text-align:right">16384</td><td><code>14bit</code></td></tr>
-    <tr><td style="text-align:right">37</td><td><code>heptatrigesimal</code></td><td>|</td><td style="text-align:right">32768</td><td><code>15bit</code></td></tr>
-    <tr><td style="text-align:right">38</td><td><code>octotrigesimal</code></td><td>|</td><td style="text-align:right">65536</td><td><code>16bit</code></td></tr>
-    <tr><td style="text-align:right">39</td><td><code>enneatrigesimal</code></td><td>|</td><td style="text-align:right">131072</td><td><code>17bit</code></td></tr>
-    <tr><td style="text-align:right">40</td><td><code>quadragesimal</code></td><td>|</td><td style="text-align:right">262144</td><td><code>18bit</code></td></tr>
-    <tr><td style="text-align:right">42</td><td><code>duoquadragesimal</code></td><td>|</td><td style="text-align:right">524288</td><td><code>19bit</code></td></tr>
-    <tr><td style="text-align:right">45</td><td><code>pentaquadragesimal</code></td><td>|</td><td style="text-align:right">1048576</td><td><code>20bit</code></td></tr>
-    <tr><td style="text-align:right">47</td><td><code>septaquadragesimal</code></td><td>|</td><td style="text-align:right">2097152</td><td><code>21bit</code></td></tr>
-    <tr><td style="text-align:right">48</td><td><code>octoquadragesimal</code></td><td>|</td><td style="text-align:right">4194304</td><td><code>22bit</code></td></tr>
-    <tr><td style="text-align:right">49</td><td><code>enneaquadragesimal</code></td><td>|</td><td style="text-align:right">8388608</td><td><code>23bit</code></td></tr>
-    <tr><td style="text-align:right">50</td><td><code>quinquagesimal</code></td><td>|</td><td style="text-align:right">16777216</td><td><code>24bit</code></td></tr>
-    <tr><td style="text-align:right">52</td><td><code>duoquinquagesimal</code></td><td>|</td><td style="text-align:right">33554432</td><td><code>25bit</code></td></tr>
-    <tr><td style="text-align:right">54</td><td><code>tetraquinquagesimal</code></td><td>|</td><td style="text-align:right">67108864</td><td><code>26bit</code></td></tr>
-    <tr><td style="text-align:right">56</td><td><code>hexaquinquagesimal</code></td><td>|</td><td style="text-align:right">134217728</td><td><code>27bit</code></td></tr>
-    <tr><td style="text-align:right">57</td><td><code>heptaquinquagesimal</code></td><td>|</td><td style="text-align:right">268435456</td><td><code>28bit</code></td></tr>
-    <tr><td style="text-align:right">58</td><td><code>octoquinquagesimal</code></td><td>|</td><td style="text-align:right">536870912</td><td><code>29bit</code></td></tr>
-    <tr><td style="text-align:right">60</td><td><code>sexagesimal</code> / <code>sexagenary</code></td><td>|</td><td style="text-align:right">1073741824</td><td><code>30bit</code></td></tr>
-    <tr><td style="text-align:right">62</td><td><code>duosexagesimal</code></td><td>|</td><td style="text-align:right">2147483648</td><td><code>31bit</code></td></tr>
-    <tr><td style="text-align:right">64</td><td><code>tetrasexagesimal</code> / <code>6bit</code></td><td>|</td><td style="text-align:right">4294967296</td><td><code>32bit</code></td></tr>
-  </table>
+
+| base | names                                                |       base | names                                          |
+| ----:| ---------------------------------------------------- | ----------:| ---------------------------------------------- |
+|    2 | `b` / `bin` / `bits` / `binary` / `1bit`             |         72 | `duoseptuagesimal`                             |
+|    3 | `ternary` / `trinary`                                |         80 | `octogesimal`                                  |
+|    4 | `q` / `quaternary` / `2bit`                          |         81 | `unoctogesimal`                                |
+|    5 | `quinary` / `pental`                                 |         85 | `pentoctogesimal`                              |
+|    6 | `senary` / `heximal` / `seximal`                     |         89 | `enneaoctogesimal`                             |
+|    7 | `septenary`                                          |         90 | `nonagesimal`                                  |
+|    8 | `o` / `oct` / `octal` / `3bit`                       |         91 | `unnonagesimal`                                |
+|    9 | `nonary`                                             |         92 | `duononagesimal`                               |
+|   10 | `d` / `dec` / `decimal` / `denary`                   |         93 | `trinonagesimal`                               |
+|   11 | `undecimal`                                          |         94 | `tetranonagesimal`                             |
+|   12 | `duodecimal` / `dozenal` / `uncial`                  |         95 | `pentanonagesimal`                             |
+|   13 | `tridecimal`                                         |         96 | `hexanonagesimal`                              |
+|   14 | `tetradecimal`                                       |         97 | `septanonagesimal`                             |
+|   15 | `pentadecimal`                                       |        100 | `centesimal`                                   |
+|   16 | `h` / `hex` / `hexadecimal` / `sexadecimal` / `4bit` |        120 | `centevigesimal`                               |
+|   17 | `heptadecimal`                                       |        121 | `centeunvigesimal`                             |
+|   18 | `octodecimal`                                        |        125 | `centepentavigesimal`                          |
+|   19 | `enneadecimal`                                       |        128 | `centeoctovigesimal` / `7bit`                  |
+|   20 | `vigesimal`                                          |        144 | `centetetraquadragesimal`                      |
+|   21 | `unvigesimal`                                        |        169 | `centenovemsexagesimal`                        |
+|   22 | `duovigesimal`                                       |        185 | `centepentoctogesimal`                         |
+|   23 | `trivigesimal`                                       |        196 | `centehexanonagesimal`                         |
+|   24 | `tetravigesimal`                                     |        200 | `duocentesimal`                                |
+|   25 | `pentavigesimal`                                     |        210 | `duocentedecimal`                              |
+|   26 | `hexavigesimal`                                      |        216 | `duocentehexidecimal`                          |
+|   27 | `heptavigesimal` / `septemvigesimal`                 |        225 | `duocentepentavigesimal`                       |
+|   28 | `octovigesimal`                                      |        256 | `duocentehexaquinquagesimal` / `byte` / `8bit` |
+|   29 | `enneavigesimal`                                     |        300 | `trecentesimal`                                |
+|   30 | `trigesimal`                                         |        360 | `trecentosexagesimal`                          |
+|   31 | `untrigesimal`                                       |        512 | `9bit`                                         |
+|   32 | `duotrigesimal` / `5bit`                             |       1024 | `10bit`                                        |
+|   33 | `tritrigesimal`                                      |       2048 | `11bit`                                        |
+|   34 | `tetratrigesimal`                                    |       4096 | `12bit`                                        |
+|   35 | `pentatrigesimal`                                    |       8192 | `13bit`                                        |
+|   36 | `t` / `txt` / `text` / `hexatrigesimal`              |      16384 | `14bit`                                        |
+|   37 | `heptatrigesimal`                                    |      32768 | `15bit`                                        |
+|   38 | `octotrigesimal`                                     |      65536 | `16bit`                                        |
+|   39 | `enneatrigesimal`                                    |     131072 | `17bit`                                        |
+|   40 | `quadragesimal`                                      |     262144 | `18bit`                                        |
+|   42 | `duoquadragesimal`                                   |     524288 | `19bit`                                        |
+|   45 | `pentaquadragesimal`                                 |    1048576 | `20bit`                                        |
+|   47 | `septaquadragesimal`                                 |    2097152 | `21bit`                                        |
+|   48 | `octoquadragesimal`                                  |    4194304 | `22bit`                                        |
+|   49 | `enneaquadragesimal`                                 |    8388608 | `23bit`                                        |
+|   50 | `quinquagesimal`                                     |   16777216 | `24bit`                                        |
+|   52 | `duoquinquagesimal`                                  |   33554432 | `25bit`                                        |
+|   54 | `tetraquinquagesimal`                                |   67108864 | `26bit`                                        |
+|   56 | `hexaquinquagesimal`                                 |  134217728 | `27bit`                                        |
+|   57 | `heptaquinquagesimal`                                |  268435456 | `28bit`                                        |
+|   58 | `octoquinquagesimal`                                 |  536870912 | `29bit`                                        |
+|   60 | `sexagesimal` / `sexagenary`                         | 1073741824 | `30bit`                                        |
+|   62 | `duosexagesimal`                                     | 2147483648 | `31bit`                                        |
+|   64 | `tetrasexagesimal` / `6bit`                          | 4294967296 | `32bit`                                        |
+
 </details>
+
+Scroll [UP](#supported-numerical-bases "Scroll to start of section: Supported numerical bases")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ### Supported rounding types
 
@@ -288,6 +336,9 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
   </table>
 </details>
 
+Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ### Supported modulo types
 
 >
@@ -310,6 +361,9 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
     <tr style="background-color:#0f02"><td><code>EUCLID</code></td><td>euclidean division (positive remainder)</td></tr>
   </table>
 </details>
+
+Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 #### Modulo examples
 
@@ -346,6 +400,9 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 
 _more details/documentation in the file itself via js-docs (`/** */`) and additional commenting with `//~`_
 
+Scroll [UP](#supported-modulo-types "Scroll to start of section: Supported modulo types")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ## [BigIntFractionComplex.js](./BigIntFractionComplex.js)
 
 >
@@ -356,6 +413,9 @@ _more details/documentation in the file itself via js-docs (`/** */`) and additi
 
 ----
 
+Scroll [UP](#bigintfractioncomplexjs "Scroll to start of section: BigIntFractionComplex.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ## [functions.js](./functions.js)
 
 some useful math functions
@@ -363,6 +423,28 @@ some useful math functions
 >
 > also see [`other-projects/useful.js`](https://github.com/MAZ01001/other-projects#usefuljs)
 >
+
+- [`mapRange`](#maprange "Scroll to function: `mapRange`")
+- [`toPercent`](#topercent "Scroll to function: `toPercent`")
+- [`deg2rad`](#deg2rad "Scroll to function: `deg2rad`")
+- [`rad2deg`](#rad2deg "Scroll to function: `rad2deg`")
+- [`gcd`](#gcd "Scroll to function: `gcd`")
+- [`dec2frac`](#dec2frac "Scroll to function: `dec2frac`")
+- [`padNum`](#padnum "Scroll to function: `padNum`")
+- [`euclideanModulo`](#euclideanmodulo "Scroll to function: `euclideanModulo`")
+- [`randomRange`](#randomrange "Scroll to function: `randomRange`")
+- [`randomRangeInt`](#randomrangeint "Scroll to function: `randomRangeInt`")
+- [`divisionWithRest`](#divisionwithrest "Scroll to function: `divisionWithRest`")
+- [`randomBools`](#randombools "Scroll to function: `randomBools`")
+- [`rangeGenerator`](#rangegenerator "Scroll to function: `rangeGenerator`")
+- [`rng32bit`](#rng32bit "Scroll to function: `rng32bit`")
+- [`valueNoise`](#valuenoise "Scroll to function: `valueNoise`")
+  - [example render](#example-render "Scroll to section: example render")
+- [`sinAprx`](#sinaprx "Scroll to function: `sinAprx`")
+  - [testing performance](#testing-performance "Scroll to section: testing performance")
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ### `mapRange`
 
@@ -375,6 +457,9 @@ mapRange(3, 0, 1, 0, 100); //=> 300
 mapRange(3, 0, 1, 0, 100, true); //=> 100
 ```
 
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ### `toPercent`
 
 calculates the percentage of the given number within the given range
@@ -384,6 +469,9 @@ function toPercent(n: number, x: number, y: number): number
 toPercent(150, 100, 200); //=> 0.5 = 50%
 ```
 
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ### `deg2rad`
 
 converts the given angle from DEG to RAD
@@ -391,6 +479,9 @@ converts the given angle from DEG to RAD
 ```typescript
 function deg2rad(deg: number): number
 ```
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ### `rad2deg`
 
@@ -400,6 +491,9 @@ converts the given angle from RAD to DEG
 function rad2deg(rad: number): number
 ```
 
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ### `gcd`
 
 calculates the greatest common divisor of A and B (integers)
@@ -408,6 +502,9 @@ calculates the greatest common divisor of A and B (integers)
 function gcd(A: number, B: number): number
 gcd(45, 100); //=> 5 → (45/5)/(100/5) → 9/20
 ```
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ### `dec2frac`
 
@@ -424,6 +521,9 @@ function dec2frac(dec: number, loop_last?: number | undefined, max_den?: number 
 dec2frac(0.12, 2); //=> { a:0, b:4, c:33, i:0, r:"precision" } → 0+4/33 → 0.121212121212...
 ```
 
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ### `padNum`
 
 convert number to string with padding \
@@ -433,6 +533,9 @@ format: `[sign] [padded start ' '] [.] [padded end '0'] [e ~]`
 function padNum(n: number | string, first?: number | undefined, last?: number | undefined): string
 padNum("1.23e2", 3, 5); //=> "+  1.23000e2"
 ```
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ### `euclideanModulo`
 
@@ -444,6 +547,9 @@ $$\large a-\left(\lvert b\rvert\cdot\left\lfloor\dfrac{a}{\lvert b\rvert}\right\
 function euclideanModulo(a: number, b: number): number
 ```
 
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ### `randomRange`
 
 genarates a random number within given range (inclusive)
@@ -454,6 +560,9 @@ _gets a random number via `Math.random()` and assumes that this number is in ran
 function randomRange(min: number, max: number): number
 ```
 
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ### `randomRangeInt`
 
 genarates a random integer within given range (inclusive)
@@ -461,6 +570,9 @@ genarates a random integer within given range (inclusive)
 ```typescript
 function randomRangeInt(min: number, max: number): number
 ```
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ### `divisionWithRest`
 
@@ -475,6 +587,9 @@ divisionWithRest(5, 3); //=> [1, 2] → 1+2/3
 
 also see [`Math-Js/BigIntType.js : #calcDivRest`](https://github.com/MAZ01001/Math-Js/blob/ca71710d50a5fa57e5cb76410cc33df8c1e688d4/BigIntType.js#L1880 "Permalink to #calcDivRest method in Math-Js/BigIntType.js") for a solution with arbitrary-length-integers
 
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ### `randomBools`
 
 generate a set amount of random booleans \
@@ -485,6 +600,9 @@ function randomBools(amount?: number | undefined): Generator<boolean, any, unkno
 for(const rng of randomBools(3))console.log("%O",rng);
 ```
 
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ### `rangeGenerator`
 
 creates a generator for given range - iterable \
@@ -494,6 +612,9 @@ _use `Array.from()` to create a normal `number[]` array_
 function rangeGenerator(start: number, end: number, step?: number | undefined, overflow?: boolean | undefined): Generator<number, void, unknown>
 for(const odd of rangeGenerator(1, 100, 2))console.log(odd); //~ 1 3 5 .. 97 99
 ```
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ### `rng32bit`
 
@@ -506,6 +627,9 @@ rng32bit("seed")();            //=> 3595049765 [0 to 0xFFFFFFFF inclusive]
 rng32bit("seed")()/0xFFFFFFFF; //=> 0.8370377509475307 [0.0 to 1.0 inclusive]
 ```
 
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ### `valueNoise`
 
 calculates value noise for given coordinates \
@@ -515,6 +639,9 @@ _the output is allways the same for the same input_
 ```typescript
 function valueNoise(x: number, y: number): number
 ```
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 #### example render
 
@@ -541,6 +668,9 @@ document.body.style.backgroundImage = (() => {
 })();
 ```
 
+Scroll [UP](#valuenoise "Scroll to start of section: `valueNoise`")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
 ### `sinAprx`
 
 approximates `Math.sin()` \
@@ -549,6 +679,9 @@ _more accurate for numbers that result in numbers closer to `0`_
 ```typescript
 function sinAprx(x: number): number
 ```
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 #### testing performance
 
@@ -568,3 +701,6 @@ console.log(
     samples, (b - a).toFixed(4), ((b - a) / samples).toFixed(4), (c - b).toFixed(4), ((c - b) / samples).toFixed(4), ((c - b) / (b - a)).toFixed(4)
 );
 ```
+
+Scroll [UP](#sinaprx "Scroll to start of section: `sinAprx`")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
