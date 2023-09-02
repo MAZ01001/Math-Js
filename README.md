@@ -660,6 +660,8 @@ Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
 
 #### example render
 
+I used the following code to render the background on the [preview of my r/place overlay script](https://maz01001.github.io/rPlaceOverlays/preview "Open rPlaceOverlays preview page online")
+
 ```javascript
 const size = Object.freeze([1920, 1080]),
     exampleNoise = new ImageData(...size, {colorSpace: "srgb"});
