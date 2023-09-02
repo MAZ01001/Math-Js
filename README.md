@@ -321,19 +321,20 @@ Scroll [UP](#supported-numerical-bases "Scroll to start of section: Supported nu
 >
 
 <details open><summary>click to hide table</summary>
-  <table>
-    <tr><th>name</th><th>description</th><th>examples</th></tr>
-    <tr><td><code>NEAR_DOWN</code></td><td>round to nearest integer, towards -infinity</td><td style="font-family:consolas,monospace">+1.5 → +1 || -2.5 → -3</td></tr>
-    <tr><td><code>NEAR_UP</code></td><td>round to nearest integer, towards +infinity</td><td style="font-family:consolas,monospace">+1.5 → +2 || -2.5 → -2</td></tr>
-    <tr><td><code>NEAR_ZERO</code></td><td>round to nearest integer, towards zero</td><td style="font-family:consolas,monospace">+1.5 → +1 || -2.5 → -2</td></tr>
-    <tr style="background-color:#0f02"><td><code>NEAR_INF</code></td><td>round to nearest integer, away from zero</td><td style="font-family:consolas,monospace">+1.5 → +2 || -2.5 → -3</td></tr>
-    <tr><td><code>NEAR_EVEN</code></td><td>round to nearest even integer</td><td style="font-family:consolas,monospace">+1.5 → +2 || -2.5 → -2</td></tr>
-    <tr><td><code>NEAR_ODD</code></td><td>round to nearest odd integer</td><td style="font-family:consolas,monospace">+1.5 → +1 || -2.5 → -3</td></tr>
-    <tr><td><code>FLOOR</code></td><td>round down (towards -infinity)</td><td style="font-family:consolas,monospace">+1.x → +1 || -2.x → -3</td></tr>
-    <tr><td><code>CEIL</code></td><td>round up (towards +infinity)</td><td style="font-family:consolas,monospace">+1.x → +2 || -2.x → -2</td></tr>
-    <tr style="background-color:#0f01"><td><code>TRUNC</code></td><td>round down (towards zero)</td><td style="font-family:consolas,monospace">+1.x → +1 || -2.x → -2</td></tr>
-    <tr><td><code>RAISE</code></td><td>round up (away from zero)</td><td style="font-family:consolas,monospace">+1.x → +2 || -2.x → -3</td></tr>
-  </table>
+
+| name        | description                                 |                                     example                                      |
+| ----------- | ------------------------------------------- |:--------------------------------------------------------------------------------:|
+| `NEAR_DOWN` | round to nearest integer, towards -infinity |    $+1.5 \text{ → } +1$ <br/> $+2.5 \text{ → } +2$ <br/> $-2.5 \text{ → } -3$    |
+| `NEAR_UP`   | round to nearest integer, towards +infinity |    $+1.5 \text{ → } +2$ <br/> $+2.5 \text{ → } +3$ <br/> $-2.5 \text{ → } -2$    |
+| `NEAR_ZERO` | round to nearest integer, towards zero      |    $+1.5 \text{ → } +1$ <br/> $+2.5 \text{ → } +2$ <br/> $-2.5 \text{ → } -2$    |
+| `NEAR_INF`  | round to nearest integer, away from zero    |    $+1.5 \text{ → } +2$ <br/> $+2.5 \text{ → } +3$ <br/> $-2.5 \text{ → } -3$    |
+| `NEAR_EVEN` | round to nearest even integer               |    $+1.5 \text{ → } +2$ <br/> $+2.5 \text{ → } +2$ <br/> $-2.5 \text{ → } -2$    |
+| `NEAR_ODD`  | round to nearest odd integer                |    $+1.5 \text{ → } +1$ <br/> $+2.5 \text{ → } +3$ <br/> $-2.5 \text{ → } -3$    |
+| `FLOOR`     | round down (towards -infinity)              | $+1.\ast \text{ → } +1$ <br/> $+2.\ast \text{ → } +2$ <br/> $-2.\ast \text{ → } -3$ |
+| `CEIL`      | round up (towards +infinity)                | $+1.\ast \text{ → } +2$ <br/> $+2.\ast \text{ → } +3$ <br/> $-2.\ast \text{ → } -2$ |
+| `TRUNC`     | round down (towards zero)                   | $+1.\ast \text{ → } +1$ <br/> $+2.\ast \text{ → } +2$ <br/> $-2.\ast \text{ → } -2$ |
+| `RAISE`     | round up (away from zero)                   | $+1.\ast \text{ → } +2$ <br/> $+2.\ast \text{ → } +3$ <br/> $-2.\ast \text{ → } -3$ |
+
 </details>
 
 Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
@@ -346,20 +347,21 @@ Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
 >
 
 <details open><summary>click to hide table</summary>
-  <table>
-    <tr><th>name</th><th> description</th></tr>
-    <tr><td><code>ROUND_NEAR_DOWN</code></td><td>division rounded towards -infinity</td></tr>
-    <tr><td><code>ROUND_NEAR_UP</code></td><td>division rounded towards +infinity</td></tr>
-    <tr><td><code>ROUND_NEAR_ZERO</code></td><td>division rounded towards zero</td></tr>
-    <tr><td><code>ROUND_NEAR_INF</code></td><td>division rounded away from zero</td></tr>
-    <tr><td><code>ROUND_NEAR_EVEN</code></td><td>division rounded to nearest even integer</td></tr>
-    <tr><td><code>ROUND_NEAR_ODD</code></td><td>division rounded to nearest odd integer</td></tr>
-    <tr><td><code>FLOOR</code></td><td>floored division (towards -infinity)</td></tr>
-    <tr><td><code>CEIL</code></td><td>ceiled division (towards +infinity)</td></tr>
-    <tr style="background-color:#0f01"><td><code>TRUNC</code></td><td>truncated division (towards zero)</td></tr>
-    <tr><td><code>RAISE</code></td><td>raised division (away from zero)</td></tr>
-    <tr style="background-color:#0f02"><td><code>EUCLID</code></td><td>euclidean division (positive remainder)</td></tr>
-  </table>
+
+| name              | description                              |
+| ----------------- | ---------------------------------------- |
+| `ROUND_NEAR_DOWN` | division rounded towards -infinity       |
+| `ROUND_NEAR_UP`   | division rounded towards +infinity       |
+| `ROUND_NEAR_ZERO` | division rounded towards zero            |
+| `ROUND_NEAR_INF`  | division rounded away from zero          |
+| `ROUND_NEAR_EVEN` | division rounded to nearest even integer |
+| `ROUND_NEAR_ODD`  | division rounded to nearest odd integer  |
+| `FLOOR`           | floored division (towards -infinity)     |
+| `CEIL`            | ceiled division (towards +infinity)      |
+| `TRUNC`           | truncated division (towards zero)        |
+| `RAISE`           | raised division (away from zero)         |
+| `EUCLID`          | euclidean division (positive remainder)  |
+
 </details>
 
 Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
@@ -368,34 +370,47 @@ Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
 #### Modulo examples
 
 <details closed><summary>click to show table</summary>
-  <table style="font-family:consolas,monospace;text-align:center">
-    <tr><th>A % B</th><th style="background-color:#0f01">trunc</th><th>floor</th><th style="background-color:#0f02">euclid</th><th style="text-align:inherit">round</th><th>ceil</th><th>raise</th></tr>
-    <tr><td colspan="7"><b>3 % 5 → 3 / 5 = 0 + 3 / 5 → round up</b></td></tr>
-    <tr><td>+3 +5</td><td style="background-color:#0f01">+3</td><td>+3</td><td style="background-color:#0f02">+3</td><td>-2</td><td>-2</td><td>-2</td></tr>
-    <tr><td>+3 -5</td><td style="background-color:#0f01">+3</td><td>-2</td><td style="background-color:#0f02">+3</td><td>-2</td><td>+3</td><td>-2</td></tr>
-    <tr><td>-3 +5</td><td style="background-color:#0f01">-3</td><td>+2</td><td style="background-color:#0f02">+2</td><td>+2</td><td>-3</td><td>+2</td></tr>
-    <tr><td>-3 -5</td><td style="background-color:#0f01">-3</td><td>-3</td><td style="background-color:#0f02">+2</td><td>+2</td><td>+2</td><td>+2</td></tr>
-    <tr><td colspan="7"><b>5 % 3 → 5 / 3 = 1 + 2 / 3 → round up</b></td></tr>
-    <tr><td>+5 +3</td><td style="background-color:#0f01">+2</td><td>+2</td><td style="background-color:#0f02">+2</td><td>-1</td><td>-1</td><td>-1</td></tr>
-    <tr><td>+5 -3</td><td style="background-color:#0f01">+2</td><td>-1</td><td style="background-color:#0f02">+2</td><td>-1</td><td>+2</td><td>-1</td></tr>
-    <tr><td>-5 +3</td><td style="background-color:#0f01">-2</td><td>+1</td><td style="background-color:#0f02">+1</td><td>+1</td><td>-2</td><td>+1</td></tr>
-    <tr><td>-5 -3</td><td style="background-color:#0f01">-2</td><td>-2</td><td style="background-color:#0f02">+1</td><td>+1</td><td>+1</td><td>+1</td></tr>
-    <tr><td colspan="7"><b>4 % 3 → 4 / 3 = 1 + 1 / 3 → round down</b></td></tr>
-    <tr><td>+4 +3</td><td style="background-color:#0f01">+1</td><td>+1</td><td style="background-color:#0f02">+1</td><td>+1</td><td>-2</td><td>-2</td></tr>
-    <tr><td>+4 -3</td><td style="background-color:#0f01">+1</td><td>-2</td><td style="background-color:#0f02">+1</td><td>+1</td><td>+1</td><td>-2</td></tr>
-    <tr><td>-4 +3</td><td style="background-color:#0f01">-1</td><td>+2</td><td style="background-color:#0f02">+2</td><td>-1</td><td>-1</td><td>+2</td></tr>
-    <tr><td>-4 -3</td><td style="background-color:#0f01">-1</td><td>-1</td><td style="background-color:#0f02">+2</td><td>-1</td><td>+2</td><td>+2</td></tr>
-    <tr><td colspan="7"><b>3 % 2 → 3 / 2 = 1 + 1 / 2 → round (depends on type)</b></td></tr>
-    <tr><td>+3 +2</td><td style="background-color:#0f01">+1</td><td>+1</td><td style="background-color:#0f02">+1</td><td>-1 ↑ ↓ +1</td><td>-1</td><td>-1</td></tr>
-    <tr><td>+3 -2</td><td style="background-color:#0f01">+1</td><td>-1</td><td style="background-color:#0f02">+1</td><td>-1 ↑ ↓ +1</td><td>+1</td><td>-1</td></tr>
-    <tr><td>-3 +2</td><td style="background-color:#0f01">-1</td><td>+1</td><td style="background-color:#0f02">+1</td><td>+1 ↑ ↓ -1</td><td>-1</td><td>+1</td></tr>
-    <tr><td>-3 -2</td><td style="background-color:#0f01">-1</td><td>-1</td><td style="background-color:#0f02">+1</td><td>+1 ↑ ↓ -1</td><td>+1</td><td>+1</td></tr>
-    <tr><td colspan="7"><b>3 % 3 → 3 / 3 = 1 + 0 / 3 → round 0 (default down)</b></td></tr>
-    <tr><td>+3 +3</td><td style="background-color:#0f01">+0</td><td>+0</td><td style="background-color:#0f02">+0</td><td>+0</td><td>-0</td><td>-0</td></tr>
-    <tr><td>+3 -3</td><td style="background-color:#0f01">+0</td><td>-0</td><td style="background-color:#0f02">+0</td><td>+0</td><td>+0</td><td>-0</td></tr>
-    <tr><td>-3 +3</td><td style="background-color:#0f01">-0</td><td>+0</td><td style="background-color:#0f02">+0</td><td>-0</td><td>-0</td><td>+0</td></tr>
-    <tr><td>-3 -3</td><td style="background-color:#0f01">-0</td><td>-0</td><td style="background-color:#0f02">+0</td><td>-0</td><td>+0</td><td>+0</td></tr>
-  </table>
+
+$\large 3 \bmod 5 \rightarrow \dfrac{3}{5} = 0\dfrac{3}{5} = 0.6 \rightarrow \text{round up}$
+|               | trunc | floor | euclid | round | ceil | raise |
+|:-------------:| -----:| -----:| ------:| -----:| ----:| -----:|
+| $+3 \bmod +5$ |  $+3$ |  $+3$ |   $+3$ |  $-2$ | $-2$ |  $-2$ |
+| $+3 \bmod -5$ |  $+3$ |  $-2$ |   $+3$ |  $-2$ | $+3$ |  $-2$ |
+| $-3 \bmod +5$ |  $-3$ |  $+2$ |   $+2$ |  $+2$ | $-3$ |  $+2$ |
+| $-3 \bmod -5$ |  $-3$ |  $-3$ |   $+2$ |  $+2$ | $+2$ |  $+2$ |
+
+$\large 5 \bmod 3 \rightarrow \dfrac{5}{3} = 1\dfrac{2}{3} = 1.\overline{6} \rightarrow \text{round up}$
+|               | trunc | floor | euclid | round | ceil | raise |
+|:-------------:| -----:| -----:| ------:| -----:| ----:| -----:|
+| $+5 \bmod +3$ |  $+2$ |  $+2$ |   $+2$ |  $-1$ | $-1$ |  $-1$ |
+| $+5 \bmod -3$ |  $+2$ |  $-1$ |   $+2$ |  $-1$ | $+2$ |  $-1$ |
+| $-5 \bmod +3$ |  $-2$ |  $+1$ |   $+1$ |  $+1$ | $-2$ |  $+1$ |
+| $-5 \bmod -3$ |  $-2$ |  $-2$ |   $+1$ |  $+1$ | $+1$ |  $+1$ |
+
+$\large 4 \bmod 3 \rightarrow \dfrac{4}{3} = 1\dfrac{1}{3} = 1.\overline{3} \rightarrow \text{round down}$
+|               | trunc | floor | euclid | round | ceil | raise |
+|:-------------:| -----:| -----:| ------:| -----:| ----:| -----:|
+| $+4 \bmod +3$ |  $+1$ |  $+1$ |   $+1$ |  $+1$ | $-2$ |  $-2$ |
+| $+4 \bmod -3$ |  $+1$ |  $-2$ |   $+1$ |  $+1$ | $+1$ |  $-2$ |
+| $-4 \bmod +3$ |  $-1$ |  $+2$ |   $+2$ |  $-1$ | $-1$ |  $+2$ |
+| $-4 \bmod -3$ |  $-1$ |  $-1$ |   $+2$ |  $-1$ | $+2$ |  $+2$ |
+
+$\large 3 \bmod 2 \rightarrow \dfrac{3}{2} = 1\dfrac{1}{2} = 1.5 \rightarrow \text{round down or up }\normalsize\text{(depending on rounding type)}$
+|               | trunc | floor | euclid |                       round                       | ceil | raise |
+|:-------------:| -----:| -----:| ------:|:-------------------------------------------------:| ----:| -----:|
+| $+3 \bmod +2$ |  $+1$ |  $+1$ |   $+1$ | $\lfloor -1 \rfloor \text{ or } \lceil +1 \rceil$ | $-1$ |  $-1$ |
+| $+3 \bmod -2$ |  $+1$ |  $-1$ |   $+1$ | $\lfloor -1 \rfloor \text{ or } \lceil +1 \rceil$ | $+1$ |  $-1$ |
+| $-3 \bmod +2$ |  $-1$ |  $+1$ |   $+1$ | $\lfloor +1 \rfloor \text{ or } \lceil -1 \rceil$ | $-1$ |  $+1$ |
+| $-3 \bmod -2$ |  $-1$ |  $-1$ |   $+1$ | $\lfloor +1 \rfloor \text{ or } \lceil -1 \rceil$ | $+1$ |  $+1$ |
+
+$\large 3 \bmod 3 \rightarrow \dfrac{3}{3} = 1\dfrac{0}{3} = 1.0 \rightarrow \text{round 0 }\normalsize\text{(same as rounding down)}$
+|               | trunc | floor | euclid | round | ceil | raise |
+|:-------------:| -----:| -----:| ------:| -----:| ----:| -----:|
+| $+3 \bmod +3$ |  $+0$ |  $+0$ |   $+0$ |  $+0$ | $-0$ |  $-0$ |
+| $+3 \bmod -3$ |  $+0$ |  $-0$ |   $+0$ |  $+0$ | $+0$ |  $-0$ |
+| $-3 \bmod +3$ |  $-0$ |  $+0$ |   $+0$ |  $-0$ | $-0$ |  $+0$ |
+| $-3 \bmod -3$ |  $-0$ |  $-0$ |   $+0$ |  $-0$ | $+0$ |  $+0$ |
+
 </details>
 
 _more details/documentation in the file itself via js-docs (`/** */`) and additional commenting with `//~`_
