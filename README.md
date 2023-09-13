@@ -6,31 +6,31 @@
 - [Vector.js](#vectorjs)
 - [ComplexNumber.js](#complexnumberjs)
 - [BigIntType.js](#biginttypejs)
-  - [Supported numerical bases](#supported-numerical-bases "Scroll to section: Supported numerical bases")
-    - [Supported numerical base names](#supported-numerical-base-names "Scroll to section: Supported numerical base names")
-  - [Supported rounding types](#supported-rounding-types "Scroll to section: Supported rounding types")
-  - [Supported modulo types](#supported-modulo-types "Scroll to section: Supported modulo types")
-    - [Modulo examples](#modulo-examples "Scroll to section: Modulo examples")
+  - [Supported numerical bases](#biginttype-supported-numerical-bases "Scroll to section: [BigIntType] Supported numerical bases")
+    - [Supported numerical base names](#biginttype-supported-numerical-base-names "Scroll to section: [BigIntType] Supported numerical base names")
+  - [Supported rounding types](#biginttype-supported-rounding-types "Scroll to section: [BigIntType] Supported rounding types")
+  - [Supported modulo types](#biginttype-supported-modulo-types "Scroll to section: [BigIntType] Supported modulo types")
+    - [Modulo examples](#biginttype-modulo-examples "Scroll to section: [BigIntType] Modulo examples")
 - [BigIntFractionComplex.js](#bigintfractioncomplexjs)
 - [functions.js](#functionsjs)
-  - [`mapRange`](#maprange "Scroll to function: `mapRange`")
-  - [`toPercent`](#topercent "Scroll to function: `toPercent`")
-  - [`deg2rad`](#deg2rad "Scroll to function: `deg2rad`")
-  - [`rad2deg`](#rad2deg "Scroll to function: `rad2deg`")
-  - [`gcd`](#gcd "Scroll to function: `gcd`")
-  - [`dec2frac`](#dec2frac "Scroll to function: `dec2frac`")
-  - [`padNum`](#padnum "Scroll to function: `padNum`")
-  - [`euclideanModulo`](#euclideanmodulo "Scroll to function: `euclideanModulo`")
-  - [`randomRange`](#randomrange "Scroll to function: `randomRange`")
-  - [`randomRangeInt`](#randomrangeint "Scroll to function: `randomRangeInt`")
-  - [`divisionWithRest`](#divisionwithrest "Scroll to function: `divisionWithRest`")
-  - [`randomBools`](#randombools "Scroll to function: `randomBools`")
-  - [`rangeGenerator`](#rangegenerator "Scroll to function: `rangeGenerator`")
-  - [`rng32bit`](#rng32bit "Scroll to function: `rng32bit`")
-  - [`valueNoise`](#valuenoise "Scroll to function: `valueNoise`")
-    - [example render](#example-render "Scroll to section: example render")
-  - [`sinAprx`](#sinaprx "Scroll to function: `sinAprx`")
-    - [testing performance](#testing-performance "Scroll to section: testing performance")
+  - [`mapRange`](#functions-maprange "Scroll to section: [functions] `mapRange`")
+  - [`toPercent`](#functions-topercent "Scroll to section: [functions] `toPercent`")
+  - [`deg2rad`](#functions-deg2rad "Scroll to section: [functions] `deg2rad`")
+  - [`rad2deg`](#functions-rad2deg "Scroll to section: [functions] `rad2deg`")
+  - [`gcd`](#functions-gcd "Scroll to section: [functions] `gcd`")
+  - [`dec2frac`](#functions-dec2frac "Scroll to section: [functions] `dec2frac`")
+  - [`padNum`](#functions-padnum "Scroll to section: [functions] `padNum`")
+  - [`euclideanModulo`](#functions-euclideanmodulo "Scroll to section: [functions] `euclideanModulo`")
+  - [`randomRange`](#functions-randomrange "Scroll to section: [functions] `randomRange`")
+  - [`randomRangeInt`](#functions-randomrangeint "Scroll to section: [functions] `randomRangeInt`")
+  - [`divisionWithRest`](#functions-divisionwithrest "Scroll to section: [functions] `divisionWithRest`")
+  - [`randomBools`](#functions-randombools "Scroll to section: [functions] `randomBools`")
+  - [`rangeGenerator`](#functions-rangegenerator "Scroll to section: [functions] `rangeGenerator`")
+  - [`rng32bit`](#functions-rng32bit "Scroll to section: [functions] `rng32bit`")
+  - [`valueNoise`](#functions-valuenoise "Scroll to section: [functions] `valueNoise`")
+    - [example render](#functions-valuenoise-example-render "Scroll to section: [functions: `valueNoise`] example render")
+  - [`sinAprx`](#functions-sinaprx "Scroll to section: [functions] `sinAprx`")
+    - [testing performance](#functions-sinaprx-testing-performance "Scroll to section: [functions: `sinAprx`] testing performance")
 
 ## [Polynomial.js](./Polynomial.js)
 
@@ -192,7 +192,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 - internal values: `sign:Boolean` / `digits:Uint8Array` (base 256 digits) / `length:Number` (length of digit-array)
 - during [JS type coercion](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#type_coercion "MDN reference on type coercion in JS"), it converts to `BigInt` by default or in the context of numbers and to (base 16) `String` when used in the context of strings
 - conversions to `toBigInt()` / `ToNumber()` / `ToString(base)`
-- can be created from, and converted to, different [bases](#supported-numerical-bases "see all supported bases")
+- can be created from, and converted to, different [bases](#biginttype-supported-numerical-bases "see all supported bases")
 - encode `toURL()` / `fromURL()`
 - comparisons:
   - `isOdd()` / `isEven()`
@@ -208,21 +208,21 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
   - operations:
     - `++A` / `--A` / `A += B` / `A -= B`
     - `A *= B` using karatsubas algorithm / `A **= B`
-    - `A /= B` with [rounding](#supported-rounding-types "see supported rounding types") / `A %= B` with [rounding](#supported-modulo-types "see supported modulo types")
-    - `A *= 2` / `A /= 2` with [rounding](#supported-rounding-types "see supported rounding types")
-    - `A *= (256 ** x)` with [rounding](#supported-rounding-types "see supported rounding types") - (digit-shifts)
+    - `A /= B` with [rounding](#biginttype-supported-rounding-types "see supported rounding types") / `A %= B` with [rounding](#biginttype-supported-modulo-types "see supported modulo types")
+    - `A *= 2` / `A /= 2` with [rounding](#biginttype-supported-rounding-types "see supported rounding types")
+    - `A *= (256 ** x)` with [rounding](#biginttype-supported-rounding-types "see supported rounding types") - (digit-shifts)
     - `A **= 2` / `A **= 3`
   - bitwise operations:
     - `A >>>= x` / `A <<= x` / `A &= B` / `A |= B` / `A ^= B` / `A ~= A`
   - `GCD(A, B)`
-  - `mapRange(a, b, a2, b2)` with [rounding](#supported-rounding-types "see supported rounding types") and limit (cap at a2 / b2)
+  - `mapRange(a, b, a2, b2)` with [rounding](#biginttype-supported-rounding-types "see supported rounding types") and limit (cap at a2 / b2)
 - `randomInt(min, max)` (using `Math.random()`)
 - _↑ (`A` and `B` are type `BigIntType` and `x` is type `Number`) ↑_
 
 Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### Supported numerical bases
+### [BigIntType] Supported numerical bases
 
 >
 > ALL YOUR BASE ARE BELONG TO US
@@ -245,7 +245,7 @@ Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
 Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-#### Supported numerical base names
+#### [BigIntType] Supported numerical base names
 
 >
 > [Wikipedia: Numerical Bases](https://en.wikipedia.org/wiki/List_of_numeral_systems#Standard_positional_numeral_systems)
@@ -311,10 +311,10 @@ Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
 
 </details>
 
-Scroll [UP](#supported-numerical-bases "Scroll to start of section: Supported numerical bases")
+Scroll [UP](#biginttype-supported-numerical-bases "Scroll to start of section: [BigIntType] Supported numerical bases")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### Supported rounding types
+### [BigIntType] Supported rounding types
 
 >
 > [![Wikipedia: Rounding (interactible graph)](https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Comparison_rounding_graphs_SMIL.svg/300px-Comparison_rounding_graphs_SMIL.svg.png "Wikipedia: Rounding (interactible graph)")](https://en.wikipedia.org/wiki/Rounding)
@@ -340,7 +340,7 @@ Scroll [UP](#supported-numerical-bases "Scroll to start of section: Supported nu
 Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### Supported modulo types
+### [BigIntType] Supported modulo types
 
 >
 > [Wikipedia: Modulo](https://en.wikipedia.org/wiki/Modulo)
@@ -367,7 +367,7 @@ Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
 Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-#### Modulo examples
+#### [BigIntType] Modulo examples
 
 <details closed><summary>click to show table</summary>
 
@@ -415,7 +415,7 @@ $\large 3 \bmod 3 \rightarrow \dfrac{3}{3} = 1\dfrac{0}{3} = 1.0 \rightarrow \te
 
 _more details/documentation in the file itself via js-docs (`/** */`) and additional commenting with `//~`_
 
-Scroll [UP](#supported-modulo-types "Scroll to start of section: Supported modulo types")
+Scroll [UP](#biginttype-supported-modulo-types "Scroll to start of section: [BigIntType] Supported modulo types")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ## [BigIntFractionComplex.js](./BigIntFractionComplex.js)
@@ -439,29 +439,29 @@ some useful math functions
 > also see [`other-projects/useful.js`](https://github.com/MAZ01001/other-projects#usefuljs)
 >
 
-- [`mapRange`](#maprange "Scroll to function: `mapRange`")
-- [`toPercent`](#topercent "Scroll to function: `toPercent`")
-- [`deg2rad`](#deg2rad "Scroll to function: `deg2rad`")
-- [`rad2deg`](#rad2deg "Scroll to function: `rad2deg`")
-- [`gcd`](#gcd "Scroll to function: `gcd`")
-- [`dec2frac`](#dec2frac "Scroll to function: `dec2frac`")
-- [`padNum`](#padnum "Scroll to function: `padNum`")
-- [`euclideanModulo`](#euclideanmodulo "Scroll to function: `euclideanModulo`")
-- [`randomRange`](#randomrange "Scroll to function: `randomRange`")
-- [`randomRangeInt`](#randomrangeint "Scroll to function: `randomRangeInt`")
-- [`divisionWithRest`](#divisionwithrest "Scroll to function: `divisionWithRest`")
-- [`randomBools`](#randombools "Scroll to function: `randomBools`")
-- [`rangeGenerator`](#rangegenerator "Scroll to function: `rangeGenerator`")
-- [`rng32bit`](#rng32bit "Scroll to function: `rng32bit`")
-- [`valueNoise`](#valuenoise "Scroll to function: `valueNoise`")
-  - [example render](#example-render "Scroll to section: example render")
-- [`sinAprx`](#sinaprx "Scroll to function: `sinAprx`")
-  - [testing performance](#testing-performance "Scroll to section: testing performance")
+- [[functions] `mapRange`](#functions-maprange "Scroll to section: [functions] `mapRange`")
+- [[functions] `toPercent`](#functions-topercent "Scroll to section: [functions] `toPercent`")
+- [[functions] `deg2rad`](#functions-deg2rad "Scroll to section: [functions] `deg2rad`")
+- [[functions] `rad2deg`](#functions-rad2deg "Scroll to section: [functions] `rad2deg`")
+- [[functions] `gcd`](#functions-gcd "Scroll to section: [functions] `gcd`")
+- [[functions] `dec2frac`](#functions-dec2frac "Scroll to section: [functions] `dec2frac`")
+- [[functions] `padNum`](#functions-padnum "Scroll to section: [functions] `padNum`")
+- [[functions] `euclideanModulo`](#functions-euclideanmodulo "Scroll to section: [functions] `euclideanModulo`")
+- [[functions] `randomRange`](#functions-randomrange "Scroll to section: [functions] `randomRange`")
+- [[functions] `randomRangeInt`](#functions-randomrangeint "Scroll to section: [functions] `randomRangeInt`")
+- [[functions] `divisionWithRest`](#functions-divisionwithrest "Scroll to section: [functions] `divisionWithRest`")
+- [[functions] `randomBools`](#functions-randombools "Scroll to section: [functions] `randomBools`")
+- [[functions] `rangeGenerator`](#functions-rangegenerator "Scroll to section: [functions] `rangeGenerator`")
+- [[functions] `rng32bit`](#functions-rng32bit "Scroll to section: [functions] `rng32bit`")
+- [[functions] `valueNoise`](#functions-valuenoise "Scroll to section: [functions] `valueNoise`")
+  - [[functions: `valueNoise`] example render](#functions-valuenoise-example-render "Scroll to section: [functions: `valueNoise`] example render")
+- [[functions] `sinAprx`](#functions-sinaprx "Scroll to section: [functions] `sinAprx`")
+  - [[functions: `sinAprx`] testing performance](#functions-sinaprx-testing-performance "Scroll to section: [functions: `sinAprx`] testing performance")
 
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `mapRange`
+### [functions] `mapRange`
 
 translate the given number to another range
 
@@ -475,7 +475,7 @@ mapRange(3, 0, 1, 0, 100, true); //=> 100
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `toPercent`
+### [functions] `toPercent`
 
 calculates the percentage of the given number within the given range
 
@@ -487,7 +487,7 @@ toPercent(150, 100, 200); //=> 0.5 = 50%
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `deg2rad`
+### [functions] `deg2rad`
 
 converts the given angle from DEG to RAD
 
@@ -498,7 +498,7 @@ function deg2rad(deg: number): number
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `rad2deg`
+### [functions] `rad2deg`
 
 converts the given angle from RAD to DEG
 
@@ -509,7 +509,7 @@ function rad2deg(rad: number): number
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `gcd`
+### [functions] `gcd`
 
 calculates the greatest common divisor of A and B (integers)
 
@@ -521,7 +521,7 @@ gcd(45, 100); //=> 5 → (45/5)/(100/5) → 9/20
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `dec2frac`
+### [functions] `dec2frac`
 
 converts a decimal number to an improper-fraction (rough estimation)
 
@@ -539,7 +539,7 @@ dec2frac(0.12, 2); //=> { a:0, b:4, c:33, i:0, r:"precision" } → 0+4/33 → 0.
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `padNum`
+### [functions] `padNum`
 
 convert number to string with padding \
 format: `[sign] [padded start ' '] [.] [padded end '0'] [e ~]`
@@ -552,7 +552,7 @@ padNum("1.23e2", 3, 5); //=> "+  1.23000e2"
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `euclideanModulo`
+### [functions] `euclideanModulo`
 
 calculates the modulo of two whole numbers (euclidean division)
 
@@ -565,7 +565,7 @@ function euclideanModulo(a: number, b: number): number
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `randomRange`
+### [functions] `randomRange`
 
 genarates a random number within given range (inclusive)
 
@@ -578,7 +578,7 @@ function randomRange(min: number, max: number): number
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `randomRangeInt`
+### [functions] `randomRangeInt`
 
 genarates a random integer within given range (inclusive)
 
@@ -589,7 +589,7 @@ function randomRangeInt(min: number, max: number): number
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `divisionWithRest`
+### [functions] `divisionWithRest`
 
 division with two unsigned numbers
 
@@ -605,7 +605,7 @@ also see [`Math-Js/BigIntType.js : #calcDivRest`](https://github.com/MAZ01001/Ma
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `randomBools`
+### [functions] `randomBools`
 
 generate a set amount of random booleans \
 _generator function_
@@ -618,7 +618,7 @@ for(const rng of randomBools(3))console.log("%O",rng);
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `rangeGenerator`
+### [functions] `rangeGenerator`
 
 creates a generator for given range - iterable \
 _use `Array.from()` to create a normal `number[]` array_
@@ -631,7 +631,7 @@ for(const odd of rangeGenerator(1, 100, 2))console.log(odd); //~ 1 3 5 .. 97 99
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `rng32bit`
+### [functions] `rng32bit`
 
 get a function to get random numbers like Math.random but from a given seed \
 _uses `MurmurHash3` for seeding and `sfc32` for generating 32bit values_
@@ -645,7 +645,7 @@ rng32bit("seed")()/0xFFFFFFFF; //=> 0.8370377509475307 [0.0 to 1.0 inclusive]
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `valueNoise`
+### [functions] `valueNoise`
 
 calculates value noise for given coordinates \
 uses quintic interpolation for mixing numbers, and a quick (non-cryptographic) hash function to get random noise from coordinates \
@@ -658,7 +658,7 @@ function valueNoise(x: number, y: number): number
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-#### example render
+#### [functions: `valueNoise`] example render
 
 I used the following code to render the background on the [preview of my r/place overlay script](https://maz01001.github.io/rPlaceOverlays/preview "Open rPlaceOverlays preview page online")
 
@@ -685,10 +685,10 @@ document.body.style.backgroundImage = (() => {
 })();
 ```
 
-Scroll [UP](#valuenoise "Scroll to start of section: `valueNoise`")
+Scroll [UP](#functions-valuenoise "Scroll to start of section: [functions] `valueNoise`")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-### `sinAprx`
+### [functions] `sinAprx`
 
 approximates `Math.sin()` \
 _more accurate for numbers that result in numbers closer to `0`_
@@ -700,7 +700,7 @@ function sinAprx(x: number): number
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
-#### testing performance
+#### [functions: `sinAprx`] testing performance
 
 ```javascript
 // → at around 42'000 calls it's slightly faster that `Math.sin()` and at 10'000'000 calls it's around 8 times faster (on my machine via nodejs)
@@ -719,5 +719,5 @@ console.log(
 );
 ```
 
-Scroll [UP](#sinaprx "Scroll to start of section: `sinAprx`")
+Scroll [UP](#functions-sinaprx "Scroll to start of section: [functions] `sinAprx`")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
