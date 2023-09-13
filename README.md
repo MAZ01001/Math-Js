@@ -32,6 +32,8 @@
   - [`sinAprx`](#functions-sinaprx "Scroll to section: [functions] `sinAprx`")
     - [testing performance](#functions-sinaprx-testing-performance "Scroll to section: [functions: `sinAprx`] testing performance")
 
+----
+
 ## [Polynomial.js](./Polynomial.js)
 
 >
