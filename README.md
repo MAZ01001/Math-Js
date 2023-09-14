@@ -326,16 +326,16 @@ Scroll [UP](#biginttype-supported-numerical-bases "Scroll to start of section: [
 
 | name        | description                                 |                                     example                                      |
 | ----------- | ------------------------------------------- |:--------------------------------------------------------------------------------:|
-| `NEAR_DOWN` | round to nearest integer, towards -infinity |    $+1.5 \text{ → } +1$ <br/> $+2.5 \text{ → } +2$ <br/> $-2.5 \text{ → } -3$    |
-| `NEAR_UP`   | round to nearest integer, towards +infinity |    $+1.5 \text{ → } +2$ <br/> $+2.5 \text{ → } +3$ <br/> $-2.5 \text{ → } -2$    |
-| `NEAR_ZERO` | round to nearest integer, towards zero      |    $+1.5 \text{ → } +1$ <br/> $+2.5 \text{ → } +2$ <br/> $-2.5 \text{ → } -2$    |
-| `NEAR_INF`  | round to nearest integer, away from zero    |    $+1.5 \text{ → } +2$ <br/> $+2.5 \text{ → } +3$ <br/> $-2.5 \text{ → } -3$    |
-| `NEAR_EVEN` | round to nearest even integer               |    $+1.5 \text{ → } +2$ <br/> $+2.5 \text{ → } +2$ <br/> $-2.5 \text{ → } -2$    |
-| `NEAR_ODD`  | round to nearest odd integer                |    $+1.5 \text{ → } +1$ <br/> $+2.5 \text{ → } +3$ <br/> $-2.5 \text{ → } -3$    |
-| `FLOOR`     | round down (towards -infinity)              | $+1.\ast \text{ → } +1$ <br/> $+2.\ast \text{ → } +2$ <br/> $-2.\ast \text{ → } -3$ |
-| `CEIL`      | round up (towards +infinity)                | $+1.\ast \text{ → } +2$ <br/> $+2.\ast \text{ → } +3$ <br/> $-2.\ast \text{ → } -2$ |
-| `TRUNC`     | round down (towards zero)                   | $+1.\ast \text{ → } +1$ <br/> $+2.\ast \text{ → } +2$ <br/> $-2.\ast \text{ → } -2$ |
-| `RAISE`     | round up (away from zero)                   | $+1.\ast \text{ → } +2$ <br/> $+2.\ast \text{ → } +3$ <br/> $-2.\ast \text{ → } -3$ |
+| `NEAR_DOWN` | round to nearest integer, towards -infinity |    $+1.5 \text{ → } +1$ <br> $+2.5 \text{ → } +2$ <br> $-2.5 \text{ → } -3$    |
+| `NEAR_UP`   | round to nearest integer, towards +infinity |    $+1.5 \text{ → } +2$ <br> $+2.5 \text{ → } +3$ <br> $-2.5 \text{ → } -2$    |
+| `NEAR_ZERO` | round to nearest integer, towards zero      |    $+1.5 \text{ → } +1$ <br> $+2.5 \text{ → } +2$ <br> $-2.5 \text{ → } -2$    |
+| `NEAR_INF`  | round to nearest integer, away from zero    |    $+1.5 \text{ → } +2$ <br> $+2.5 \text{ → } +3$ <br> $-2.5 \text{ → } -3$    |
+| `NEAR_EVEN` | round to nearest even integer               |    $+1.5 \text{ → } +2$ <br> $+2.5 \text{ → } +2$ <br> $-2.5 \text{ → } -2$    |
+| `NEAR_ODD`  | round to nearest odd integer                |    $+1.5 \text{ → } +1$ <br> $+2.5 \text{ → } +3$ <br> $-2.5 \text{ → } -3$    |
+| `FLOOR`     | round down (towards -infinity)              | $+1.\ast \text{ → } +1$ <br> $+2.\ast \text{ → } +2$ <br> $-2.\ast \text{ → } -3$ |
+| `CEIL`      | round up (towards +infinity)                | $+1.\ast \text{ → } +2$ <br> $+2.\ast \text{ → } +3$ <br> $-2.\ast \text{ → } -2$ |
+| `TRUNC`     | round down (towards zero)                   | $+1.\ast \text{ → } +1$ <br> $+2.\ast \text{ → } +2$ <br> $-2.\ast \text{ → } -2$ |
+| `RAISE`     | round up (away from zero)                   | $+1.\ast \text{ → } +2$ <br> $+2.\ast \text{ → } +3$ <br> $-2.\ast \text{ → } -3$ |
 
 </details>
 
