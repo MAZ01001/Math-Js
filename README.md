@@ -31,6 +31,7 @@
     - [example render](#functions-valuenoise-example-render "Scroll to section: [functions: `valueNoise`] example render")
   - [`sinAprx`](#functions-sinaprx "Scroll to section: [functions] `sinAprx`")
     - [testing performance](#functions-sinaprx-testing-performance "Scroll to section: [functions: `sinAprx`] testing performance")
+  - [`factorial`](#functions-factorial "Scroll to section: [functions] `factorial`")
 
 ----
 
@@ -459,6 +460,7 @@ some useful math functions
   - [[functions: `valueNoise`] example render](#functions-valuenoise-example-render "Scroll to section: [functions: `valueNoise`] example render")
 - [[functions] `sinAprx`](#functions-sinaprx "Scroll to section: [functions] `sinAprx`")
   - [[functions: `sinAprx`] testing performance](#functions-sinaprx-testing-performance "Scroll to section: [functions: `sinAprx`] testing performance")
+- [[functions] `factorial`](#functions-factorial "Scroll to section: [functions] `factorial`")
 
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
@@ -723,4 +725,19 @@ console.log(
 ```
 
 Scroll [UP](#functions-sinaprx "Scroll to start of section: [functions] `sinAprx`")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
+### [functions] `factorial`
+
+calculates the factorial of a (non-zero positive `bigint`) number
+
+```typescript
+function factorial(n: bigint): bigint
+```
+
+```javascript
+factorial(52n); //=> 80_658_175_170_943_878_571_660_636_856_403_766_975_289_505_440_883_277_824_000_000_000_000n
+```
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")

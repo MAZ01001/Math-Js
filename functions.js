@@ -484,3 +484,15 @@ function sinAprx(x){
     if(x>=-Math.PI-PI_2)return sinTaylor(-Math.PI-x);
     return sinTaylor(PI2+x);
 }
+/**
+ * __calcultates the factorial of {@linkcode n}__
+ * @param {bigint} n - a non-zero positive integer
+ * @returns {bigint} the factorial of {@linkcode n}
+ * @throws {TypeError} if {@linkcode n} is not a bigint >0
+ */
+function factorial(n){
+    "use strict";
+    if(typeof n!=="bigint"||n<1n)throw new TypeError("[factorial] n is not a bigint >0");
+    for(let m=n;m>1n;n*=--m);
+    return n;
+}
