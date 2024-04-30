@@ -642,6 +642,7 @@ _uses `MurmurHash3` for seeding and `sfc32` for generating 32bit values_
 function rng32bit(seed?: string | undefined): () => number
 rng32bit("seed")();            //=> 3595049765 [0 to 0xFFFFFFFF inclusive]
 rng32bit("seed")()/0xFFFFFFFF; //=> 0.8370377509475307 [0.0 to 1.0 inclusive]
+rng32bit("seed")()/0x100000000;//=> 0.8370377507526428 [0.0 inclusive to 1.0 exclusive]
 ```
 
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
