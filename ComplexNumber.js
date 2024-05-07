@@ -265,7 +265,7 @@ class ComplexNumber{
      */
     pow(n=1){
         n=Number(n);
-        if(Number.isSafeInteger(n)){throw new TypeError('[n] is not a save integer.');}
+        if(!Number.isSafeInteger(n)){throw new TypeError('[n] is not a save integer.');}
         if(n<-1){
             try{this.ToPowerOf(Math.abs(n)).ToPowerOf(-1);}
             catch(err){throw new Error(err);}
