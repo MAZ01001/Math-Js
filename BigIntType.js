@@ -2105,7 +2105,7 @@ class BigIntType{
     static #calcKaratsuba(X,Y){
         if(X.every(v=>v===0)||Y.every(v=>v===0))return Uint8Array.of(0);
         //~ assume here that`X` and `Y` are of same length and the length is a power of 2
-        //~ small enough to conpute savely with JS-Number ([!] from 8bit unsigned integer to 52bit signed save integer ~ trunc to 32bit signed integer during bitwise operations ~ need 16bit un-/signed for potential overflow [!])
+        //~ small enough to compute savely with JS-Number ([!] from 8bit unsigned integer to 53bit signed save integer ~ trunc to 32bit signed integer during bitwise operations ~ need 16bit un-/signed for potential overflow [!])
         if(X.length===1){
             const product=X[0]*Y[0];
             if(product>0xFF)return Uint8Array.of(product&0xFF,product>>>8);
@@ -2115,7 +2115,7 @@ class BigIntType{
             Yl=Y.slice(0,Math.floor(Y.length*.5)),Yh=Y.slice(Math.floor(Y.length*.5));
         let P3Calc1=BigIntType.#calcAdd(Xh,Xl),
             P3Calc2=BigIntType.#calcAdd(Yh,Yl);
-        //! on a maximum this function calls itself, I think, `MAX_SIZE*1.5` times. That might be to many ie. Error !
+        // FIXME to many recursions - for-loop with some extra variables
         let [P1,P2,P3]=[
             BigIntType.#calcKaratsuba(Xh,Yh),
             BigIntType.#calcKaratsuba(Xl,Yl),
@@ -2348,7 +2348,7 @@ class BigIntType{
     /**
      * __creates a random number using `Math.random()`'s binary output__ \
      * note: this is not a cryptographically secure random number \
-     * original random number generated is 52bit unsigned (`0` to `2**52-1`)
+     * original random number generated is 53bit unsigned (`0` to `2**53-1`)
      * @param {BigIntType} min - lower limit (included) - _default `0`_
      * @param {BigIntType} max - upper limit (included) - _default `2**1024` (`BigIntType.Infinity`)_
      * @returns {BigIntType} random number between `min` and `max`
