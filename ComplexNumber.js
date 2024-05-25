@@ -83,14 +83,15 @@ const ComplexNumber=class ComplexNumber{
         return b;
     }
     /**
-     * ## [Internal] Round {@linkcode x} to nearest integer if closer than {@linkcode Number.EPSILON}
+     * ## [Internal] Round {@linkcode x} to nearest integer if closer than {@linkcode Number.EPSILON} times {@linkcode e}
      * use whenever float precision errors are expected
      * @param {number} x - floating point number
+     * @param {number} [e] - [optional] scaler for {@linkcode Number.EPSILON} - default `5`
      * @return {number} floating point number with small error correction
      */
-    static _roundEpsilon_(x){
+    static _roundEpsilon_(x,e){
         const rnd=Math.round(x);
-        return Math.abs(Math.abs(x)-Math.abs(rnd))<Number.EPSILON?rnd:x;
+        return Math.abs(Math.abs(x)-Math.abs(rnd))<Number.EPSILON*(e??5)?rnd:x;
     }
     /**
      * ## Create a new complex number with a {@linkcode length} and an {@linkcode angle}
