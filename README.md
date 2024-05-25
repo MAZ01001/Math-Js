@@ -140,36 +140,93 @@ Scroll [UP](#vectorjs "Scroll to start of section: Vector.js")
 
 ## [ComplexNumber.js](./ComplexNumber.js)
 
-- make a complex number with
-  - real and imaginary part
-  - with length and angle
-    - radian
-    - degree
-  - square rooting a negative number
-  - raising e to i-times-n-th power (`e^(i*n)`)
-  - raising n to power of i (`n^i`)
-- getter for
-  - real part
-  - imaginary part
-  - angle (radian or degree)
-  - length / absolute value
-  - arc length (from `0r`/`0°` to where the complex number is)
-- check for equality
-- chainable methods
-- logging current value without braking method chain
-- create a copy of the the current complex number and continue with it
-- complex number
-  - addition
-  - subtraction
-  - multiplication
-  - division
-- raising current complex number to nth power
-- static values for
-  - `2π`
+>
+> WIP
+>
+> - arc area
+> - pow with complex exponent `z↑z`
+> - n-root of complex number ~ list of solutions for `z↑n`
+>   - also for real or complex exponent
+> - log of complex numbers (with custom base)
+> - add angle (addition with real number in radians/degrees)
+> - scale angle (multiplication with real number)
+>
+
+- static (precalculated) values
+  - RegExp for cartesian (`a±bi`) and polar form (`r∠ϕrad` or `r∠ϕ°`)
+    - `∠` is U+2220 and `°` is U+00B0
+  - `2π` ie `τ`
   - `π/2`
   - `π/4`
-  - `e^i`
-  - `i^i`
+  - factor to convert from radians to degrees (`180/π`)
+  - factor to convert from degrees to radians (`π/180`)
+- create new complex numbers
+  - from (getter) `0`, `1`, `i`, `e↑i`, or `i↑i`
+  - from real and imaginary parts (constructor with `new` and alias without `new`)
+  - from length and angle (from positive real axis in radians)
+  - from angle (from positive real axis in radians) on unit circle
+  - from the square root of any real number
+  - from `e↑(i*n)` where `n` is a real number
+  - from `n^i` where `n` is a real number (except `0`)
+  - from logarithm with custom base (except `0` and `1`) from any real number (except `0`)
+  - from string in format `a±bi` or `r∠ϕrad` (or degrees `r∠ϕ°`)
+    - `∠` is U+2220 and `°` is U+00B0
+- attributes (non-private)
+  - real part (JS `Number`)
+  - imaginary part (JS `Number`)
+- internal methods (non-private)
+  - calculate greatest common divisor of two positive safe integers (`[1..2↑53)`)
+  - round float to nearest integer when closer than float minimum (JS `Number.EPSILON`)
+- getter
+  - absolute value / length / radius
+  - angle from polar coordinates (from positive real axis in radians)
+    - `[0,2π)` / `undefined`
+    - _safe_ `[0,2π)` / `0`
+    - _small_ `(-π,π]` / `undefined`
+    - _small and safe_ `(-π,π]` / `0`
+  - arc length `[0,2π)` (from positive real axis to the complex number in polar coordinates)
+- convert to string in format `a±bi` or `r∠ϕrad` (or degrees `r∠ϕ°`)
+  - `∠` is U+2220 and `°` is U+00B0
+- log current value to console without breaking method chain
+  - format: `±a + (±b)i ~ r ∠ ϕ rad (ϕ°)` (`∠` is U+2220 and `°` is U+00B0)
+- copy values
+  - from the current to a new complex number (create a copy)
+    - all arithmetic operations (see below) have alias methods that, instead of modifying, create a new complex number
+  - from another to the current complex number (override)
+  - from the current to another complex number (reverse override)
+- check for equality to `0`, `1`, or another complex number
+- arithmetic with complex numbers
+  - negate current complex number (`z*(-1)` ie `-z`)
+  - invert current complex number (`z↑(-1)` ie `1/z`)
+  - conjugate of current complex number (`a+bi` → `a-bi`)
+  - addition with a real number or another complex number
+  - subtraction with a real number or another complex number
+  - multiplication with a real number or another complex number
+  - division with a real number or another complex number
+  - raising to `n`th power (currently only safe integers `(-2↑53..2↑53)`)
+  - square root (_positive_ solution to `z↑2`)
+
+the class and its prototype are immutable!
+
+- import [dynamically](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import "MDN JS import() / dynamic import")
+
+  ```javascript
+  const { ComplexNumber } = await import("./ComplexNumber.js");
+  ```
+
+- import in node.js
+
+  ```javascript
+  const { ComplexNumber } = require("./ComplexNumber.js");
+  // or in modules ↓
+  import { ComplexNumber } from "./ComplexNumber.js";
+  ```
+
+- import in html:
+
+  ```html
+  <script src="./ComplexNumber.js"></script>
+  ```
 
 Scroll [UP](#complexnumberjs "Scroll to start of section: ComplexNumber.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
