@@ -53,11 +53,11 @@ const ComplexNumber=class ComplexNumber{
      * ## Create a new complex number with a {@linkcode real} and an {@linkcode imaginary} part
      * @param {number} real - real part of complex number
      * @param {number} [imaginary] - [optional] imaginary part of complex number - default `0`
-     * @throws {TypeError} if {@linkcode real} is not a number and when {@linkcode imaginary} is given but not a number
+     * @throws {TypeError} if {@linkcode real} is not a number and when {@linkcode imaginary} is given but is not a number
      */
     constructor(real,imaginary){
         if(typeof real!=="number")throw new TypeError("[constructor] real is not a number.");
-        if(imaginary!=null&&typeof imaginary!=="number")throw new TypeError("[constructor] imaginary is not a number.");
+        if(imaginary!=null&&typeof imaginary!=="number")throw new TypeError("[constructor] imaginary is given but is not a number.");
         /** @type {number} - real part of complex number */
         this.real=real;
         /** @type {number} - imaginary part of complex number */
@@ -68,7 +68,7 @@ const ComplexNumber=class ComplexNumber{
      * constructor alias (without `new`)
      * @param {number} real - real part of complex number
      * @param {number} [imaginary] - [optional] imaginary part of complex number
-     * @throws {TypeError} if {@linkcode real} is not a number and when {@linkcode imaginary} is given but not a number
+     * @throws {TypeError} if {@linkcode real} is not a number and when {@linkcode imaginary} is given but is not a number
      */
     static c(real,imaginary){return new ComplexNumber(real,imaginary);}
     /**
@@ -96,9 +96,11 @@ const ComplexNumber=class ComplexNumber{
      * ## Round `this` real and complex part to nearest integer if closer than {@linkcode Number.EPSILON} times {@linkcode e}
      * use whenever float precision errors are expected
      * @param {number} [e] - [optional] scaler for {@linkcode Number.EPSILON} - default `5`
+     * @throws {TypeError} when {@linkcode e} is given but is not a number
      * @return {ComplexNumber} `this` modified complex number
      */
     roundEpsilon(e){
+        if(e!=null&&typeof e!=="number")throw new TypeError("[roundEpsilon] e is given but is not a number.");
         this.real=ComplexNumber._roundEpsilon_(this.real,e);
         this.imaginary=ComplexNumber._roundEpsilon_(this.imaginary,e);
         return this;
@@ -175,7 +177,7 @@ const ComplexNumber=class ComplexNumber{
      * ## Creates complex number from the logarithm (custom {@linkcode base}) of {@linkcode x}
      * @param {number} x - real number (except `0`)
      * @param {number} [base] - [optional] base of logarithm (must not be `0` or `1`) - default {@linkcode Math.E}
-     * @throws {TypeError} if {@linkcode x} is not a number and if {@linkcode base} is given but not a number
+     * @throws {TypeError} if {@linkcode x} is not a number and if {@linkcode base} is given but is not a number
      * @throws {RangeError} if {@linkcode x} or {@linkcode base} are `0` and if {@linkcode base} is `1`
      * @returns {ComplexNumber} newly created complex number
      */
@@ -183,7 +185,7 @@ const ComplexNumber=class ComplexNumber{
         if(typeof x!=="number")throw new TypeError("[fromLog] x is not a number.");
         if(x===0)throw new RangeError("[fromLog] x is 0.");
         if(base==null)return x<0?new ComplexNumber(0,Math.PI).add(Math.log(-x)):new ComplexNumber(Math.log(x),0);
-        if(typeof base!=="number")throw new TypeError("[fromLog] base is given but not a number.");
+        if(typeof base!=="number")throw new TypeError("[fromLog] base is given but is not a number.");
         if(base===0)throw new RangeError("[fromLog] base is 0.");
         if(base===1)throw new RangeError("[fromLog] base is 1.");
         return ComplexNumber.fromLog(x).div(ComplexNumber.fromLog(base));
@@ -201,7 +203,7 @@ const ComplexNumber=class ComplexNumber{
      */
     static fromString(str,polar){
         if(typeof str!=="string")throw TypeError("[fromString] str is not a string.");
-        if(polar!=null&&typeof polar!=="boolean")throw TypeError("[fromString] polar is given but not a boolean.");
+        if(polar!=null&&typeof polar!=="boolean")throw TypeError("[fromString] polar is given but is not a boolean.");
         if(polar??false){
             const match=str.match(ComplexNumber.RegExpPolar);
             if(match==null)throw SyntaxError("[fromString] str is not a formatted complex number in polar form (angle notation).");
@@ -279,13 +281,13 @@ const ComplexNumber=class ComplexNumber{
      * format: `±a±bi`, `r∠φrad`, or `r∠φ°` (`∠` is U+2220 and `°` is U+00B0)
      * @param {boolean} [polar] - when `true` uses polar form (angle notation in radians) otherwise cartesian form - default `false`
      * @param {boolean} [deg] - when `true` convert the angle to degrees otherwise keep the angle in radians - default `false`
-     * @throws {TypeError} if {@linkcode polar} or {@linkcode deg} are not booleans
+     * @throws {TypeError} if {@linkcode polar} or {@linkcode deg} are given but are not booleans
      * @returns {string} string representation of `this` complex number
      */
     toString(polar,deg){
-        if(polar!=null&&typeof polar!=="boolean")throw TypeError("[toString] polar is given but not a boolean.");
+        if(polar!=null&&typeof polar!=="boolean")throw TypeError("[toString] polar is given but is not a boolean.");
         if(polar??false){
-            if(deg!=null&&typeof deg!=="boolean")throw TypeError("[toString] deg is given but not a boolean.");
+            if(deg!=null&&typeof deg!=="boolean")throw TypeError("[toString] deg is given but is not a boolean.");
             return(deg??false)?`${this.abs}\u2220${this.angleSafe*ComplexNumber.rad2deg}\xB0`:`${this.abs}\u2220${this.angleSafe}rad`;
         }
         return this.imaginary<0?`${this.real}-${-this.imaginary}i`:`${this.real}+${this.imaginary}i`;
@@ -398,7 +400,7 @@ const ComplexNumber=class ComplexNumber{
      * ## Adds another (complex) number to `this` complex number
      * @param {ComplexNumber|number} complexOrReal - complex number or real part
      * @param {number} [imag] - [optional] when {@linkcode complexOrReal} is the real part this is the imaginary part - default `0`
-     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but not a number
+     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but is not a number
      * @returns {ComplexNumber} `this` modified complex number
      */
     add(complexOrReal,imag){
@@ -410,14 +412,14 @@ const ComplexNumber=class ComplexNumber{
         if(typeof complexOrReal!=="number")throw new TypeError("[add] complexOrReal is not an instance of ComplexNumber or a number.");
         this.real+=complexOrReal;
         if(typeof imag==="number")this.imaginary+=imag;
-        else if(imag!=null)throw new TypeError("[add] imag is given but not a number.");
+        else if(imag!=null)throw new TypeError("[add] imag is given but is not a number.");
         return this;
     }
     /**
      * ## Subtracts another (complex) number from `this` complex number
      * @param {ComplexNumber|number} complexOrReal - complex number or real part
      * @param {number} [imag] - [optional] when {@linkcode complexOrReal} is the real part this is the imaginary part - default `0`
-     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but not a number
+     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but is not a number
      * @returns {ComplexNumber} `this` modified complex number
      */
     sub(complexOrReal,imag){
@@ -429,14 +431,14 @@ const ComplexNumber=class ComplexNumber{
         if(typeof complexOrReal!=="number")throw new TypeError("[sub] complexOrReal is not an instance of ComplexNumber or a number.");
         this.real+=complexOrReal;
         if(typeof imag==="number")this.imaginary-=imag;
-        else if(imag!=null)throw new TypeError("[sub] imag is given but not a number.");
+        else if(imag!=null)throw new TypeError("[sub] imag is given but is not a number.");
         return this;
     }
     /**
      * ## Mulitlies another (complex) number with `this` complex number
      * @param {ComplexNumber|number} complexOrReal - complex or real number
      * @param {number} [imag] - [optional] when {@linkcode complexOrReal} is the real part this is the imaginary part - default `0`
-     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but not a number
+     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but is not a number
      * @returns {ComplexNumber} `this` modified complex number
      */
     mul(complexOrReal,imag){
@@ -453,7 +455,7 @@ const ComplexNumber=class ComplexNumber{
             this.imaginary*=complexOrReal;
             return this;
         }
-        if(typeof imag!=="number")throw new TypeError("[mul] imag is given but not a number.");
+        if(typeof imag!=="number")throw new TypeError("[mul] imag is given but is not a number.");
         [this.real,this.imaginary]=[
             (this.real*complexOrReal)-(this.imaginary*imag),
             (this.real*imag)+(this.imaginary*complexOrReal)
@@ -464,7 +466,7 @@ const ComplexNumber=class ComplexNumber{
      * ## Divides `this` complex number by another (complex) number
      * @param {ComplexNumber|number} complexOrReal - complex or real number
      * @param {number} [imag] - [optional] when {@linkcode complexOrReal} is the real part this is the imaginary part - default `0`
-     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but not a number
+     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but is not a number
      * @throws {RangeError} if {@linkcode complexOrReal} is `0` (as complex, as real, or as real in combination with {@linkcode imag})
      * @returns {ComplexNumber} `this` modified complex number
      */
@@ -486,7 +488,7 @@ const ComplexNumber=class ComplexNumber{
             this.imaginary*=complexOrReal;
             return this;
         }
-        if(typeof imag!=="number")throw new TypeError("[div] imag is given but not a number.");
+        if(typeof imag!=="number")throw new TypeError("[div] imag is given but is not a number.");
         if(complexOrReal===0&&imag===0)throw RangeError("[div] complexOrReal (as real) with imag is 0.");
         const fac=((complexOrReal**2)+(imag**2))**-1;
         [this.real,this.imaginary]=[
@@ -665,7 +667,7 @@ const ComplexNumber=class ComplexNumber{
      * alias of {@linkcode ComplexNumber.prototype.add}, but creates a new complex number\
      * @param {ComplexNumber|number} complexOrReal - complex number or real part
      * @param {number} [imag] - [optional] when {@linkcode complexOrReal} is the real part this is the imaginary part - default `0`
-     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but not a number
+     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but is not a number
      * @returns {ComplexNumber} newly created complex number
      */
     addCopy(complexOrReal,imag){return this.copy().add(complexOrReal,imag);}
@@ -674,7 +676,7 @@ const ComplexNumber=class ComplexNumber{
      * alias of {@linkcode ComplexNumber.prototype.sub}, but creates a new complex number\
      * @param {ComplexNumber|number} complexOrReal - complex number or real part
      * @param {number} [imag] - [optional] when {@linkcode complexOrReal} is the real part this is the imaginary part - default `0`
-     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but not a number
+     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but is not a number
      * @returns {ComplexNumber} newly created complex number
      */
     subCopy(complexOrReal,imag){return this.copy().sub(complexOrReal,imag);}
@@ -683,7 +685,7 @@ const ComplexNumber=class ComplexNumber{
      * alias of {@linkcode ComplexNumber.prototype.mul}, but creates a new complex number\
      * @param {ComplexNumber|number} complexOrReal - complex or real number
      * @param {number} [imag] - [optional] when {@linkcode complexOrReal} is the real part this is the imaginary part - default `0`
-     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but not a number
+     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but is not a number
      * @returns {ComplexNumber} newly created complex number
      */
     mulCopy(complexOrReal,imag){return this.copy().mul(complexOrReal,imag);}
@@ -692,7 +694,7 @@ const ComplexNumber=class ComplexNumber{
      * alias of {@linkcode ComplexNumber.prototype.div}, but creates a new complex number\
      * @param {ComplexNumber|number} complexOrReal - complex or real number
      * @param {number} [imag] - [optional] when {@linkcode complexOrReal} is the real part this is the imaginary part - default `0`
-     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but not a number
+     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but is not a number
      * @throws {RangeError} if {@linkcode complexOrReal} is `0` (as complex, as real, or as real in combination with {@linkcode imag})
      * @returns {ComplexNumber} newly created complex number
      */
