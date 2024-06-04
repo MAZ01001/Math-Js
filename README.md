@@ -143,17 +143,15 @@ Scroll [UP](#vectorjs "Scroll to start of section: Vector.js")
 >
 > WIP
 >
-> - arc area
 > - pow with complex exponent `z↑z`
-> - n-root of complex number ~ list of solutions for `z↑n`
->   - also for real or complex exponent
+> - root with complex index
 > - log of complex numbers (with custom base)
 > - add angle (addition with real number in radians/degrees)
 > - scale angle (multiplication with real number)
 >
 
 - static (precalculated) values
-  - RegExp for cartesian (`a±bi`) and polar form (`r∠ϕrad` or `r∠ϕ°`)
+  - RegExp for cartesian (`a±bi`) and polar form (`r∠φrad` or `r∠φ°`)
     - `∠` is U+2220 and `°` is U+00B0
   - `2π` ie `τ`
   - `π/2`
@@ -169,26 +167,30 @@ Scroll [UP](#vectorjs "Scroll to start of section: Vector.js")
   - from `e↑(i*n)` where `n` is a real number
   - from `n^i` where `n` is a real number (except `0`)
   - from logarithm with custom base (except `0` and `1`) from any real number (except `0`)
-  - from string in format `a±bi` or `r∠ϕrad` (or degrees `r∠ϕ°`)
+  - from string in format `a±bi` or `r∠φrad` (or degrees `r∠φ°`)
     - `∠` is U+2220 and `°` is U+00B0
 - attributes (non-private)
   - real part (JS `Number`)
   - imaginary part (JS `Number`)
 - internal methods (non-private)
-  - calculate greatest common divisor of two positive safe integers (`[1..2↑53)`)
-  - round float to nearest integer when closer than float minimum (JS `Number.EPSILON`)
+  - calculate greatest common divisor of two positive safe integers (`[1..2↑53[`)
+  - round float to nearest integer when closer than float minimum (JS `Number.EPSILON*5`)
+- round complex number (real and imaginary part separately) to nearest integer when closer than float minimum (JS `Number.EPSILON*5`)
+  - useful for trigonometric functions as they calculate with small numbers and are thereby prone to float precision errors (noted in JSDoc of affected methods)
 - getter
   - absolute value / length / radius
   - angle from polar coordinates (from positive real axis in radians)
-    - `[0,2π)` / `undefined`
-    - _safe_ `[0,2π)` / `0`
-    - _small_ `(-π,π]` / `undefined`
-    - _small and safe_ `(-π,π]` / `0`
-  - arc length `[0,2π)` (from positive real axis to the complex number in polar coordinates)
-- convert to string in format `a±bi` or `r∠ϕrad` (or degrees `r∠ϕ°`)
+    - `[0,2π[` / `undefined`
+    - _safe_ `[0,2π[` / `0`
+    - _small_ `]-π,π]` / `undefined`
+    - _small and safe_ `]-π,π]` / `0`
+  - arc length _from positive real axis to the complex number in polar coordinates_
+  - sector (arc area) _from positive real axis to the complex number in polar coordinates_
+- convert to string in format `a±bi` or `r∠φrad` (or degrees `r∠φ°`)
   - `∠` is U+2220 and `°` is U+00B0
 - log current value to console without breaking method chain
-  - format: `±a + (±b)i ~ r ∠ ϕ rad (ϕ°)` (`∠` is U+2220 and `°` is U+00B0)
+  - format: `±a + (±b)i ~ r ∠ φ rad (φ°)`
+    - `∠` is U+2220 and `°` is U+00B0
 - copy values
   - from the current to a new complex number (create a copy)
     - all arithmetic operations (see below) have alias methods that, instead of modifying, create a new complex number
@@ -203,8 +205,19 @@ Scroll [UP](#vectorjs "Scroll to start of section: Vector.js")
   - subtraction with a real number or another complex number
   - multiplication with a real number or another complex number
   - division with a real number or another complex number
-  - raising to `n`th power (currently only safe integers `(-2↑53..2↑53)`)
-  - square root (_positive_ solution to `z↑2`)
+  - raising to `n`th power (currently only safe integers `]-2↑53..2↑53[`)
+  - square root ("positive" solution to `z↑2`)
+- `n`th root (currently only safe integers `]-2↑53..2↑53[`)
+
+  ```javascript
+  new ComplexNumber(2,0).pow(-4).roots(-4)
+      .map(v=>v.roundEpsilon().toString());
+  ["2+0i", "0+2i", "-2+0i", "0-2i"];
+  ```
+
+  - creates an array of all complex roots with given root-index
+  - ordered counterclockwise from positive real axis
+  - assume first entry is the "positive" root ie. principal root
 
 the class and its prototype are immutable!
 

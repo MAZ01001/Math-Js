@@ -29,9 +29,9 @@ const ComplexNumber=class ComplexNumber{
     static halfPI=Math.PI*.5;
     /** ## [precalculated] `π/4` */
     static quarterPI=Math.PI*.25;
-    /** ## [precalculated] multiply with a (real) number to convert radians `[0,2π)` to degrees `[0,360)` */
+    /** ## [precalculated] multiply with a (real) number to convert radians `[0,2π[` to degrees `[0,360[` */
     static rad2deg=0xB4*(Math.PI**-1);
-    /** ## [precalculated] multiply with a (real) number to convert degrees `[0,360)` to radians `[0,2π)` */
+    /** ## [precalculated] multiply with a (real) number to convert degrees `[0,360[` to radians `[0,2π[` */
     static deg2rad=Math.PI*(0xB4**-1);
     /**
      * ## Create a new complex number `0` (`0+0i`)
@@ -52,39 +52,38 @@ const ComplexNumber=class ComplexNumber{
     /**
      * ## Create a new complex number with a {@linkcode real} and an {@linkcode imaginary} part
      * @param {number} real - real part of complex number
-     * @param {number} imaginary - imaginary part of complex number
-     * @throws {TypeError} if {@linkcode real} or {@linkcode imaginary} are not numbers
+     * @param {number} [imaginary] - [optional] imaginary part of complex number - default `0`
+     * @throws {TypeError} if {@linkcode real} is not a number and when {@linkcode imaginary} is given but not a number
      */
     constructor(real,imaginary){
         if(typeof real!=="number")throw new TypeError("[constructor] real is not a number.");
-        if(typeof imaginary!=="number")throw new TypeError("[constructor] imaginary is not a number.");
+        if(imaginary!=null&&typeof imaginary!=="number")throw new TypeError("[constructor] imaginary is not a number.");
         /** @type {number} - real part of complex number */
         this.real=real;
         /** @type {number} - imaginary part of complex number */
-        this.imaginary=imaginary;
+        this.imaginary=imaginary??0;
     }
     /**
      * ## Create a new complex number with a {@linkcode real} and an {@linkcode imaginary} part
      * constructor alias (without `new`)
      * @param {number} real - real part of complex number
-     * @param {number} imaginary - imaginary part of complex number
-     * @throws {TypeError} if {@linkcode real} or {@linkcode imaginary} are not numbers
+     * @param {number} [imaginary] - [optional] imaginary part of complex number
+     * @throws {TypeError} if {@linkcode real} is not a number and when {@linkcode imaginary} is given but not a number
      */
     static c(real,imaginary){return new ComplexNumber(real,imaginary);}
     /**
      * ## [Internal] Computes the greatest-common-divisor of two whole numbers
-     * @param {number} a - positive safe integer `[1..2↑53)`
-     * @param {number} b - positive safe integer `[1..2↑53)`
-     * @returns {number} greatest-common-divisor `[1..2↑53)`
+     * @param {number} n - positive safe integer `[1..2↑53[`
+     * @param {number} m - positive safe integer `[1..2↑53[`
+     * @returns {number} greatest-common-divisor `[1..2↑53[`
      * @example gcd(45, 100); //=> 5 → (45/5) / (100/5) → 9/20 = 45/100
      */
-    static _gcd_(a,b){
-        for(let m=(([a,b]=a<b?[b,a]:[a,b]),0);(m=a%b)>0;[a,b]=[b,m]);
-        return b;
+    static _gcd_(n,m){
+        for(let r=(([n,m]=n<m?[m,n]:[n,m]),0);(r=n%m)>0;[n,m]=[m,r]);
+        return m;
     }
     /**
      * ## [Internal] Round {@linkcode x} to nearest integer if closer than {@linkcode Number.EPSILON} times {@linkcode e}
-     * use whenever float precision errors are expected
      * @param {number} x - floating point number
      * @param {number} [e] - [optional] scaler for {@linkcode Number.EPSILON} - default `5`
      * @return {number} floating point number with small error correction
@@ -94,8 +93,19 @@ const ComplexNumber=class ComplexNumber{
         return Math.abs(Math.abs(x)-Math.abs(rnd))<Number.EPSILON*(e??5)?rnd:x;
     }
     /**
+     * ## Round `this` real and complex part to nearest integer if closer than {@linkcode Number.EPSILON} times {@linkcode e}
+     * use whenever float precision errors are expected
+     * @param {number} [e] - [optional] scaler for {@linkcode Number.EPSILON} - default `5`
+     * @return {ComplexNumber} `this` modified complex number
+     */
+    roundEpsilon(e){
+        this.real=ComplexNumber._roundEpsilon_(this.real,e);
+        this.imaginary=ComplexNumber._roundEpsilon_(this.imaginary,e);
+        return this;
+    }
+    /**
      * ## Create a new complex number with a {@linkcode length} and an {@linkcode angle}
-     * ! prone to float precision errors
+     * ! prone to float precision errors, use {@linkcode ComplexNumber.prototype.roundEpsilon} to counteract some rounding errors
      * @param {number} length - length of the vector in the complex plane [0,∞)
      * @param {number} angle - angle in radians [0,2π) (counterclockwise from positive real axis) can be negative and overflow a full rotation
      * @throws {TypeError} if {@linkcode length} or {@linkcode angle} are not numbers
@@ -110,8 +120,8 @@ const ComplexNumber=class ComplexNumber{
         if((angle%=ComplexNumber.TAU)<0)angle+=ComplexNumber.TAU;
         if((angle%Math.PI)===0)return new ComplexNumber(angle===0?length:-length,0);
         return new ComplexNumber(
-            ComplexNumber._roundEpsilon_(Math.cos(angle))*length*(angle+ComplexNumber.halfPI>Math.PI?-1:1),
-            ComplexNumber._roundEpsilon_(Math.sin(angle))*length*(angle>Math.PI?-1:1)
+            Math.cos(angle)*length*(angle+ComplexNumber.halfPI>Math.PI?-1:1),
+            Math.sin(angle)*length*(angle>Math.PI?-1:1)
         );
     }
     /**
@@ -139,24 +149,18 @@ const ComplexNumber=class ComplexNumber{
     }
     /**
      * ## Create complex number from calculating `e` to the power of, `i` times {@linkcode x}
-     * ! prone to float precision errors
+     * ! prone to float precision errors, use {@linkcode ComplexNumber.prototype.roundEpsilon} to counteract some rounding errors
      * @param {number} x - real number
      * @throws {TypeError} if {@linkcode x} is not a number
      * @returns {ComplexNumber} the newly created complex number
      */
     static fromEPowITimes(x){
         if(typeof x!=="number")throw new TypeError("[fromEPowITimes] x is not a number.");
-        x=ComplexNumber._roundEpsilon_(x);
-        if(x===0)return ComplexNumber.one;
-        if(x===1)return ComplexNumber.e_i;
-        return new ComplexNumber(
-            ComplexNumber._roundEpsilon_(Math.cos(x)),
-            ComplexNumber._roundEpsilon_(Math.sin(x))
-        );
-    };
+        return new ComplexNumber(Math.cos(x),Math.sin(x));
+    }
     /**
      * ## Creates complex number from raising {@linkcode x} to the power of `i`
-     * ! prone to float precision errors
+     * ! prone to float precision errors, use {@linkcode ComplexNumber.prototype.roundEpsilon} to counteract some rounding errors
      * @param {number} x - real number (except `0`)
      * @throws {TypeError} if {@linkcode x} is not a number
      * @throws {RangeError} if {@linkcode x} is `0` ( <https://math.stackexchange.com/a/2087136> )
@@ -164,10 +168,9 @@ const ComplexNumber=class ComplexNumber{
      */
     static fromPowIWithBase(x){
         if(typeof x!=="number")throw new TypeError("[fromPowIWithBase] x is not a number.");
-        x=ComplexNumber._roundEpsilon_(x);
         if(x===0)throw new RangeError("[fromPowIWithBase] x is 0.");
-        return x<0?ComplexNumber.fromEPowITimes(Math.log(-x)).mul(Math.E**-Math.PI):ComplexNumber.fromEPowITimes(Math.log(x));
-    };
+        return x<0?ComplexNumber.fromEPowITimes(Math.log(-x)-Math.PI):ComplexNumber.fromEPowITimes(Math.log(x));
+    }
     /**
      * ## Creates complex number from the logarithm (custom {@linkcode base}) of {@linkcode x}
      * @param {number} x - real number (except `0`)
@@ -189,7 +192,7 @@ const ComplexNumber=class ComplexNumber{
      * ## Create complex number from a formatted string
      * ! prone to float precision errors with polar form\
      * format: `±a±bi` where `a` and `b` are (unsigned) real numbers (optionally in scientific notation) and the first sign (`±` ie `+` or `-`) is optional\
-     * or `r∠ϕrad` ({@linkcode polar}) or `r∠ϕ°` (degrees) where `r` and `ϕ` are real numbers (`∠` is U+2220 and `°` is U+00B0)
+     * or `r∠φrad` ({@linkcode polar}) or `r∠φ°` (degrees) where `r` and `φ` are real numbers (`∠` is U+2220 and `°` is U+00B0)
      * @param {string} str - string
      * @param {boolean} [polar] - when `true` uses polar form (angle notation in radians) otherwise cartesian form - default `false`
      * @throws {TypeError} if {@linkcode str} is not a string or when {@linkcode polar} or {@linkcode deg} are not booleans
@@ -265,11 +268,15 @@ const ComplexNumber=class ComplexNumber{
      * ## Arc length of `this` complex number
      * @returns {number} length of the arc from positive real axis to where `this` complex number lies in the complex plane
      */
-    get arcLength(){return this.abs*this.angleSafe;}
-    // TODO ? get arcArea()
+    get arcLength(){return this.angleSafe*this.abs;}
+    /**
+     * ## Sector (area) of `this` complex number
+     * @returns {number} area of the sector from positive real axis to where `this` complex number lies in the complex plane
+     */
+    get sector(){return this.angleSafe*(this.abs**2)*.5;}
     /**
      * ## Converts `this` complex number to a string
-     * format: `±a±bi`, `r∠ϕrad`, or `r∠ϕ°` (`∠` is U+2220 and `°` is U+00B0)
+     * format: `±a±bi`, `r∠φrad`, or `r∠φ°` (`∠` is U+2220 and `°` is U+00B0)
      * @param {boolean} [polar] - when `true` uses polar form (angle notation in radians) otherwise cartesian form - default `false`
      * @param {boolean} [deg] - when `true` convert the angle to degrees otherwise keep the angle in radians - default `false`
      * @throws {TypeError} if {@linkcode polar} or {@linkcode deg} are not booleans
@@ -285,7 +292,7 @@ const ComplexNumber=class ComplexNumber{
     }
     /**
      * ## Logs the current value of `this` complex number to the {@linkcode console}
-     * `±a + (±b)i ~ r ∠ ϕ rad (ϕ°)` (`∠` is U+2220 and `°` is U+00B0)
+     * `±a + (±b)i ~ r ∠ φ rad (φ°)` (`∠` is U+2220 and `°` is U+00B0)
      * @returns {ComplexNumber} `this` unmodified complex number
      */
     logConsole(){
@@ -490,7 +497,7 @@ const ComplexNumber=class ComplexNumber{
     }
     /**
      * ## Raise `this` complex number to the power of {@linkcode n}
-     * @param {number} n - integer exponent `(-2↑53..2↑53)`
+     * @param {number} n - integer exponent `]-2↑53..2↑53[`
      * @throws {TypeError} if {@linkcode n} is not a save integer
      * @returns {ComplexNumber} `this` modified complex number
      */
@@ -510,31 +517,84 @@ const ComplexNumber=class ComplexNumber{
             case 1:break;
             case 2:[this.real,this.imaginary]=[(this.real**2)-(this.imaginary**2),2*this.real*this.imaginary];break;
             case 3:[this.real,this.imaginary]=[(this.real**3)-(3*this.real*(this.imaginary**2)),(3*(this.real**2)*this.imaginary)-(this.imaginary**3)];break;
-            case 4:[this.real,this.imaginary]=[(this.real**4)+(6*(this.real**2)*-(this.imaginary**2))+(this.imaginary**4),(4*(this.real**3)*this.imaginary)+(4*this.real*-(this.imaginary**3))];break;
+            case 4:[this.real,this.imaginary]=[(this.real**4)-(6*(this.real**2)*(this.imaginary**2))+(this.imaginary**4),(4*(this.real**3)*this.imaginary)-(4*this.real*(this.imaginary**3))];break;
             case 5:[this.real,this.imaginary]=[(this.real**5)-(10*(this.real**3)*(this.imaginary**2))+(5*this.real*(this.imaginary**4)),(5*(this.real**4)*this.imaginary)-(10*(this.real**2)*(this.imaginary**3))+(this.imaginary**5)];break;
             case 6:[this.real,this.imaginary]=[(this.real**6)-(15*(this.real**4)*(this.imaginary**2))+(15*(this.real**2)*(this.imaginary**4))-(this.imaginary**6),(6*(this.real**5)*this.imaginary)-(20*(this.real**3)*this.imaginary**3)+(6*this.real*(this.imaginary**5))];break;
             case 7:[this.real,this.imaginary]=[(this.real**7)-(21*(this.real**5)*(this.imaginary**2))+(35*(this.real**3)*(this.imaginary**4))-(7*this.real*(this.imaginary**6)),(7*(this.real**6)*this.imaginary)-(35*(this.real**4)*(this.imaginary**3))+(21*(this.real**2)*(this.imaginary**5))-(this.imaginary**7)];break;
             case 8:[this.real,this.imaginary]=[(this.real**8)-(28*(this.real**6)*(this.imaginary**2))+(70*(this.real**4)*(this.imaginary**4))-(28*(this.real**2)*(this.imaginary**6))+(this.imaginary**8),(8*(this.real**7)*this.imaginary)-(56*(this.real**5)*(this.imaginary**3))+(56*(this.real**3)*(this.imaginary**5))-(8*this.real*(this.imaginary**7))];break;
             default:
-                let tmpRe=0,tmpIm=0;
-                for(let k=0,ki=0,last=1;k<=n;++k,(++ki>3&&(ki=0))){
-                    switch(ki){
-                        case 0:tmpRe+=last*(this.real**(n-k))*(this.imaginary**k);break;
-                        case 1:tmpIm+=last*(this.real**(n-k))*(this.imaginary**k);break;
-                        case 2:tmpRe-=last*(this.real**(n-k))*(this.imaginary**k);break;
-                        case 3:tmpIm-=last*(this.real**(n-k))*(this.imaginary**k);break;
+                /*
+                    2: a^2 + 2 i a   b -        b^2
+                    3: a^3 + 3 i a^2 b - 3  a   b^2 -    i     b^3
+                    4: a^4 + 4 i a^3 b - 6  a^2 b^2 - 4  i a   b^3 +        b^4
+                    5: a^5 + 5 i a^4 b - 10 a^3 b^2 - 10 i a^2 b^3 + 5  a   b^4 +    i     b^5
+                    6: a^6 + 6 i a^5 b - 15 a^4 b^2 - 20 i a^3 b^3 + 15 a^2 b^4 + 6  i a   b^5 -        b^6
+                    7: a^7 + 7 i a^6 b - 21 a^5 b^2 - 35 i a^4 b^3 + 35 a^3 b^4 + 21 i a^2 b^5 - 7  a   b^6 -   i   b^7
+                    8: a^8 + 8 i a^7 b - 28 a^6 b^2 - 56 i a^5 b^3 + 70 a^4 b^4 + 56 i a^3 b^5 - 28 a^2 b^6 - 8 i a b^7 + b^8
+
+                    2: ( a^2 -        b^2                                 )+( 2 a   b                                     )i
+                    3: ( a^3 - 3  a   b^2                                 )+( 3 a^2 b -        b^3                        )i
+                    4: ( a^4 - 6  a^2 b^2 +        b^4                    )+( 4 a^3 b - 4  a   b^3                        )i
+                    5: ( a^5 - 10 a^3 b^2 + 5  a   b^4                    )+( 5 a^4 b - 10 a^2 b^3 +        b^5           )i
+                    6: ( a^6 - 15 a^4 b^2 + 15 a^2 b^4 -        b^6       )+( 6 a^5 b - 20 a^3 b^3 + 6  a   b^5           )i
+                    7: ( a^7 - 21 a^5 b^2 + 35 a^3 b^4 - 7  a   b^6       )+( 7 a^6 b - 35 a^4 b^3 + 21 a^2 b^5 -     b^7 )i
+                    8: ( a^8 - 28 a^6 b^2 + 70 a^4 b^4 - 28 a^2 b^6 + b^8 )+( 8 a^7 b - 56 a^5 b^3 + 56 a^3 b^5 - 8 a b^7 )i
+
+                    {n,k} = n choose k = n! / ( k! (n-k)! ) = product[ from j=1 to k ]( (n+1)/j -1 ) ~ can compute this in loop with calulation of binomial coefficients (no extra function needed)
+                    n=2: {n,0} a^n b^0 + {n,1} i a^(n-1) b^1 - {n,2} a^(n-2) b^2
+                    n=3: {n,0} a^n b^0 + {n,1} i a^(n-1) b^1 - {n,2} a^(n-2) b^2 - {n,3} i a^(n-3) b^3
+                    n=4: {n,0} a^n b^0 + {n,1} i a^(n-1) b^1 - {n,2} a^(n-2) b^2 - {n,3} i a^(n-3) b^3 + {n,4} a^(n-4) b^4
+                    n=5: {n,0} a^n b^0 + {n,1} i a^(n-1) b^1 - {n,2} a^(n-2) b^2 - {n,3} i a^(n-3) b^3 + {n,4} a^(n-4) b^4 + {n,5} i a^(n-5) b^5
+                    n=6: {n,0} a^n b^0 + {n,1} i a^(n-1) b^1 - {n,2} a^(n-2) b^2 - {n,3} i a^(n-3) b^3 + {n,4} a^(n-4) b^4 + {n,5} i a^(n-5) b^5 - {n,6} a^(n-6) b^6
+                    n=7: {n,0} a^n b^0 + {n,1} i a^(n-1) b^1 - {n,2} a^(n-2) b^2 - {n,3} i a^(n-3) b^3 + {n,4} a^(n-4) b^4 + {n,5} i a^(n-5) b^5 - {n,6} a^(n-6) b^6 - {n,7} i a^(n-7) b^7
+                    n=8: {n,0} a^n b^0 + {n,1} i a^(n-1) b^1 - {n,2} a^(n-2) b^2 - {n,3} i a^(n-3) b^3 + {n,4} a^(n-4) b^4 + {n,5} i a^(n-5) b^5 - {n,6} a^(n-6) b^6 - {n,7} i a^(n-7) b^7 + {n,8} a^(n-8) b^8
+
+                    2:           1  2  1
+                    3:         1  3  3  1
+                    4:        1  4  6  4  1
+                    5:      1  5 10 10  5  1
+                    6:     1  6 15 20 15  6  1
+                    7:   1  7 21 35 35 21  7  1
+                    8:  1  8 25 56 70 56 25  8  1
+
+                    // FIXME rewrite ↓ using ↑
+                    let tmpRe=0,tmpIm=0;
+                    for(let k=0,ki=0,last=1;k<=n;++k){
+                        console.log(k);
+                        switch(ki){
+                            case 0:tmpRe+=last*(this.real**(n-k))*(this.imaginary**k);break;
+                            case 1:tmpIm+=last*(this.real**(n-k))*(this.imaginary**k);break;
+                            case 2:tmpRe-=last*(this.real**(n-k))*(this.imaginary**k);break;
+                            case 3:tmpIm-=last*(this.real**(n-k))*(this.imaginary**k);break;
+                        }
+                        last=Math.floor(last*(n+1-k)*(k**-1));
+                        if(++ki>3)ki=0;
                     }
-                    last=Math.trunc(last*((n+1-k)*(k**-1)));
-                }
-                this.real=tmpRe;
-                this.imaginary=tmpIm;
+                    this.real=tmpRe;
+                    this.imaginary=tmpIm;
+                */
+                // TODO test if ↓ (cubic-polynomial of exponent multiplied out with complex numbers) is faster/better than ↑ (sum individual binomial coefficients for real and imaginary part separately)
+                // n = a*8^3 + b*8^2 + c*8 + d
+                // z^n = (z^512)^a * (z^64)^b * (z^8)^c * z^d
+                // z**n = {a times (((z**8)**8)**8)} * ((z**8)**8)**b * (z**8)**c * z**d
+                const z=ComplexNumber.one,
+                    u=this.powCopy(8),
+                    v=u.powCopy(8),
+                    w=v.powCopy(8),
+                    a=Math.trunc(n*.001953125);//8**-3
+                for(let k=0;k<a;++k)z.mul(w);
+                z.mul(v.pow(Math.trunc((n*.015625)%8)));//8**-2
+                z.mul(u.pow(Math.trunc((n*.125)%8)));//8**-1
+                z.mul(this.powCopy(n%8));//8**-0
+                this.copyFrom(z);
             break;
         }
         return this;
     }
-    // TODO pow with complex numbers ~ z↑w → z↑(m/n)=root(n,z↑m) (use ComplexNumber._gcd_) ~ new method pow(complexOrReal,imag) and powCopy and rename old methods to powInt and powIntCopy
+    // TODO pow with polar form ~ less precision but faster (z**n = r**n ∠ φ*n)
+    // TODO ? pow with complex numbers ~ z↑w → z↑(m/n)=root(n,z↑m) (use ComplexNumber._gcd_) ~ new method pow(complexOrReal,imag) and powCopy and rename old methods to powInt and powIntCopy
     /**
-     * ## Calculates the (positive) square root of `this` complex number (in place)
+     * ## Calculates the ("positive") square root of `this` complex number (in place)
      * use {@linkcode ComplexNumber.prototype.neg} to get the second solution to `z↑2`
      * @returns {ComplexNumber} `this` modified complex number
      */
@@ -544,10 +604,38 @@ const ComplexNumber=class ComplexNumber{
             return this.set(Math.sqrt(this.real),0);
         }
         const abs=this.abs;
-        [this.real,this.imaginary]=[Math.sqrt((abs+this.real)*.5),Math.sign(this.imaginary)*Math.sqrt((abs-this.real)*.5)];
+        this.imaginary=Math.sign(this.imaginary)*Math.sqrt((abs-this.real)*.5);
+        this.real=Math.sqrt((abs+this.real)*.5);
         return this;
     }
-    // TODO n-roots of complex number ~ returns array of all solutions to z↑n ~ also with real/coplex exponent
+    /**
+     * ## Computes all complex roots (index {@linkcode n}) of `this` complex number
+     * ! prone to float precision errors, use {@linkcode ComplexNumber.prototype.roundEpsilon} to counteract some rounding errors
+     * @param {number} n - root index - must not be `0`
+     * @throws {TypeError} if {@linkcode n} is not a non-zero safe integer
+     * @returns {ComplexNumber[]} list of newly created complex numbers (ordered counterclockwise from positive real axis - assume `[0]` is the "positive" root ie. principal root)
+     * @example
+     * new ComplexNumber(2,0).pow(-4).roots(-4)
+     *     .map(v=>v.roundEpsilon().toString());
+     * ["2+0i", "0+2i", "-2+0i", "0-2i"];
+     */
+    roots(n){
+        if(!Number.isSafeInteger(n)||n===0)throw new TypeError("[root] n is not a non-zero safe integer.");
+        if(this.isZero)return[];
+        const z=this.copy();
+        if(n<0){
+            n=-n;
+            z.inv();
+        }
+        const
+            _n=n**-1,
+            p2n=ComplexNumber.TAU*_n,
+            w=((rn,an)=>new ComplexNumber(Math.cos(an)*rn,Math.sin(an)*rn))(z.abs**_n,z.angleSafe*_n);
+        let s=new Array(n);
+        for(let k=0;k<n;++k)s[k]=w.mulCopy(Math.cos(k*p2n),Math.sin(k*p2n));
+        return s;
+    };
+    // TODO roots alternative without polar form ~ slower but more precise (?!)
     // TODO log of complex numbers ~ see fromLog (also custom base ? complex)
     // TODO ? addAngle(phi,deg)
     // TODO ? scaleAngle(x)
