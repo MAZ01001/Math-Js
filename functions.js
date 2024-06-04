@@ -72,18 +72,18 @@ function rad2deg(rad){
 }
 /**
  * ## Computes the greatest-common-divisor of two whole numbers
- * @param {number} a - positive safe integer `[1..2↑53)`
- * @param {number} b - positive safe integer `[1..2↑53)`
- * @returns {number} greatest-common-divisor `[1..2↑53)`
- * @throws {TypeError} if {@linkcode a} or {@linkcode b} are not positive safe integers `[1..2↑53)`
+ * @param {number} n - positive safe integer `[1..2↑53[`
+ * @param {number} m - positive safe integer `[1..2↑53[`
+ * @returns {number} greatest-common-divisor `[1..2↑53[`
+ * @throws {TypeError} if {@linkcode n} or {@linkcode m} are not positive safe integers `[1..2↑53[`
  * @example gcd(45, 100); //=> 5 → (45/5) / (100/5) → 9/20 = 45/100
  */
-function gcd(a,b){
+function gcd(n,m){
     "use strict";
-    if(typeof a!=="number"||a<1||!Number.isSafeInteger(a))throw new TypeError("[gcd] A is not a positive safe integer > 0");
-    if(typeof b!=="number"||b<1||!Number.isSafeInteger(b))throw new TypeError("[gcd] B is not a positive safe integer > 0");
-    for(let m=(([a,b]=a<b?[b,a]:[a,b]),0);(m=a%b)>0;[a,b]=[b,m]);
-    return b;
+    if(typeof n!=="number"||n<1||!Number.isSafeInteger(n))throw new TypeError("[gcd] n is not a positive safe integer > 0");
+    if(typeof m!=="number"||m<1||!Number.isSafeInteger(m))throw new TypeError("[gcd] m is not a positive safe integer > 0");
+    for(let r=(([n,m]=n<m?[m,n]:[n,m]),0);(r=n%m)>0;[n,m]=[m,r]);
+    return m;
 }
 /**
  * __converts a decimal number to an improper-fraction (rough estimation)__

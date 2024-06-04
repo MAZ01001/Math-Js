@@ -585,10 +585,10 @@ Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
 
 ### [functions] `gcd`
 
-calculates the greatest common divisor of A and B (positive safe integers `[1..2↑53)`)
+calculates the greatest common divisor of `n` and `m` (positive safe integers `[1..2↑53[`)
 
 ```typescript
-function gcd(A: number, B: number): number
+function gcd(n: number, m: number): number
 gcd(45, 100); //=> 5 → (45/5) / (100/5) → 9/20
 ```
 
