@@ -1,36 +1,37 @@
 //@ts-check
 "use strict";
 /**
- * __calculates new bounds/scale for given number {@linkcode n}__ \
- * _(number can be out of bounds)_
+ * ## Calculates new bounds/scale for given number {@linkcode n}
+ * Number can be out of bounds
  * @param {number} n - initial number
- * @param {number} x - initial lower bound
- * @param {number} y - initial upper bound
- * @param {number} x2 - new lower bound
- * @param {number} y2 - new upper bound
- * @param {boolean} [limit] - if `true` clamps output to min {@linkcode x2} and max {@linkcode y2} - _default `false`_
- * @returns {number} calculated number
- * @throws {TypeError} if {@linkcode n}, {@linkcode x}, {@linkcode y}, {@linkcode x2} or {@linkcode y2} are not numbers
+ * @param {number} a - initial lower bound
+ * @param {number} b - initial upper bound
+ * @param {number} x - new lower bound
+ * @param {number} y - new upper bound
+ * @param {boolean} [limit] - if `true` clamps output to min {@linkcode x} and max {@linkcode y} - default `false`
+ * @returns {number} new number
+ * @throws {TypeError} if {@linkcode n}, {@linkcode a}, {@linkcode b}, {@linkcode x} or {@linkcode y} are not numbers
+ * @throws {RangeError} if {@linkcode a} and {@linkcode b} are equal (no initial range)
  * @example mapRange(0.5, 0, 1, 0, 100); //=> 50
  */
-function mapRange(n,x,y,x2,y2,limit){
+function mapRange(n,a,b,x,y,limit){
     "use strict";
-    if(typeof n!=="number")throw new TypeError("[mapRange] n is not a number");
-    if(typeof x!=="number")throw new TypeError("[mapRange] x is not a number");
-    if(typeof y!=="number")throw new TypeError("[mapRange] y is not a number");
-    if(typeof x2!=="number")throw new TypeError("[mapRange] x2 is not a number");
-    if(typeof y2!=="number")throw new TypeError("[mapRange] y2 is not a number");
-    if(limit??false){
-        if(x<y){
-            if(n<x)return x2;
-            if(n>y)return y2;
+    if(typeof n!=="number")throw new TypeError("[mapRange] n is not a number.");
+    if(typeof a!=="number")throw new TypeError("[mapRange] a is not a number.");
+    if(typeof b!=="number")throw new TypeError("[mapRange] b is not a number.");
+    if(typeof x!=="number")throw new TypeError("[mapRange] x is not a number.");
+    if(typeof y!=="number")throw new TypeError("[mapRange] y is not a number.");
+    if(a===b)throw new RangeError("[mapRange] a and b are equal.");
+    if(x===y)return x;
+    if(limit??false)
+        if(a<b){
+            if(n<=a)return x;
+            if(n>=b)return y;
         }else{
-            if(n>x)return x2;
-            if(n<y)return y2;
+            if(n>=a)return x;
+            if(n<=b)return y;
         }
-    }
-    const yx=y-x;
-    return((n-x)*(y2-x2)+yx*x2)/yx;
+    return((y-x)/(b-a))*(n-a)+x;
 }
 /**
  * __calculates percentage of a number within bounds__

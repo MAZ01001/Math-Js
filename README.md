@@ -540,7 +540,7 @@ Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
 translate the given number to another range
 
 ```typescript
-function mapRange(n: number, x: number, y: number, x2: number, y2: number, limit?: boolean | undefined): number
+function mapRange(n: number, a: number, b: number, x: number, y: number, limit?: boolean | undefined): number
 mapRange(0.5, 0, 1, 0, 100); //=> 50
 mapRange(3, 0, 1, 0, 100); //=> 300
 mapRange(3, 0, 1, 0, 100, true); //=> 100
