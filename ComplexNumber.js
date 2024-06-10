@@ -30,9 +30,9 @@ const ComplexNumber=class ComplexNumber{
     /** ## [precalculated] `π/4` */
     static quarterPI=Math.PI*.25;
     /** ## [precalculated] multiply with a (real) number to convert radians `[0,2π[` to degrees `[0,360[` */
-    static rad2deg=0xB4*(Math.PI**-1);
+    static rad2deg=0xB4/Math.PI;
     /** ## [precalculated] multiply with a (real) number to convert degrees `[0,360[` to radians `[0,2π[` */
-    static deg2rad=Math.PI*(0xB4**-1);
+    static deg2rad=Math.PI/0xB4;
     /**
      * ## Create a new complex number `0` (`0+0i`)
      * identity element for addition (and subtraction)
@@ -397,6 +397,33 @@ const ComplexNumber=class ComplexNumber{
         return this;
     }
     /**
+     * ## Rotates `this` complex number counterclockwise by {@linkcode phi} radians
+     * ! prone to float precision errors, use {@linkcode ComplexNumber.prototype.roundEpsilon} to counteract some rounding errors
+     * @param {number} phi - angle in radians (finite real number)
+     * @throws {TypeError} if {@linkcode phi} is not a finite number
+     * @returns {ComplexNumber} `this` modified complex number
+     */
+    rotate(phi){
+        if(!Number.isFinite(phi))throw new TypeError("[addAngle] phi is not a finite number.");
+        const abs=this.abs,
+            ang=this.angleSafe+phi;
+        return this.set(Math.cos(ang)*abs,Math.sin(ang)*abs);
+    }
+    /**
+     * ## Scales the angle of `this` complex number by {@linkcode scaler}
+     * ! prone to float precision errors, use {@linkcode ComplexNumber.prototype.roundEpsilon} to counteract some rounding errors
+     * @param {number} scaler - finite real number
+     * @throws {TypeError} if {@linkcode scaler} is not a finite number
+     * @returns {ComplexNumber} `this` modified complex number
+     */
+    scaleAngle(scaler){
+        if(!Number.isFinite(scaler))throw new TypeError("[turn] scaler is not a finite number.");
+        const abs=this.abs,
+            ang=this.angleSafe*scaler;
+        if(ang%ComplexNumber.TAU===0)return this.set(abs,0);
+        return this.set(Math.cos(ang)*abs,Math.sin(ang)*abs);
+    }
+    /**
      * ## Adds another (complex) number to `this` complex number
      * @param {ComplexNumber|number} complexOrReal - complex number or real part
      * @param {number} [imag] - [optional] when {@linkcode complexOrReal} is the real part this is the imaginary part - default `0`
@@ -473,27 +500,26 @@ const ComplexNumber=class ComplexNumber{
     div(complexOrReal,imag){
         if(complexOrReal instanceof ComplexNumber){
             if(complexOrReal.isZero)throw RangeError("[div] complexOrReal (as complex) is 0.");
-            const fac=((complexOrReal.real**2)+(complexOrReal.imaginary**2))**-1;
+            const fac=(complexOrReal.real**2)+(complexOrReal.imaginary**2);
             [this.real,this.imaginary]=[
-                ((this.real*complexOrReal.real)+(this.imaginary*complexOrReal.imaginary))*fac,
-                ((this.imaginary*complexOrReal.real)-(this.real*complexOrReal.imaginary))*fac
+                ((this.real*complexOrReal.real)+(this.imaginary*complexOrReal.imaginary))/fac,
+                ((this.imaginary*complexOrReal.real)-(this.real*complexOrReal.imaginary))/fac
             ];
             return this;
         }
         if(typeof complexOrReal!=="number")throw new TypeError("[div] complexOrReal is not an instance of ComplexNumber or a number.");
         if(imag==null){
             if(complexOrReal===0)throw RangeError("[div] complexOrReal (as real) is 0.");
-            complexOrReal**=-1;
-            this.real*=complexOrReal;
-            this.imaginary*=complexOrReal;
+            this.real/=complexOrReal;
+            this.imaginary/=complexOrReal;
             return this;
         }
         if(typeof imag!=="number")throw new TypeError("[div] imag is given but is not a number.");
         if(complexOrReal===0&&imag===0)throw RangeError("[div] complexOrReal (as real) with imag is 0.");
-        const fac=((complexOrReal**2)+(imag**2))**-1;
+        const fac=(complexOrReal**2)+(imag**2);
         [this.real,this.imaginary]=[
-            ((this.real*complexOrReal)+(this.imaginary*imag))*fac,
-            ((this.imaginary*complexOrReal)-(this.real*imag))*fac
+            ((this.real*complexOrReal)+(this.imaginary*imag))/fac,
+            ((this.imaginary*complexOrReal)-(this.real*imag))/fac
         ];
         return this;
     }
@@ -505,17 +531,10 @@ const ComplexNumber=class ComplexNumber{
      */
     pow(n){
         if(!Number.isSafeInteger(n))throw new TypeError("[pow] n is not a save integer.");
-        if(n<-1)this.pow(-n).pow(-1);
-        else switch(n){
-            case -1:
-                const fac=((this.real**2)+(this.imaginary**2))**-1;
-                this.real*=fac;
-                this.imaginary*=-fac;
-            break;
-            case 0:
-                this.real=1;
-                this.imaginary=0;
-            break;
+        if(n<-1)return this.pow(-n).pow(-1);
+        if(n===-1)return this.div((this.real**2)+(this.imaginary**2));
+        if(n===0)return this.set(1,0);
+        switch(n){
             case 1:break;
             case 2:[this.real,this.imaginary]=[(this.real**2)-(this.imaginary**2),2*this.real*this.imaginary];break;
             case 3:[this.real,this.imaginary]=[(this.real**3)-(3*this.real*(this.imaginary**2)),(3*(this.real**2)*this.imaginary)-(this.imaginary**3)];break;
@@ -569,7 +588,7 @@ const ComplexNumber=class ComplexNumber{
                             case 2:tmpRe-=last*(this.real**(n-k))*(this.imaginary**k);break;
                             case 3:tmpIm-=last*(this.real**(n-k))*(this.imaginary**k);break;
                         }
-                        last=Math.floor(last*(n+1-k)*(k**-1));
+                        last=Math.floor(last*(n+1-k)/k);
                         if(++ki>3)ki=0;
                     }
                     this.real=tmpRe;
@@ -580,21 +599,33 @@ const ComplexNumber=class ComplexNumber{
                 // z^n = (z^512)^a * (z^64)^b * (z^8)^c * z^d
                 // z**n = {a times (((z**8)**8)**8)} * ((z**8)**8)**b * (z**8)**c * z**d
                 const z=ComplexNumber.one,
-                    u=this.powCopy(8),
-                    v=u.powCopy(8),
-                    w=v.powCopy(8),
+                    u=this.copy().pow(8),
+                    v=u.copy().pow(8),
+                    w=v.copy().pow(8),
                     a=Math.trunc(n*.001953125);//8**-3
                 for(let k=0;k<a;++k)z.mul(w);
                 z.mul(v.pow(Math.trunc((n*.015625)%8)));//8**-2
                 z.mul(u.pow(Math.trunc((n*.125)%8)));//8**-1
-                z.mul(this.powCopy(n%8));//8**-0
+                z.mul(this.copy().pow(n%8));//8**-0
                 this.copyFrom(z);
             break;
         }
         return this;
     }
-    // TODO pow with polar form ~ less precision but faster (z**n = r**n ∠ φ*n)
-    // TODO ? pow with complex numbers ~ z↑w → z↑(m/n)=root(n,z↑m) (use ComplexNumber._gcd_) ~ new method pow(complexOrReal,imag) and powCopy and rename old methods to powInt and powIntCopy
+    /**
+     * ## Raise `this` complex number to the power of {@linkcode x} (calculated via polar form)
+     * ! prone to float precision errors, use {@linkcode ComplexNumber.prototype.roundEpsilon} to counteract some rounding errors
+     * @param {number} x - exponent (finite real number)
+     * @throws {TypeError} if {@linkcode x} is not a finite number
+     * @returns {ComplexNumber} `this` modified complex number
+     */
+    powPolar(x){
+        if(!Number.isFinite(x))throw new TypeError("[powPolar] x is not a finite number.");
+        const abs=this.abs**x,
+            ang=this.angleSafe*x;
+        return this.set(Math.cos(ang)*abs,Math.sin(ang)*abs);
+    }
+    // TODO ? pow with complex numbers ~ z↑w → z↑(m/n)=root(n,z↑m) (use ComplexNumber._gcd_) ~ new method pow(complexOrReal,imag) and rename old method to powInt
     /**
      * ## Calculates the ("positive") square root of `this` complex number (in place)
      * use {@linkcode ComplexNumber.prototype.neg} to get the second solution to `z↑2`
@@ -630,90 +661,14 @@ const ComplexNumber=class ComplexNumber{
             z.inv();
         }
         const
-            _n=n**-1,
-            p2n=ComplexNumber.TAU*_n,
-            w=((rn,an)=>new ComplexNumber(Math.cos(an)*rn,Math.sin(an)*rn))(z.abs**_n,z.angleSafe*_n);
+            p2n=ComplexNumber.TAU/n,
+            w=((rn,an)=>new ComplexNumber(Math.cos(an)*rn,Math.sin(an)*rn))(z.abs**(1/n),z.angleSafe/n);
         let s=new Array(n);
-        for(let k=0;k<n;++k)s[k]=w.mulCopy(Math.cos(k*p2n),Math.sin(k*p2n));
+        for(let k=0;k<n;++k)s[k]=w.copy().mul(Math.cos(k*p2n),Math.sin(k*p2n));
         return s;
     };
     // TODO roots alternative without polar form ~ slower but more precise (?!)
     // TODO log of complex numbers ~ see fromLog (also custom base ? complex)
-    // TODO ? addAngle(phi,deg)
-    // TODO ? scaleAngle(x)
-    //~ ↓ alias for this.copy().___(...arguments) from ↑
-    /**
-     * ## Creates the negative of `this` complex number
-     * alias of {@linkcode ComplexNumber.prototype.neg}, but creates a new complex number\
-     * Additive inverse
-     * @returns {ComplexNumber} newly created complex number
-     */
-    negCopy(){return this.copy().neg();}
-    /**
-     * ## Creates the inverse of `this` complex number
-     * alias of {@linkcode ComplexNumber.prototype.inv}, but creates a new complex number\
-     * Multiplicative inverse
-     * @returns {ComplexNumber} newly created complex number
-     */
-    invCopy(){return this.copy().inv();}
-    /**
-     * ## Creates the complex conjugate of `this` complex number
-     * alias of {@linkcode ComplexNumber.prototype.conj}, but creates a new complex number
-     * @returns {ComplexNumber} newly created complex number
-     */
-    conjCopy(){return this.copy().conj();}
-    /**
-     * ## Creates the adds another (complex) number to `this` complex number
-     * alias of {@linkcode ComplexNumber.prototype.add}, but creates a new complex number\
-     * @param {ComplexNumber|number} complexOrReal - complex number or real part
-     * @param {number} [imag] - [optional] when {@linkcode complexOrReal} is the real part this is the imaginary part - default `0`
-     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but is not a number
-     * @returns {ComplexNumber} newly created complex number
-     */
-    addCopy(complexOrReal,imag){return this.copy().add(complexOrReal,imag);}
-    /**
-     * ## Creates the subtracts another (complex) number from `this` complex number
-     * alias of {@linkcode ComplexNumber.prototype.sub}, but creates a new complex number\
-     * @param {ComplexNumber|number} complexOrReal - complex number or real part
-     * @param {number} [imag] - [optional] when {@linkcode complexOrReal} is the real part this is the imaginary part - default `0`
-     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but is not a number
-     * @returns {ComplexNumber} newly created complex number
-     */
-    subCopy(complexOrReal,imag){return this.copy().sub(complexOrReal,imag);}
-    /**
-     * ## Creates the mulitlies another (complex) number with `this` complex number
-     * alias of {@linkcode ComplexNumber.prototype.mul}, but creates a new complex number\
-     * @param {ComplexNumber|number} complexOrReal - complex or real number
-     * @param {number} [imag] - [optional] when {@linkcode complexOrReal} is the real part this is the imaginary part - default `0`
-     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but is not a number
-     * @returns {ComplexNumber} newly created complex number
-     */
-    mulCopy(complexOrReal,imag){return this.copy().mul(complexOrReal,imag);}
-    /**
-     * ## Creates the divides `this` complex number by another (complex) number
-     * alias of {@linkcode ComplexNumber.prototype.div}, but creates a new complex number\
-     * @param {ComplexNumber|number} complexOrReal - complex or real number
-     * @param {number} [imag] - [optional] when {@linkcode complexOrReal} is the real part this is the imaginary part - default `0`
-     * @throws {TypeError} if {@linkcode complexOrReal} is not an instance of {@linkcode ComplexNumber} or a number and when {@linkcode imag} is given but is not a number
-     * @throws {RangeError} if {@linkcode complexOrReal} is `0` (as complex, as real, or as real in combination with {@linkcode imag})
-     * @returns {ComplexNumber} newly created complex number
-     */
-    divCopy(complexOrReal,imag){return this.copy().div(complexOrReal,imag);}
-    /**
-     * ## Creates the raise `this` complex number to the power of {@linkcode n}
-     * alias of {@linkcode ComplexNumber.prototype.pow}, but creates a new complex number\
-     * @param {number} n - integer exponent (can be negative)
-     * @throws {TypeError} if {@linkcode n} is not a save integer
-     * @returns {ComplexNumber} newly created complex number
-     */
-    powCopy(n){return this.copy().pow(n);}
-    /**
-     * ## Creates the (positive) square root of `this` complex number
-     * alias of {@linkcode ComplexNumber.prototype.sqrt}, but creates a new complex number\
-     * use {@linkcode ComplexNumber.prototype.negNew} to get the second solution to `z↑2`
-     * @returns {ComplexNumber} newly created complex number
-     */
-    sqrtCopy(){return this.copy().sqrt();}
     static{//~ make class and prototype immutable
         Object.freeze(ComplexNumber.prototype);
         Object.freeze(ComplexNumber);

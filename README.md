@@ -143,11 +143,11 @@ Scroll [UP](#vectorjs "Scroll to start of section: Vector.js")
 >
 > WIP
 >
+> - pow (without polar form) better calculation and support for non-integers
 > - pow with complex exponent `z↑z`
+> - root (any index) without polar form
 > - root with complex index
 > - log of complex numbers (with custom base)
-> - add angle (addition with real number in radians/degrees)
-> - scale angle (multiplication with real number)
 >
 
 - static (precalculated) values
@@ -193,7 +193,6 @@ Scroll [UP](#vectorjs "Scroll to start of section: Vector.js")
     - `∠` is U+2220 and `°` is U+00B0
 - copy values
   - from the current to a new complex number (create a copy)
-    - all arithmetic operations (see below) have alias methods that, instead of modifying, create a new complex number
   - from another to the current complex number (override)
   - from the current to another complex number (reverse override)
 - check for equality to `0`, `1`, or another complex number
@@ -201,11 +200,15 @@ Scroll [UP](#vectorjs "Scroll to start of section: Vector.js")
   - negate current complex number (`z*(-1)` ie `-z`)
   - invert current complex number (`z↑(-1)` ie `1/z`)
   - conjugate of current complex number (`a+bi` → `a-bi`)
+  - rotate complex number (counterclockwise) by an angle (from positive real axis in radians)
+  - scale angle by a scaler (real number)
   - addition with a real number or another complex number
   - subtraction with a real number or another complex number
   - multiplication with a real number or another complex number
   - division with a real number or another complex number
-  - raising to `n`th power (currently only safe integers `]-2↑53..2↑53[`)
+  - raising to `n`th power
+    - with kartesian form (currently only safe integers `]-2↑53..2↑53[`)
+    - with polar form (lower precision but faster and not limited to integers)
   - square root ("positive" solution to `z↑2`)
 - `n`th root (currently only safe integers `]-2↑53..2↑53[`)
 
