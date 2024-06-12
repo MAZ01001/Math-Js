@@ -646,15 +646,19 @@ const ComplexNumber=class ComplexNumber{
      * ! prone to float precision errors, use {@linkcode ComplexNumber.prototype.roundEpsilon} to counteract some rounding errors
      * @param {number} n - root index - must not be `0`
      * @throws {TypeError} if {@linkcode n} is not a non-zero safe integer
-     * @returns {ComplexNumber[]} list of newly created complex numbers (ordered counterclockwise from positive real axis - assume `[0]` is the "positive" root ie. principal root)
+     * @returns {Generator<ComplexNumber,void,unknown>} generator giving a list of newly created complex numbers (ordered counterclockwise from positive real axis - assume the first element is the "positive" root ie. principal root)
      * @example
-     * new ComplexNumber(2,0).pow(-4).roots(-4)
+     * new ComplexNumber(2,0).pow(-4).roots(-4).next().value
+     *     ?.roundEpsilon().toString()??"no root";
+     * "2+0i";
+     *
+     * [...new ComplexNumber(2,0).pow(-4).roots(-4)]
      *     .map(v=>v.roundEpsilon().toString());
      * ["2+0i", "0+2i", "-2+0i", "0-2i"];
      */
-    roots(n){
+    *roots(n){
         if(!Number.isSafeInteger(n)||n===0)throw new TypeError("[root] n is not a non-zero safe integer.");
-        if(this.isZero)return[];
+        if(this.isZero)return;
         const z=this.copy();
         if(n<0){
             n=-n;
@@ -663,9 +667,7 @@ const ComplexNumber=class ComplexNumber{
         const
             p2n=ComplexNumber.TAU/n,
             w=((rn,an)=>new ComplexNumber(Math.cos(an)*rn,Math.sin(an)*rn))(z.abs**(1/n),z.angleSafe/n);
-        let s=new Array(n);
-        for(let k=0;k<n;++k)s[k]=w.copy().mul(Math.cos(k*p2n),Math.sin(k*p2n));
-        return s;
+        for(let k=0;k<n;++k)yield w.copy().mul(Math.cos(k*p2n),Math.sin(k*p2n));
     };
     // TODO roots alternative without polar form ~ slower but more precise (?!)
     // TODO log of complex numbers ~ see fromLog (also custom base ? complex)

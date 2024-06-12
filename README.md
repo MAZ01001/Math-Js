@@ -211,16 +211,19 @@ Scroll [UP](#vectorjs "Scroll to start of section: Vector.js")
     - with polar form (lower precision but faster and not limited to integers)
   - square root ("positive" solution to `z↑2`)
 - `n`th root (currently only safe integers `]-2↑53..2↑53[`)
+  - gives a generator that creates all complex solutions to `z↑n`
+  - ordered counterclockwise from positive real axis
+  - assume first entry is the "positive" root ie. principal root
 
   ```javascript
-  new ComplexNumber(2,0).pow(-4).roots(-4)
+  new ComplexNumber(2,0).pow(-4).roots(-4).next().value
+      ?.roundEpsilon().toString()??"no root";
+  "2+0i";
+
+  [...new ComplexNumber(2,0).pow(-4).roots(-4)]
       .map(v=>v.roundEpsilon().toString());
   ["2+0i", "0+2i", "-2+0i", "0-2i"];
   ```
-
-  - creates an array of all complex roots with given root-index
-  - ordered counterclockwise from positive real axis
-  - assume first entry is the "positive" root ie. principal root
 
 the class and its prototype are immutable!
 
