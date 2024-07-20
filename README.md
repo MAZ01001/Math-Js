@@ -28,7 +28,6 @@
   - [`rangeGenerator`](#functions-rangegenerator "Scroll to section: [functions] `rangeGenerator`")
   - [`rng32bit`](#functions-rng32bit "Scroll to section: [functions] `rng32bit`")
   - [`valueNoise`](#functions-valuenoise "Scroll to section: [functions] `valueNoise`")
-    - [example render](#functions-valuenoise-example-render "Scroll to section: [functions: `valueNoise`] example render")
   - [`sinAprx`](#functions-sinaprx "Scroll to section: [functions] `sinAprx`")
   - [`factorial`](#functions-factorial "Scroll to section: [functions] `factorial`")
   - [`isPrime`](#functions-isprime "Scroll to section: [functions] `isPrime`")
@@ -739,10 +738,7 @@ _the output is allways the same for the same input_
 function valueNoise(x: number, y: number): number
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
-
-#### [functions: `valueNoise`] example render
+<details closed><summary>Example render</summary>
 
 I used the following code to render the background on the [preview of my r/place overlay script](https://maz01001.github.io/rPlaceOverlays/preview "Open rPlaceOverlays preview page online")
 
@@ -769,7 +765,9 @@ document.body.style.backgroundImage = (() => {
 })();
 ```
 
-Scroll [UP](#functions-valuenoise "Scroll to start of section: [functions] `valueNoise`")
+</details>
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ### [functions] `sinAprx`
