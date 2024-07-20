@@ -573,3 +573,25 @@ function nextPrime(x){
     if(x>Number.MAX_SAFE_INTEGER)return undefined;
     return x;
 }
+/**
+ * ## Integer factorization (prime decomposition)
+ * via (modified) trial division
+ * @param {number} n - safe integer (`]-2↑53..2↑53[`)
+ * @returns {number[]} prime factors of {@linkcode n} in ascending order (empty for numbers below `2`)
+ * @throws {TypeError} if {@linkcode n} is not a safe integer
+ */
+function factorize(n){
+    "use strict";
+    if(!Number.isSafeInteger(n))throw new TypeError("[factorize] n is not a safe integer.");
+    if(n<2)return[];
+    const fac=[];
+    for(;(n&1)===0;n*=.5)fac.push(2);
+    for(let d=3;n>1;d+=2){
+        if(d*d>n){
+            if(n>1)fac.push(n);
+            return fac;
+        }
+        for(;n%d===0;n/=d)fac.push(d);
+    }
+    return fac;
+}
