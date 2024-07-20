@@ -31,6 +31,7 @@
     - [example render](#functions-valuenoise-example-render "Scroll to section: [functions: `valueNoise`] example render")
   - [`sinAprx`](#functions-sinaprx "Scroll to section: [functions] `sinAprx`")
   - [`factorial`](#functions-factorial "Scroll to section: [functions] `factorial`")
+  - [`isPrime`](#functions-isprime "Scroll to section: [functions] `isPrime`")
 
 ----
 
@@ -821,6 +822,47 @@ factorial(52n);//=> 806581751709438785716606368564037669752895054408832778240000
 factorial(18); //=>   6402373705728000
 factorial(19n);//=> 121645100408832000n
 ```
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
+### [functions] `isPrime`
+
+calculates if a given number (in safe integer range: `]-2↑53,2↑53[`) is prime
+
+```typescript
+function isPrime(x: number): boolean
+```
+
+<details closed><summary>Performance test</summary>
+
+> node.js on intel i7-10700K
+
+```javascript
+const t=[
+    performance.now(),isPrime(31),              //=>   0.0601 ms : Prime
+    performance.now(),isPrime(331),             //=>   0.0036 ms : Prime
+    performance.now(),isPrime(3331),            //=>   0.0080 ms : Prime
+    performance.now(),isPrime(33331),           //=>   0.0157 ms : Prime
+    performance.now(),isPrime(333331),          //=>   0.0106 ms : Prime
+    performance.now(),isPrime(3333331),         //=>   0.0303 ms : Prime
+    performance.now(),isPrime(33333331),        //=>   0.1183 ms : Prime
+    //~ https://oeis.org/A123568 ↑
+    performance.now(),isPrime(6779164939),      //=>   3.8812 ms : Prime
+    performance.now(),isPrime(2**52-1),         //=>   3.6853 ms : -----
+    performance.now(),isPrime(2**52-47),        //=> 189.1616 ms : Prime
+    performance.now(),isPrime(2**53-3155490991),//=> 262.4474 ms : ----- (largest safe prime**2)
+    performance.now(),isPrime(2**53-145),       //=> 272.7841 ms : Prime (2nd largest safe prime)
+    performance.now(),isPrime(2**53-111),       //=> 258.4426 ms : Prime (largest safe prime)
+    performance.now(),isPrime(2**53-94),        //=>   0.0084 ms : ----- (largest safe 2*prime)
+    performance.now(),isPrime(2**53-1),         //=>   0.0185 ms : -----
+    performance.now()
+];
+//@ts-ignore t has an even number of entries where every even element is type `number` and every odd `boolean` (impossible to type-doc and/or detect by linter)
+for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"ms :",t[i+1]?"Prime":"-----");
+```
+
+</details>
 
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")

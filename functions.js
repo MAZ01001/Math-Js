@@ -508,3 +508,21 @@ function factorial(n){
     for(let m=n;m>1;n*=--m);
     return n;
 }
+/**
+ * ## Checks if {@linkcode x} is a prime number
+ * @param {number} x - real number (in safe integer range: `]-2↑53,2↑53[`)
+ * @returns {boolean} `true` when {@linkcode x} is a prime number and `false` otherwise
+ * @throws {TypeError} if {@linkcode x} is not a number
+ * @throws {RangeError} if {@linkcode x} is not in safe integer range (`]-2↑53,2↑53[`)
+ */
+function isPrime(x){
+    "use strict";
+    if(typeof x!=="number")throw new TypeError("[isPrime] x is not a number.");
+    if(Math.abs(x)>Number.MAX_SAFE_INTEGER)throw new RangeError("[isPrime] x is not in safe integer range.");
+    if(x===2)return true;
+    if(x<2||!Number.isInteger(x)||(x&1)===0)return false;
+    //~ check every odd number until sqrt(x)
+    for(let i=3;i*i<=x;i+=2)
+        if(x%i===0)return false;
+    return true;
+}
