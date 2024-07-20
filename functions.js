@@ -486,14 +486,25 @@ function sinAprx(x){
     return sinTaylor(PI2+x);
 }
 /**
- * __calcultates the factorial of {@linkcode n}__
- * @param {bigint} n - a non-zero positive integer
- * @returns {bigint} the factorial of {@linkcode n}
- * @throws {TypeError} if {@linkcode n} is not a bigint >0
+ * ## Calcultates the factorial of {@linkcode n}
+ * @typedef {number|bigint} int `bigint` or `number`
+ * @param {int} n - a positive integer (as `number` only `[0..18]`)
+ * @returns {int} the factorial of {@linkcode n}
+ * @throws {TypeError} if {@linkcode n} is not a `number` or `bigint`
+ * @throws {RangeError} if {@linkcode n} is a `bigint` and not positive
+ * @throws {RangeError} if {@linkcode n} is a `number` and not an integer in range `[0..18]`
  */
 function factorial(n){
     "use strict";
-    if(typeof n!=="bigint"||n<1n)throw new TypeError("[factorial] n is not a bigint >0");
-    for(let m=n;m>1n;n*=--m);
+    if(typeof n==="bigint"){
+        if(n<0n)throw new RangeError("[factorial] n (bigint) is not positive.");
+        if(n===0n)return 1n;
+        for(let m=n;m>1n;n*=--m);
+        return n;
+    }
+    if(typeof n!=="number")throw new TypeError("[factorial] n is not a number or bigint.");
+    if(n<0||n>18||!Number.isInteger(n))throw new RangeError("[factorial] n (number) is not an integer in range [0..18].");
+    if(n===0)return 1;
+    for(let m=n;m>1;n*=--m);
     return n;
 }

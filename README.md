@@ -805,14 +805,21 @@ Scroll [UP](#functions-sinaprx "Scroll to start of section: [functions] `sinAprx
 
 ### [functions] `factorial`
 
-calculates the factorial of a (non-zero positive `bigint`) number
+calculates the factorial of a non-zero positive integer
+
+must be either `number` in range `[0..18]` or `bigint`
 
 ```typescript
-function factorial(n: bigint): bigint
+type int = number | bigint
+function factorial(n: int): int
 ```
 
 ```javascript
-factorial(52n); //=> 80_658_175_170_943_878_571_660_636_856_403_766_975_289_505_440_883_277_824_000_000_000_000n
+// number of possible shuffles of a deck of cards
+factorial(52n);//=> 80658175170943878571660636856403766975289505440883277824000000000000n (~ 8e+67)
+// highest possible with `number` type
+factorial(18); //=>   6402373705728000
+factorial(19n);//=> 121645100408832000n
 ```
 
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
