@@ -526,3 +526,26 @@ function isPrime(x){
         if(x%i===0)return false;
     return true;
 }
+/**
+ * ## Calculates the next prime number smaller than {@linkcode x}
+ * @param {number} x - real number (in safe integer range: `]-2↑53,2↑53[`)
+ * @returns {number|undefined} next prime number smaller than {@linkcode x} or `undefined` for {@linkcode x} below or equal to 2 (no last prime)
+ * @throws {TypeError} if {@linkcode x} is not a number
+ * @throws {RangeError} if {@linkcode x} is not in safe integer range (`]-2↑53,2↑53[`)
+ */
+function lastPrime(x){
+    "use strict";
+    if(typeof x!=="number")throw new TypeError("[lastPrime] x is not a number.");
+    if(Math.abs(x)>Number.MAX_SAFE_INTEGER)throw new RangeError("[lastPrime] x is not in safe integer range.");
+    if(x<=2)return undefined;
+    if(x<=3)return 2;
+    //~ check every odd number smaller than x for prime
+    x=Math.ceil(x-1);
+    if((x&1)===0)--x;
+    for(let i=3;i*i<=x;)
+        if(x%i===0){
+            x-=2;
+            i=3;
+        }else i+=2;
+    return x;
+}

@@ -32,6 +32,7 @@
   - [`sinAprx`](#functions-sinaprx "Scroll to section: [functions] `sinAprx`")
   - [`factorial`](#functions-factorial "Scroll to section: [functions] `factorial`")
   - [`isPrime`](#functions-isprime "Scroll to section: [functions] `isPrime`")
+  - [`lastPrime`](#functions-lastprime "Scroll to section: [functions] `lastPrime`")
 
 ----
 
@@ -863,6 +864,19 @@ for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"
 ```
 
 </details>
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
+### [functions] `lastPrime`
+
+calculates the next prime number smaller than the given number (in safe integer range: `]-2↑53,2↑53[`)
+
+`undefined` for numbers `2` and smaller that have no previous prime number
+
+```typescript
+function lastPrime(x: number): number|undefined
+```
 
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
