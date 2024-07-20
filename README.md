@@ -13,27 +13,6 @@
     - [Modulo examples](#biginttype-modulo-examples "Scroll to section: [BigIntType] Modulo examples")
 - [BigIntFractionComplex.js](#bigintfractioncomplexjs)
 - [functions.js](#functionsjs)
-  - [`mapRange`](#functions-maprange "Scroll to section: [functions] `mapRange`")
-  - [`toPercent`](#functions-topercent "Scroll to section: [functions] `toPercent`")
-  - [`deg2rad`](#functions-deg2rad "Scroll to section: [functions] `deg2rad`")
-  - [`rad2deg`](#functions-rad2deg "Scroll to section: [functions] `rad2deg`")
-  - [`gcd`](#functions-gcd "Scroll to section: [functions] `gcd`")
-  - [`dec2frac`](#functions-dec2frac "Scroll to section: [functions] `dec2frac`")
-  - [`padNum`](#functions-padnum "Scroll to section: [functions] `padNum`")
-  - [`euclideanModulo`](#functions-euclideanmodulo "Scroll to section: [functions] `euclideanModulo`")
-  - [`randomRange`](#functions-randomrange "Scroll to section: [functions] `randomRange`")
-  - [`randomRangeInt`](#functions-randomrangeint "Scroll to section: [functions] `randomRangeInt`")
-  - [`divisionWithRest`](#functions-divisionwithrest "Scroll to section: [functions] `divisionWithRest`")
-  - [`randomBools`](#functions-randombools "Scroll to section: [functions] `randomBools`")
-  - [`rangeGenerator`](#functions-rangegenerator "Scroll to section: [functions] `rangeGenerator`")
-  - [`rng32bit`](#functions-rng32bit "Scroll to section: [functions] `rng32bit`")
-  - [`valueNoise`](#functions-valuenoise "Scroll to section: [functions] `valueNoise`")
-  - [`sinAprx`](#functions-sinaprx "Scroll to section: [functions] `sinAprx`")
-  - [`factorial`](#functions-factorial "Scroll to section: [functions] `factorial`")
-  - [`isPrime`](#functions-isprime "Scroll to section: [functions] `isPrime`")
-  - [`lastPrime`](#functions-lastprime "Scroll to section: [functions] `lastPrime`")
-  - [`nextPrime`](#functions-nextprime "Scroll to section: [functions] `nextPrime`")
-  - [`factorize`](#functions-factorize "Scroll to section: [functions] `factorize`")
 
 ----
 
@@ -520,32 +499,7 @@ some useful math functions
 > also see [`other-projects/useful.js`](https://github.com/MAZ01001/other-projects#usefuljs)
 >
 
-- [[functions] `mapRange`](#functions-maprange "Scroll to section: [functions] `mapRange`")
-- [[functions] `toPercent`](#functions-topercent "Scroll to section: [functions] `toPercent`")
-- [[functions] `deg2rad`](#functions-deg2rad "Scroll to section: [functions] `deg2rad`")
-- [[functions] `rad2deg`](#functions-rad2deg "Scroll to section: [functions] `rad2deg`")
-- [[functions] `gcd`](#functions-gcd "Scroll to section: [functions] `gcd`")
-- [[functions] `dec2frac`](#functions-dec2frac "Scroll to section: [functions] `dec2frac`")
-- [[functions] `padNum`](#functions-padnum "Scroll to section: [functions] `padNum`")
-- [[functions] `euclideanModulo`](#functions-euclideanmodulo "Scroll to section: [functions] `euclideanModulo`")
-- [[functions] `randomRange`](#functions-randomrange "Scroll to section: [functions] `randomRange`")
-- [[functions] `randomRangeInt`](#functions-randomrangeint "Scroll to section: [functions] `randomRangeInt`")
-- [[functions] `divisionWithRest`](#functions-divisionwithrest "Scroll to section: [functions] `divisionWithRest`")
-- [[functions] `randomBools`](#functions-randombools "Scroll to section: [functions] `randomBools`")
-- [[functions] `rangeGenerator`](#functions-rangegenerator "Scroll to section: [functions] `rangeGenerator`")
-- [[functions] `rng32bit`](#functions-rng32bit "Scroll to section: [functions] `rng32bit`")
-- [[functions] `valueNoise`](#functions-valuenoise "Scroll to section: [functions] `valueNoise`")
-- [[functions] `sinAprx`](#functions-sinaprx "Scroll to section: [functions] `sinAprx`")
-- [[functions] `factorial`](#functions-factorial "Scroll to section: [functions] `factorial`")
-- [[functions] `isPrime`](#functions-isprime "Scroll to section: [functions] `isPrime`")
-- [[functions] `lastPrime`](#functions-lastprime "Scroll to section: [functions] `lastPrime`")
-- [[functions] `nextPrime`](#functions-nextprime "Scroll to section: [functions] `nextPrime`")
-- [[functions] `factorize`](#functions-factorize "Scroll to section: [functions] `factorize`")
-
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
-
-### [functions] `mapRange`
+<details closed><summary><code>mapRange</code></summary>
 
 translate the given number to another range
 
@@ -556,10 +510,9 @@ mapRange(3, 0, 1, 0, 100); //=> 300
 mapRange(3, 0, 1, 0, 100, true); //=> 100
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `toPercent`
+<details closed><summary><code>toPercent</code></summary>
 
 calculates the percentage of the given number within the given range
 
@@ -568,10 +521,9 @@ function toPercent(n: number, x: number, y: number): number
 toPercent(150, 100, 200); //=> 0.5 = 50%
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `deg2rad`
+<details closed><summary><code>deg2rad</code></summary>
 
 converts the given angle from DEG to RAD
 
@@ -579,10 +531,9 @@ converts the given angle from DEG to RAD
 function deg2rad(deg: number): number
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `rad2deg`
+<details closed><summary><code>rad2deg</code></summary>
 
 converts the given angle from RAD to DEG
 
@@ -590,10 +541,9 @@ converts the given angle from RAD to DEG
 function rad2deg(rad: number): number
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `gcd`
+<details closed><summary><code>gcd</code></summary>
 
 calculates the greatest common divisor of `n` and `m` (positive safe integers `[1..2↑53[`)
 
@@ -602,10 +552,9 @@ function gcd(n: number, m: number): number
 gcd(45, 100); //=> 5 → (45/5) / (100/5) → 9/20
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `dec2frac`
+<details closed><summary><code>dec2frac</code></summary>
 
 converts a decimal number to an improper-fraction (rough estimation)
 
@@ -620,10 +569,9 @@ function dec2frac(dec: number, loop_last?: number | undefined, max_den?: number 
 dec2frac(0.12, 2); //=> { a:0, b:4, c:33, i:0, r:"precision" } → 0+4/33 → 0.121212121212...
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `padNum`
+<details closed><summary><code>padNum</code></summary>
 
 convert number to string with padding \
 format: `[sign] [padded start ' '] [.] [padded end '0'] [e ~]`
@@ -633,10 +581,9 @@ function padNum(n: number | string, first?: number | undefined, last?: number | 
 padNum("1.23e2", 3, 5); //=> "+  1.23000e2"
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `euclideanModulo`
+<details closed><summary><code>euclideanModulo</code></summary>
 
 calculates the modulo of two whole numbers (euclidean division)
 
@@ -646,10 +593,9 @@ $$\large a-\left(\lvert b\rvert\cdot\left\lfloor\dfrac{a}{\lvert b\rvert}\right\
 function euclideanModulo(a: number, b: number): number
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `randomRange`
+<details closed><summary><code>randomRange</code></summary>
 
 genarates a random number within given range (inclusive)
 
@@ -659,10 +605,9 @@ _gets a random number via `Math.random()` and assumes that this number is in ran
 function randomRange(min: number, max: number): number
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `randomRangeInt`
+<details closed><summary><code>randomRangeInt</code></summary>
 
 genarates a random integer within given range (inclusive)
 
@@ -670,10 +615,9 @@ genarates a random integer within given range (inclusive)
 function randomRangeInt(min: number, max: number): number
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `divisionWithRest`
+<details closed><summary><code>divisionWithRest</code></summary>
 
 division with two unsigned numbers
 
@@ -686,10 +630,9 @@ divisionWithRest(5, 3); //=> [1, 2] → 1+2/3
 
 also see [`Math-Js/BigIntType.js : #calcDivRest`](https://github.com/MAZ01001/Math-Js/blob/ca71710d50a5fa57e5cb76410cc33df8c1e688d4/BigIntType.js#L1880 "Permalink to #calcDivRest method in Math-Js/BigIntType.js") for a solution with arbitrary-length-integers
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `randomBools`
+<details closed><summary><code>randomBools</code></summary>
 
 generate a set amount of random booleans \
 _generator function_
@@ -699,10 +642,9 @@ function randomBools(amount?: number | undefined): Generator<boolean, any, unkno
 for(const rng of randomBools(3))console.log("%O",rng);
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `rangeGenerator`
+<details closed><summary><code>rangeGenerator</code></summary>
 
 creates a generator for given range - iterable \
 _use `Array.from()` to create a normal `number[]` array_
@@ -712,10 +654,9 @@ function rangeGenerator(start: number, end: number, step?: number | undefined, o
 for(const odd of rangeGenerator(1, 100, 2))console.log(odd); //~ 1 3 5 .. 97 99
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `rng32bit`
+<details closed><summary><code>rng32bit</code></summary>
 
 get a function to get random numbers like Math.random but from a given seed \
 _uses `MurmurHash3` for seeding and `sfc32` for generating 32bit values_
@@ -727,10 +668,9 @@ rng32bit("seed")()/0xFFFFFFFF; //=> 0.8370377509475307 [0.0 to 1.0 inclusive]
 rng32bit("seed")()/0x100000000;//=> 0.8370377507526428 [0.0 inclusive to 1.0 exclusive]
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `valueNoise`
+<details closed><summary><code>valueNoise</code></summary>
 
 calculates value noise for given coordinates \
 uses quintic interpolation for mixing numbers, and a quick (non-cryptographic) hash function to get random noise from coordinates \
@@ -740,7 +680,7 @@ _the output is allways the same for the same input_
 function valueNoise(x: number, y: number): number
 ```
 
-<details closed><summary>Example render</summary>
+<details open><summary>Example render</summary>
 
 I used the following code to render the background on the [preview of my r/place overlay script](https://maz01001.github.io/rPlaceOverlays/preview "Open rPlaceOverlays preview page online")
 
@@ -768,11 +708,9 @@ document.body.style.backgroundImage = (() => {
 ```
 
 </details>
+</details>
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
-
-### [functions] `sinAprx`
+<details closed><summary><code>sinAprx</code></summary>
 
 approximates `Math.sin()` \
 _more accurate for numbers that result in numbers closer to `0`_
@@ -781,7 +719,7 @@ _more accurate for numbers that result in numbers closer to `0`_
 function sinAprx(x: number): number
 ```
 
-<details closed><summary>Performance test</summary>
+<details open><summary>Performance test</summary>
 
 > node.js on intel i7-10700K
 
@@ -803,11 +741,9 @@ console.log(
 ```
 
 </details>
+</details>
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
-
-### [functions] `factorial`
+<details closed><summary><code>factorial</code></summary>
 
 calculates the factorial of a non-zero positive integer
 
@@ -826,10 +762,9 @@ factorial(18); //=>   6402373705728000
 factorial(19n);//=> 121645100408832000n
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `isPrime`
+<details closed><summary><code>isPrime</code></summary>
 
 calculates if a given number (in safe integer range: `]-2↑53,2↑53[`) is prime
 
@@ -837,7 +772,7 @@ calculates if a given number (in safe integer range: `]-2↑53,2↑53[`) is prim
 function isPrime(x: number): boolean
 ```
 
-<details closed><summary>Performance test</summary>
+<details open><summary>Performance test</summary>
 
 > node.js on intel i7-10700K
 
@@ -866,11 +801,9 @@ for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"
 ```
 
 </details>
+</details>
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
-
-### [functions] `lastPrime`
+<details closed><summary><code>lastPrime</code></summary>
 
 calculates the next prime number smaller than the given number (in safe integer range: `]-2↑53,2↑53[`)
 
@@ -880,10 +813,9 @@ calculates the next prime number smaller than the given number (in safe integer 
 function lastPrime(x: number): number|undefined
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `nextPrime`
+<details closed><summary><code>nextPrime</code></summary>
 
 calculates the next prime number larger than the given number (in safe integer range: `]-2↑53,2↑53[`)
 
@@ -899,10 +831,9 @@ console.log(...(function*(s,e){for(let p=nextPrime(s-1)??NaN;p<=e;p=nextPrime(p)
 //=> 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-### [functions] `factorize`
+<details closed><summary><code>factorize</code></summary>
 
 calculates the prime decomposition of the given safe integer (`]-2↑53..2↑53[`)
 
@@ -912,7 +843,7 @@ prime factors are in ascending order and the list is empty for numbers below `2`
 function factorize(n: number): number[]
 ```
 
-<details closed><summary>Performance test</summary>
+<details open><summary>Performance test</summary>
 
 > node.js on intel i7-10700K
 
@@ -935,6 +866,7 @@ const t=[
 for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"ms :",...t[i+1]);
 ```
 
+</details>
 </details>
 
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
