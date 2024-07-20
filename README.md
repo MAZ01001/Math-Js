@@ -30,7 +30,6 @@
   - [`valueNoise`](#functions-valuenoise "Scroll to section: [functions] `valueNoise`")
     - [example render](#functions-valuenoise-example-render "Scroll to section: [functions: `valueNoise`] example render")
   - [`sinAprx`](#functions-sinaprx "Scroll to section: [functions] `sinAprx`")
-    - [testing performance](#functions-sinaprx-testing-performance "Scroll to section: [functions: `sinAprx`] testing performance")
   - [`factorial`](#functions-factorial "Scroll to section: [functions] `factorial`")
 
 ----
@@ -778,13 +777,12 @@ _more accurate for numbers that result in numbers closer to `0`_
 function sinAprx(x: number): number
 ```
 
-Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+<details closed><summary>Performance test</summary>
 
-#### [functions: `sinAprx`] testing performance
+> node.js on intel i7-10700K
 
 ```javascript
-// → at around 42'000 calls it's slightly faster that `Math.sin()` and at 10'000'000 calls it's around 8 times faster (on my machine via nodejs)
+// → at around 42'000 calls it's slightly faster that `Math.sin()` and at 10'000'000 calls it's around 8 times faster
 const samples = 10000000,
     rngScale = 8;
 const rng = new Array(samples>>>rngScale);
@@ -800,7 +798,9 @@ console.log(
 );
 ```
 
-Scroll [UP](#functions-sinaprx "Scroll to start of section: [functions] `sinAprx`")
+</details>
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ### [functions] `factorial`
