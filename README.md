@@ -33,6 +33,7 @@
   - [`factorial`](#functions-factorial "Scroll to section: [functions] `factorial`")
   - [`isPrime`](#functions-isprime "Scroll to section: [functions] `isPrime`")
   - [`lastPrime`](#functions-lastprime "Scroll to section: [functions] `lastPrime`")
+  - [`nextPrime`](#functions-nextprime "Scroll to section: [functions] `nextPrime`")
 
 ----
 
@@ -876,6 +877,25 @@ calculates the next prime number smaller than the given number (in safe integer 
 
 ```typescript
 function lastPrime(x: number): number|undefined
+```
+
+Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
+### [functions] `nextPrime`
+
+calculates the next prime number larger than the given number (in safe integer range: `]-2↑53,2↑53[`)
+
+`undefined` when the next prime number is not a safe integer (`>=2↑53`)
+
+```typescript
+function nextPrime(x: number): number|undefined
+```
+
+```javascript
+// generate all primes in range [10..100] (via iterator/generator function)
+console.log(...(function*(s,e){for(let p=nextPrime(s-1)??NaN;p<=e;p=nextPrime(p)??NaN)yield p;})(10,100));
+//=> 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97
 ```
 
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")

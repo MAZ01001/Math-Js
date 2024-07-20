@@ -549,3 +549,27 @@ function lastPrime(x){
         }else i+=2;
     return x;
 }
+/**
+ * ## Calculates the next prime number larger than {@linkcode x}
+ * @param {number} x - real number (in safe integer range: `]-2↑53,2↑53[`)
+ * @returns {number|undefined} next prime number larger than {@linkcode x} or `undefined` when going outside safe integer range (`>=2↑53`)
+ * @throws {TypeError} if {@linkcode x} is not a number
+ * @throws {RangeError} if {@linkcode x} is not in safe integer range (`]-2↑53,2↑53[`)
+ */
+function nextPrime(x){
+    "use strict";
+    if(typeof x!=="number")throw new TypeError("[nextPrime] x is not a number.");
+    if(Math.abs(x)>Number.MAX_SAFE_INTEGER)throw new RangeError("[nextPrime] x is not in safe integer range.");
+    if(x<2)return 2;
+    //~ check every odd number larger than x for prime
+    x=Math.trunc(x)+1;
+    if((x&1)===0)++x;
+    for(let i=3;i*i<=x;)
+        if(x%i===0){
+            x+=2;
+            if(x>Number.MAX_SAFE_INTEGER)return undefined;
+            i=3;
+        }else i+=2;
+    if(x>Number.MAX_SAFE_INTEGER)return undefined;
+    return x;
+}
