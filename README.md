@@ -745,22 +745,23 @@ function isPrime(x: number): boolean
 
 ```javascript
 const t=[
-    performance.now(),isPrime(31),              //=>   0.0601 ms : Prime
-    performance.now(),isPrime(331),             //=>   0.0036 ms : Prime
-    performance.now(),isPrime(3331),            //=>   0.0080 ms : Prime
-    performance.now(),isPrime(33331),           //=>   0.0157 ms : Prime
-    performance.now(),isPrime(333331),          //=>   0.0106 ms : Prime
-    performance.now(),isPrime(3333331),         //=>   0.0303 ms : Prime
-    performance.now(),isPrime(33333331),        //=>   0.1183 ms : Prime
+    performance.now(),isPrime(31),              //=>   0.0472 ms : Prime (warmup)
+    performance.now(),isPrime(31),              //=>   0.0024 ms : Prime
+    performance.now(),isPrime(331),             //=>   0.0014 ms : Prime
+    performance.now(),isPrime(3331),            //=>   0.0013 ms : Prime
+    performance.now(),isPrime(33331),           //=>   0.0050 ms : Prime
+    performance.now(),isPrime(333331),          //=>   0.0089 ms : Prime
+    performance.now(),isPrime(3333331),         //=>   0.0089 ms : Prime
+    performance.now(),isPrime(33333331),        //=>   0.0248 ms : Prime
     //~ https://oeis.org/A123568 ↑
-    performance.now(),isPrime(6779164939),      //=>   3.8812 ms : Prime
-    performance.now(),isPrime(2**52-1),         //=>   3.6853 ms : -----
-    performance.now(),isPrime(2**52-47),        //=> 189.1616 ms : Prime
-    performance.now(),isPrime(2**53-3155490991),//=> 262.4474 ms : ----- (largest safe prime**2)
-    performance.now(),isPrime(2**53-145),       //=> 272.7841 ms : Prime (2nd largest safe prime)
-    performance.now(),isPrime(2**53-111),       //=> 258.4426 ms : Prime (largest safe prime)
-    performance.now(),isPrime(2**53-94),        //=>   0.0084 ms : ----- (largest safe 2*prime)
-    performance.now(),isPrime(2**53-1),         //=>   0.0185 ms : -----
+    performance.now(),isPrime(6779164939),      //=>   2.4889 ms : Prime
+    performance.now(),isPrime(2**52-1),         //=>   1.3814 ms : -----
+    performance.now(),isPrime(2**52-47),        //=> 118.1830 ms : Prime
+    performance.now(),isPrime(2**53-3155490991),//=> 165.7968 ms : ----- (largest safe prime**2)
+    performance.now(),isPrime(2**53-145),       //=> 165.4307 ms : Prime (2nd largest safe prime)
+    performance.now(),isPrime(2**53-111),       //=> 166.0785 ms : Prime (largest safe prime)
+    performance.now(),isPrime(2**53-94),        //=>   0.0073 ms : ----- (largest safe 2*prime)
+    performance.now(),isPrime(2**53-1),         //=>   0.0123 ms : -----
     performance.now()
 ];
 //@ts-ignore t has an even number of entries where every even element is type `number` and every odd `boolean` (impossible to type-doc and/or detect by linter)
@@ -780,6 +781,32 @@ calculates the next prime number smaller than the given number (in safe integer 
 function lastPrime(x: number): number|undefined
 ```
 
+<details open><summary>Performance test</summary>
+
+> node.js `v16.13.1` on intel `i7-10700K`
+
+```javascript
+const t=[
+    performance.now(),lastPrime(2),        //=>   0.0454 ms :        undefined (warmup)
+    performance.now(),lastPrime(2),        //=>   0.0019 ms :        undefined
+    performance.now(),lastPrime(8),        //=>   0.0018 ms :                7
+    performance.now(),lastPrime(32),       //=>   0.0014 ms :               31
+    performance.now(),lastPrime(64),       //=>   0.0010 ms :               61
+    performance.now(),lastPrime(1024),     //=>   0.0012 ms :             1021
+    performance.now(),lastPrime(2**20),    //=>   0.0083 ms :          1048573
+    performance.now(),lastPrime(2**30),    //=>   0.2444 ms :       1073741789
+    performance.now(),lastPrime(2**40),    //=>   7.2193 ms :    1099511627689
+    performance.now(),lastPrime(2**50),    //=>  63.1086 ms : 1125899906842597
+    performance.now(),lastPrime(2**53-145),//=> 337.8073 ms : 9007199254740761 (2nd largest safe prime)
+    performance.now(),lastPrime(2**53-111),//=> 173.6542 ms : 9007199254740847 (largest safe prime)
+    performance.now(),lastPrime(2**53-1),  //=> 195.3127 ms : 9007199254740881 (largest safe integer)
+    performance.now()
+];
+//@ts-ignore t has an even number of entries where every even element is type `number` and every odd `boolean` (impossible to type-doc and/or detect by linter)
+for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"ms :",String(t[i+1]).padStart(16));
+```
+
+</details>
 </details>
 
 <details closed><summary><code>nextPrime</code></summary>
@@ -798,6 +825,32 @@ console.log(...(function*(s,e){for(let p=nextPrime(s-1)??NaN;p<=e;p=nextPrime(p)
 //=> 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97
 ```
 
+<details open><summary>Performance test</summary>
+
+> node.js `v16.13.1` on intel `i7-10700K`
+
+```javascript
+const t=[
+    performance.now(),nextPrime(2),        //=>   0.0501 ms :                3 (warmup)
+    performance.now(),nextPrime(2),        //=>   0.0019 ms :                3
+    performance.now(),nextPrime(8),        //=>   0.0022 ms :               11
+    performance.now(),nextPrime(32),       //=>   0.0017 ms :               37
+    performance.now(),nextPrime(64),       //=>   0.0012 ms :               67
+    performance.now(),nextPrime(1024),     //=>   0.0018 ms :             1031
+    performance.now(),nextPrime(2**20),    //=>   0.0097 ms :          1048583
+    performance.now(),nextPrime(2**30),    //=>   0.2133 ms :       1073741827
+    performance.now(),nextPrime(2**40),    //=>   4.2761 ms :    1099511627791
+    performance.now(),nextPrime(2**50),    //=>  78.6495 ms : 1125899906842679
+    performance.now(),nextPrime(2**53-145),//=> 174.2993 ms : 9007199254740881 (2nd largest safe prime)
+    performance.now(),nextPrime(2**53-111),//=>  22.4187 ms :        undefined (largest safe prime)
+    performance.now(),nextPrime(2**53-1),  //=>   0.0056 ms :        undefined (largest safe integer)
+    performance.now()
+];
+//@ts-ignore t has an even number of entries where every even element is type `number` and every odd `boolean` (impossible to type-doc and/or detect by linter)
+for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"ms :",String(t[i+1]).padStart(16));
+```
+
+</details>
 </details>
 
 <details closed><summary><code>factorize</code></summary>
@@ -816,17 +869,18 @@ function factorize(n: number): number[]
 
 ```javascript
 const t=[
-    performance.now(),factorize(4),               //=>   0.0452 ms : 2 2
-    performance.now(),factorize(108),             //=>   0.0029 ms : 2 2 3 3 3
-    performance.now(),factorize(337500),          //=>   0.0018 ms : 2 2 3 3 3 5 5 5 5 5
-    performance.now(),factorize(277945762500),    //=>   0.0126 ms : 2 2 3 3 3 5 5 5 5 5 7 7 7 7 7 7 7
+    performance.now(),factorize(4),               //=>   0.0494 ms : 2 2 (warmup)
+    performance.now(),factorize(4),               //=>   0.0022 ms : 2 2
+    performance.now(),factorize(108),             //=>   0.0014 ms : 2 2 3 3 3
+    performance.now(),factorize(337500),          //=>   0.0022 ms : 2 2 3 3 3 5 5 5 5 5
+    performance.now(),factorize(277945762500),    //=>   0.0049 ms : 2 2 3 3 3 5 5 5 5 5 7 7 7 7 7 7 7
     //~ https://oeis.org/A076265 ↑
-    performance.now(),factorize(33332),           //=>   0.0116 ms : 2 2 13 641
-    performance.now(),factorize(33223575732),     //=>   0.0375 ms : 2 2 3 599 1531 3019
-    performance.now(),factorize(277945762499),    //=>   4.3610 ms : 41 6779164939
-    performance.now(),factorize(2**53-3155490991),//=> 274.9417 ms : 94906249 94906249  (largest safe prime**2)
-    performance.now(),factorize(2**53-111),       //=> 280.9777 ms : 9007199254740881   (largest safe prime)
-    performance.now(),factorize(2**53-94),        //=> 192.1197 ms : 2 4503599627370449 (largest safe 2*prime)
+    performance.now(),factorize(33332),           //=>   0.0079 ms : 2 2 13 641
+    performance.now(),factorize(33223575732),     //=>   0.0279 ms : 2 2 3 599 1531 3019
+    performance.now(),factorize(277945762499),    //=>   3.5837 ms : 41 6779164939
+    performance.now(),factorize(2**53-3155490991),//=> 175.6862 ms : 94906249 94906249  (largest safe prime**2)
+    performance.now(),factorize(2**53-111),       //=> 174.6259 ms : 9007199254740881   (largest safe prime)
+    performance.now(),factorize(2**53-94),        //=> 121.8000 ms : 2 4503599627370449 (largest safe 2*prime)
     performance.now()
 ];
 //@ts-ignore t has an even number of entries where every even element is type `number` and every odd `number[]` (impossible to type-doc and/or detect by linter)

@@ -480,11 +480,12 @@ function isPrime(x){
     "use strict";
     if(typeof x!=="number")throw new TypeError("[isPrime] x is not a number.");
     if(Math.abs(x)>Number.MAX_SAFE_INTEGER)throw new RangeError("[isPrime] x is not in safe integer range.");
-    if(x===2)return true;
-    if(x<2||!Number.isInteger(x)||(x&1)===0)return false;
-    //~ check every odd number until sqrt(x)
-    for(let i=3;i*i<=x;i+=2)
-        if(x%i===0)return false;
+    //~ check for 2 and 3 so that x>=5 before loop
+    if(x===2||x===3)return true;
+    if(x<2||!Number.isInteger(x)||(x&1)===0||x%3===0)return false;
+    //~ (loop) check ±1 of every 6th number until sqrt(x) (inclusive)
+    for(let i=5,r=Math.sqrt(x);i<=r;i+=6)
+        if(x%i===0||x%(i+2)===0)return false;
     return true;
 }
 /**
@@ -498,16 +499,19 @@ function lastPrime(x){
     "use strict";
     if(typeof x!=="number")throw new TypeError("[lastPrime] x is not a number.");
     if(Math.abs(x)>Number.MAX_SAFE_INTEGER)throw new RangeError("[lastPrime] x is not in safe integer range.");
+    //~ check for 2 and 3 so that x>=5 before loop
     if(x<=2)return undefined;
     if(x<=3)return 2;
-    //~ check every odd number smaller than x for prime
+    if(x<=5)return 3;
     x=Math.ceil(x-1);
     if((x&1)===0)--x;
-    for(let i=3;i*i<=x;)
-        if(x%i===0){
-            x-=2;
-            i=3;
-        }else i+=2;
+    if(x%3===0)x-=2;
+    //~ (loop) check ±1 of every 6th number until sqrt(x) (inclusive)
+    for(let i=5;i*i<=x;i+=6)
+        if(x%i===0||x%(i+2)===0){
+            if((x-=2)%3===0)x-=2;
+            i=-1;
+        }
     return x;
 }
 /**
@@ -521,17 +525,21 @@ function nextPrime(x){
     "use strict";
     if(typeof x!=="number")throw new TypeError("[nextPrime] x is not a number.");
     if(Math.abs(x)>Number.MAX_SAFE_INTEGER)throw new RangeError("[nextPrime] x is not in safe integer range.");
+    //~ check for 2 and 3 so that x>=5 before loop
     if(x<2)return 2;
-    //~ check every odd number larger than x for prime
+    if(x<3)return 3;
+    if(x<5)return 5;
     x=Math.trunc(x)+1;
     if((x&1)===0)++x;
-    for(let i=3;i*i<=x;)
-        if(x%i===0){
-            x+=2;
-            if(x>Number.MAX_SAFE_INTEGER)return undefined;
-            i=3;
-        }else i+=2;
+    if(x%3===0)x+=2;
     if(x>Number.MAX_SAFE_INTEGER)return undefined;
+    //~ (loop) check ±1 of every 6th number until sqrt(x) (inclusive)
+    for(let i=5;i*i<=x;i+=6)
+        if(x%i===0||x%(i+2)===0){
+            if((x+=2)%3===0)x+=2;
+            if(x>Number.MAX_SAFE_INTEGER)return undefined;
+            i=-1;
+        }
     return x;
 }
 /**
@@ -546,13 +554,17 @@ function factorize(n){
     if(!Number.isSafeInteger(n))throw new TypeError("[factorize] n is not a safe integer.");
     if(n<2)return[];
     const fac=[];
+    //~ check for 2 and 3 so that factors of n are >=5 before loop
     for(;(n&1)===0;n*=.5)fac.push(2);
-    for(let d=3;n>1;d+=2){
+    for(;n%3===0;n/=3)fac.push(3);
+    //~ (loop) check ±1 of every 6th number until sqrt(n) (inclusive) or n=1
+    for(let d=5;n>1;d+=6){
         if(d*d>n){
             if(n>1)fac.push(n);
             return fac;
         }
         for(;n%d===0;n/=d)fac.push(d);
+        for(const e=d+2;n%e===0;n/=e)fac.push(e);
     }
     return fac;
 }
