@@ -710,39 +710,6 @@ document.body.style.backgroundImage = (() => {
 </details>
 </details>
 
-<details closed><summary><code>sinAprx</code></summary>
-
-approximates `Math.sin()` \
-_more accurate for numbers that result in numbers closer to `0`_
-
-```typescript
-function sinAprx(x: number): number
-```
-
-<details open><summary>Performance test</summary>
-
-> node.js on intel i7-10700K
-
-```javascript
-// → at around 42'000 calls it's slightly faster that `Math.sin()` and at 10'000'000 calls it's around 8 times faster
-const samples = 10000000,
-    rngScale = 8;
-const rng = new Array(samples>>>rngScale);
-for(let i = 0; i < rng.length; i++) rng[i] = Math.random() < 0.5 ? -Math.random() : Math.random();
-const a = performance.now();
-for(let i = 0; i < samples; i++) _ = sinAprx(Number.MAX_SAFE_INTEGER * rng[i >>> rngScale] * Math.PI);
-const b = performance.now();
-for(let i = 0; i < samples; i++) _ = Math.sin(Number.MAX_SAFE_INTEGER * rng[i >>> rngScale] * Math.PI);
-const c = performance.now();
-console.log(
-    "%i samples\nAprx %f ms (%f ms each)\nSin %f ms (%f ms each)\napprox.: %f times faster",
-    samples, (b - a).toFixed(4), ((b - a) / samples).toFixed(4), (c - b).toFixed(4), ((c - b) / samples).toFixed(4), ((c - b) / (b - a)).toFixed(4)
-);
-```
-
-</details>
-</details>
-
 <details closed><summary><code>factorial</code></summary>
 
 calculates the factorial of a non-zero positive integer
