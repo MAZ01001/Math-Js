@@ -741,7 +741,7 @@ function isPrime(x: number): boolean
 
 <details open><summary>Performance test</summary>
 
-> node.js on intel i7-10700K
+> node.js `v16.13.1` on intel `i7-10700K`
 
 ```javascript
 const t=[
@@ -812,7 +812,7 @@ function factorize(n: number): number[]
 
 <details open><summary>Performance test</summary>
 
-> node.js on intel i7-10700K
+> node.js `v16.13.1` on intel `i7-10700K`
 
 ```javascript
 const t=[
