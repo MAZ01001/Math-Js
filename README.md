@@ -385,10 +385,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 
 <details closed><summary><b>Modulo examples</b></summary>
 
-$$
-\large3\bmod5\implies\frac35=0\frac35=0.6\\
-\text{round up}
-$$
+$\large3\bmod5\implies\frac35=0\frac35=0.6\qquad\text{round up}$
 
 |         | trunc | floor | euclid | round | ceil | raise |
 |:-------:| -----:| -----:| ------:| -----:| ----:| -----:|
@@ -399,10 +396,7 @@ $$
 
 <br>
 
-$$
-\large5\bmod3\implies\frac53=1\frac23=1.\overline6\\
-\text{round up}
-$$
+$\large5\bmod3\implies\frac53=1\frac23=1.\overline6\qquad\text{round up}$
 
 |         | trunc | floor | euclid | round | ceil | raise |
 |:-------:| -----:| -----:| ------:| -----:| ----:| -----:|
@@ -413,10 +407,7 @@ $$
 
 <br>
 
-$$
-\large4\bmod3\implies\frac43=1\frac13=1.\overline3\\
-\text{round down}
-$$
+$\large4\bmod3\implies\frac43=1\frac13=1.\overline3\qquad\text{round down}$
 
 |         | trunc | floor | euclid | round | ceil | raise |
 |:-------:| -----:| -----:| ------:| -----:| ----:| -----:|
@@ -427,10 +418,7 @@ $$
 
 <br>
 
-$$
-\large3\bmod2\implies\frac32=1\frac12=1.5\\
-\text{round down or up }\normalsize\text{(depending on rounding type)}
-$$
+$\large3\bmod2\implies\frac32=1\frac12=1.5\qquad\text{round down or up }\normalsize\text{(depending on rounding type)}$
 
 |         | trunc | floor | euclid |                    round                   | ceil | raise |
 |:-------:| -----:| -----:| ------:|:------------------------------------------:| ----:| -----:|
@@ -441,10 +429,7 @@ $$
 
 <br>
 
-$$
-\large3\bmod3\implies\frac33=1\frac03=1.0\\
-\text{round 0 }\normalsize\text{(same as rounding down)}
-$$
+$\large3\bmod3\implies\frac33=1\frac03=1.0\qquad\text{round 0 }\normalsize\text{(same as rounding down)}$
 
 |         | trunc | floor | euclid | round | ceil | raise |
 |:-------:| -----:| -----:| ------:| -----:| ----:| -----:|
