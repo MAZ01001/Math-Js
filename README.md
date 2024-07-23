@@ -348,18 +348,18 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 
 > [![Wikipedia: Rounding (interactible graph)](https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Comparison_rounding_graphs_SMIL.svg/300px-Comparison_rounding_graphs_SMIL.svg.png "Wikipedia: Rounding (interactible graph)")](https://en.wikipedia.org/wiki/Rounding)
 
-| name        | description                                 |                                     example                                      |
-| ----------- | ------------------------------------------- |:--------------------------------------------------------------------------------:|
-| `NEAR_DOWN` | round to nearest integer, towards -infinity |    $+1.5 \text{ → } +1$ <br> $+2.5 \text{ → } +2$ <br> $-2.5 \text{ → } -3$    |
-| `NEAR_UP`   | round to nearest integer, towards +infinity |    $+1.5 \text{ → } +2$ <br> $+2.5 \text{ → } +3$ <br> $-2.5 \text{ → } -2$    |
-| `NEAR_ZERO` | round to nearest integer, towards zero      |    $+1.5 \text{ → } +1$ <br> $+2.5 \text{ → } +2$ <br> $-2.5 \text{ → } -2$    |
-| `NEAR_INF`  | round to nearest integer, away from zero    |    $+1.5 \text{ → } +2$ <br> $+2.5 \text{ → } +3$ <br> $-2.5 \text{ → } -3$    |
-| `NEAR_EVEN` | round to nearest even integer               |    $+1.5 \text{ → } +2$ <br> $+2.5 \text{ → } +2$ <br> $-2.5 \text{ → } -2$    |
-| `NEAR_ODD`  | round to nearest odd integer                |    $+1.5 \text{ → } +1$ <br> $+2.5 \text{ → } +3$ <br> $-2.5 \text{ → } -3$    |
-| `FLOOR`     | round down (towards -infinity)              | $+1.\ast \text{ → } +1$ <br> $+2.\ast \text{ → } +2$ <br> $-2.\ast \text{ → } -3$ |
-| `CEIL`      | round up (towards +infinity)                | $+1.\ast \text{ → } +2$ <br> $+2.\ast \text{ → } +3$ <br> $-2.\ast \text{ → } -2$ |
-| `TRUNC`     | round down (towards zero)                   | $+1.\ast \text{ → } +1$ <br> $+2.\ast \text{ → } +2$ <br> $-2.\ast \text{ → } -2$ |
-| `RAISE`     | round up (away from zero)                   | $+1.\ast \text{ → } +2$ <br> $+2.\ast \text{ → } +3$ <br> $-2.\ast \text{ → } -3$ |
+| name        | description                                 |                       example                       |
+| ----------- | ------------------------------------------- |:---------------------------------------------------:|
+| `NEAR_DOWN` | round to nearest integer, towards -infinity |       +1.5 → +1 <br> +2.5 → +2 <br> −2.5 → −3       |
+| `NEAR_UP`   | round to nearest integer, towards +infinity |       +1.5 → +2 <br> +2.5 → +3 <br> −2.5 → −2       |
+| `NEAR_ZERO` | round to nearest integer, towards zero      |       +1.5 → +1 <br> +2.5 → +2 <br> −2.5 → −2       |
+| `NEAR_INF`  | round to nearest integer, away from zero    |       +1.5 → +2 <br> +2.5 → +3 <br> −2.5 → −3       |
+| `NEAR_EVEN` | round to nearest even integer               |       +1.5 → +2 <br> +2.5 → +2 <br> −2.5 → −2       |
+| `NEAR_ODD`  | round to nearest odd integer                |       +1.5 → +1 <br> +2.5 → +3 <br> −2.5 → −3       |
+| `FLOOR`     | round down (towards -infinity)              | +1.&ast; → +1 <br> +2.&ast; → +2 <br> −2.&ast; → −3 |
+| `CEIL`      | round up (towards +infinity)                | +1.&ast; → +2 <br> +2.&ast; → +3 <br> −2.&ast; → −2 |
+| `TRUNC`     | round down (towards zero)                   | +1.&ast; → +1 <br> +2.&ast; → +2 <br> −2.&ast; → −2 |
+| `RAISE`     | round up (away from zero)                   | +1.&ast; → +2 <br> +2.&ast; → +3 <br> −2.&ast; → −3 |
 
 </details>
 
@@ -385,45 +385,73 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 
 <details closed><summary><b>Modulo examples</b></summary>
 
-$\large 3 \bmod 5 \rightarrow \dfrac{3}{5} = 0\dfrac{3}{5} = 0.6 \rightarrow \text{round up}$
-|               | trunc | floor | euclid | round | ceil | raise |
-|:-------------:| -----:| -----:| ------:| -----:| ----:| -----:|
-| $+3 \bmod +5$ |  $+3$ |  $+3$ |   $+3$ |  $-2$ | $-2$ |  $-2$ |
-| $+3 \bmod -5$ |  $+3$ |  $-2$ |   $+3$ |  $-2$ | $+3$ |  $-2$ |
-| $-3 \bmod +5$ |  $-3$ |  $+2$ |   $+2$ |  $+2$ | $-3$ |  $+2$ |
-| $-3 \bmod -5$ |  $-3$ |  $-3$ |   $+2$ |  $+2$ | $+2$ |  $+2$ |
+$$
+\large3\bmod5\implies\frac35=0\frac35=0.6\\
+\text{round up}
+$$
 
-$\large 5 \bmod 3 \rightarrow \dfrac{5}{3} = 1\dfrac{2}{3} = 1.\overline{6} \rightarrow \text{round up}$
-|               | trunc | floor | euclid | round | ceil | raise |
-|:-------------:| -----:| -----:| ------:| -----:| ----:| -----:|
-| $+5 \bmod +3$ |  $+2$ |  $+2$ |   $+2$ |  $-1$ | $-1$ |  $-1$ |
-| $+5 \bmod -3$ |  $+2$ |  $-1$ |   $+2$ |  $-1$ | $+2$ |  $-1$ |
-| $-5 \bmod +3$ |  $-2$ |  $+1$ |   $+1$ |  $+1$ | $-2$ |  $+1$ |
-| $-5 \bmod -3$ |  $-2$ |  $-2$ |   $+1$ |  $+1$ | $+1$ |  $+1$ |
+|         | trunc | floor | euclid | round | ceil | raise |
+|:-------:| -----:| -----:| ------:| -----:| ----:| -----:|
+| +3 % +5 |    +3 |    +3 |     +3 |    −2 |   −2 |    −2 |
+| +3 % −5 |    +3 |    −2 |     +3 |    −2 |   +3 |    −2 |
+| −3 % +5 |    −3 |    +2 |     +2 |    +2 |   −3 |    +2 |
+| −3 % −5 |    −3 |    −3 |     +2 |    +2 |   +2 |    +2 |
 
-$\large 4 \bmod 3 \rightarrow \dfrac{4}{3} = 1\dfrac{1}{3} = 1.\overline{3} \rightarrow \text{round down}$
-|               | trunc | floor | euclid | round | ceil | raise |
-|:-------------:| -----:| -----:| ------:| -----:| ----:| -----:|
-| $+4 \bmod +3$ |  $+1$ |  $+1$ |   $+1$ |  $+1$ | $-2$ |  $-2$ |
-| $+4 \bmod -3$ |  $+1$ |  $-2$ |   $+1$ |  $+1$ | $+1$ |  $-2$ |
-| $-4 \bmod +3$ |  $-1$ |  $+2$ |   $+2$ |  $-1$ | $-1$ |  $+2$ |
-| $-4 \bmod -3$ |  $-1$ |  $-1$ |   $+2$ |  $-1$ | $+2$ |  $+2$ |
+<br>
 
-$\large 3 \bmod 2 \rightarrow \dfrac{3}{2} = 1\dfrac{1}{2} = 1.5 \rightarrow \text{round down or up }\normalsize\text{(depending on rounding type)}$
-|               | trunc | floor | euclid |                       round                       | ceil | raise |
-|:-------------:| -----:| -----:| ------:|:-------------------------------------------------:| ----:| -----:|
-| $+3 \bmod +2$ |  $+1$ |  $+1$ |   $+1$ | $\lfloor -1 \rfloor \text{ or } \lceil +1 \rceil$ | $-1$ |  $-1$ |
-| $+3 \bmod -2$ |  $+1$ |  $-1$ |   $+1$ | $\lfloor -1 \rfloor \text{ or } \lceil +1 \rceil$ | $+1$ |  $-1$ |
-| $-3 \bmod +2$ |  $-1$ |  $+1$ |   $+1$ | $\lfloor +1 \rfloor \text{ or } \lceil -1 \rceil$ | $-1$ |  $+1$ |
-| $-3 \bmod -2$ |  $-1$ |  $-1$ |   $+1$ | $\lfloor +1 \rfloor \text{ or } \lceil -1 \rceil$ | $+1$ |  $+1$ |
+$$
+\large5\bmod3\implies\frac53=1\frac23=1.\overline6\\
+\text{round up}
+$$
 
-$\large 3 \bmod 3 \rightarrow \dfrac{3}{3} = 1\dfrac{0}{3} = 1.0 \rightarrow \text{round 0 }\normalsize\text{(same as rounding down)}$
-|               | trunc | floor | euclid | round | ceil | raise |
-|:-------------:| -----:| -----:| ------:| -----:| ----:| -----:|
-| $+3 \bmod +3$ |  $+0$ |  $+0$ |   $+0$ |  $+0$ | $-0$ |  $-0$ |
-| $+3 \bmod -3$ |  $+0$ |  $-0$ |   $+0$ |  $+0$ | $+0$ |  $-0$ |
-| $-3 \bmod +3$ |  $-0$ |  $+0$ |   $+0$ |  $-0$ | $-0$ |  $+0$ |
-| $-3 \bmod -3$ |  $-0$ |  $-0$ |   $+0$ |  $-0$ | $+0$ |  $+0$ |
+|         | trunc | floor | euclid | round | ceil | raise |
+|:-------:| -----:| -----:| ------:| -----:| ----:| -----:|
+| +5 % +3 |    +2 |    +2 |     +2 |    −1 |   −1 |    −1 |
+| +5 % −3 |    +2 |    −1 |     +2 |    −1 |   +2 |    −1 |
+| −5 % +3 |    −2 |    +1 |     +1 |    +1 |   −2 |    +1 |
+| −5 % −3 |    −2 |    −2 |     +1 |    +1 |   +1 |    +1 |
+
+<br>
+
+$$
+\large4\bmod3\implies\frac43=1\frac13=1.\overline3\\
+\text{round down}
+$$
+
+|         | trunc | floor | euclid | round | ceil | raise |
+|:-------:| -----:| -----:| ------:| -----:| ----:| -----:|
+| +4 % +3 |    +1 |    +1 |     +1 |    +1 |   −2 |    −2 |
+| +4 % −3 |    +1 |    −2 |     +1 |    +1 |   +1 |    −2 |
+| −4 % +3 |    −1 |    +2 |     +2 |    −1 |   −1 |    +2 |
+| −4 % −3 |    −1 |    −1 |     +2 |    −1 |   +2 |    +2 |
+
+<br>
+
+$$
+\large3\bmod2\implies\frac32=1\frac12=1.5\\
+\text{round down or up }\normalsize\text{(depending on rounding type)}
+$$
+
+|         | trunc | floor | euclid |                    round                   | ceil | raise |
+|:-------:| -----:| -----:| ------:|:------------------------------------------:| ----:| -----:|
+| +3 % +2 |    +1 |    +1 |     +1 | &lfloor; −1 &rfloor; or &lceil; +1 &rceil; |   −1 |    −1 |
+| +3 % −2 |    +1 |    −1 |     +1 | &lfloor; −1 &rfloor; or &lceil; +1 &rceil; |   +1 |    −1 |
+| −3 % +2 |    −1 |    +1 |     +1 | &lfloor; +1 &rfloor; or &lceil; −1 &rceil; |   −1 |    +1 |
+| −3 % −2 |    −1 |    −1 |     +1 | &lfloor; +1 &rfloor; or &lceil; −1 &rceil; |   +1 |    +1 |
+
+<br>
+
+$$
+\large3\bmod3\implies\frac33=1\frac03=1.0\\
+\text{round 0 }\normalsize\text{(same as rounding down)}
+$$
+
+|         | trunc | floor | euclid | round | ceil | raise |
+|:-------:| -----:| -----:| ------:| -----:| ----:| -----:|
+| +3 % +3 |    +0 |    +0 |     +0 |    +0 |   −0 |    −0 |
+| +3 % −3 |    +0 |    −0 |     +0 |    +0 |   +0 |    −0 |
+| −3 % +3 |    −0 |    +0 |     +0 |    −0 |   −0 |    +0 |
+| −3 % −3 |    −0 |    −0 |     +0 |    −0 |   +0 |    +0 |
 
 </details>
 
