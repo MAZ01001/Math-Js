@@ -18,12 +18,10 @@
 
 ## [Polynomial.js](./Polynomial.js)
 
->
 > WIP
 >
 > - formula for degree 3/4
 > - chainable methods
->
 
 - make polynomial directly/from string/roots
 - print as string
@@ -59,13 +57,11 @@ Scroll [UP](#fractionjs "Scroll to start of section: Fraction.js")
 
 ## [Matrix.js](./Matrix.js)
 
->
 > WIP
 >
 > - row to row addition
 > - row to row subtraction
 > - row multiplied by constant
->
 
 - make matrix directly/from string
 - create identity matrix
@@ -92,12 +88,10 @@ Scroll [UP](#matrixjs "Scroll to start of section: Matrix.js")
 
 ## [Vector.js](./Vector.js)
 
->
 > WIP
 >
 > - make vector from string
 > - printing to string
->
 
 - 1D, 2D or 3D vector
 - calculate length
@@ -121,7 +115,6 @@ Scroll [UP](#vectorjs "Scroll to start of section: Vector.js")
 
 ## [ComplexNumber.js](./ComplexNumber.js)
 
->
 > WIP
 >
 > - pow (without polar form) better calculation and support for non-integers
@@ -129,7 +122,6 @@ Scroll [UP](#vectorjs "Scroll to start of section: Vector.js")
 > - root (any index) without polar form
 > - root with complex index
 > - log of complex numbers (with custom base)
->
 
 - static (precalculated) values
   - RegExp for cartesian (`a±bi`) and polar form (`r∠φrad` or `r∠φ°`)
@@ -233,20 +225,16 @@ Scroll [UP](#complexnumberjs "Scroll to start of section: ComplexNumber.js")
 
 ## [BigIntType.js](./BigIntType.js)
 
->
 > WIP
 >
 > - custom PRNG for `randomInt()`
 > - `BigIntType` as type for bitshift methods
 > - new special case for internal division algorithm
->
 
 arbitrary precision integer using JS's Uint8Array (unsigned 8-bit integer array)
 human "readable" code with lots of documentation (js-doc & some comments) and descriptive error throws
 
->
 > [__BigIntType online calculator__ WIP](https://maz01001.github.io/site/biginttype_calc.html)
->
 
 - adjustable limit `MAX_SIZE:Number` (Range 1 to 67108864 / 64MiB) (software max is [8PiB-1] - wich could be extended to [16PiB-2] using `Uint16Array` - or even [32PiB-4] using `Uint32Array` and `BigInt`)
 - internal values: `sign:Boolean` / `digits:Uint8Array` (base 256 digits) / `length:Number` (length of digit-array)
@@ -284,9 +272,7 @@ Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
 
 ### [BigIntType] Supported numerical bases
 
->
 > ALL YOUR BASE ARE BELONG TO US
->
 
 - all bases from 2 to 4'294'967'296 (inclusive) are supported for in- and output
   - via `String`, `Number`, `BigInt`, `Uint8Array`, or array of `Number`s
@@ -307,9 +293,7 @@ Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
 
 #### [BigIntType] Supported numerical base names
 
->
 > [Wikipedia: Numerical Bases](https://en.wikipedia.org/wiki/List_of_numeral_systems#Standard_positional_numeral_systems)
->
 
 <details closed><summary>click to show table</summary>
 
@@ -376,9 +360,7 @@ Scroll [UP](#biginttype-supported-numerical-bases "Scroll to start of section: [
 
 ### [BigIntType] Supported rounding types
 
->
 > [![Wikipedia: Rounding (interactible graph)](https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Comparison_rounding_graphs_SMIL.svg/300px-Comparison_rounding_graphs_SMIL.svg.png "Wikipedia: Rounding (interactible graph)")](https://en.wikipedia.org/wiki/Rounding)
->
 
 <details open><summary>click to hide table</summary>
 
@@ -402,9 +384,7 @@ Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
 
 ### [BigIntType] Supported modulo types
 
->
 > [Wikipedia: Modulo](https://en.wikipedia.org/wiki/Modulo)
->
 
 <details open><summary>click to hide table</summary>
 
@@ -480,11 +460,9 @@ Scroll [UP](#biginttype-supported-modulo-types "Scroll to start of section: [Big
 
 ## [BigIntFractionComplex.js](./BigIntFractionComplex.js)
 
->
 > WIP
 >
 > idea: BigInt >> Fraction & Infinity >> ComplexNumber
->
 
 ----
 
@@ -495,9 +473,7 @@ Scroll [UP](#bigintfractioncomplexjs "Scroll to start of section: BigIntFraction
 
 some useful math functions
 
->
 > also see [`other-projects/useful.js`](https://github.com/MAZ01001/other-projects#usefuljs)
->
 
 <details closed><summary><code>mapRange</code></summary>
 
