@@ -229,9 +229,9 @@ Scroll [UP](#complexnumberjs "Scroll to start of section: ComplexNumber.js")
 arbitrary precision integer using JS's Uint8Array (unsigned 8-bit integer array)
 human "readable" code with lots of documentation (js-doc & some comments) and descriptive error throws
 
-> [__BigIntType online calculator__ WIP](https://maz01001.github.io/site/biginttype_calc.html)
+> [__BigIntType online calculator__ WIP](https://maz01001.github.io/site/biginttype_calc)
 
-- adjustable limit `MAX_SIZE:Number` (Range 1 to 67108864 / 64MiB) (software max is [8PiB-1] - wich could be extended to [16PiB-2] using `Uint16Array` - or even [32PiB-4] using `Uint32Array` and `BigInt`)
+- adjustable limit `MAX_SIZE:Number` (Range 1 to 67108864 / 64MiB) (software max is [8PiB-1] - which could be extended to [16PiB-2] using `Uint16Array` - or even [32PiB-4] using `Uint32Array` and `BigInt`)
 - internal values: `sign:Boolean` / `digits:Uint8Array` (base 256 digits) / `length:Number` (length of digit-array)
 - during [JS type coercion](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#type_coercion "MDN reference on type coercion in JS"), it converts to `BigInt` by default or in the context of numbers and to (base 16) `String` when used in the context of strings
 - conversions to `toBigInt()` / `ToNumber()` / `ToString(base)`
@@ -243,7 +243,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
   - `A < B` / `A > B` / `A == B` / `A === B` / `A >= B` / `A <= B`
   - `isSafeInteger()` / `isFinite()` (for checking if its save to convert to `Number`)
   - `isPowerOfTwo()` / `isPowerOfBase()` (256)
-- __chainable methods:__
+- chainable methods:
   - number constants: `0` / `1` / `2` also negative equivalents and `Infinity` (`1 ** 1024`) / `MAX_VALUE` / `HelloThere`
   - logging to console via `logConsole(base)` format: `[timestamp] (byte count) sign digits (base indicator)` (text is green on black and in large monospace font if the console supports it)
   - copy/setEqual: `copy()` / `reverseCopy(toOtherNumber)` / `setEqualTo(otherNumber)` / `swapWith(otherNumber)`
