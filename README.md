@@ -656,7 +656,7 @@ _the output is allways the same for the same input_
 function valueNoise(x: number, y: number): number
 ```
 
-<details open><summary>Example render</summary>
+<details open><summary><b>Example render</b></summary>
 
 I used the following code to render the background on the [preview of my r/place overlay script](https://maz01001.github.io/rPlaceOverlays/preview "Open rPlaceOverlays preview page online")
 
@@ -715,7 +715,7 @@ calculates if a given number (in safe integer range: `]-2↑53,2↑53[`) is prim
 function isPrime(x: number): boolean
 ```
 
-<details open><summary>Performance test</summary>
+<details open><summary><b>Performance test</b></summary>
 
 > node.js `v16.13.1` on intel `i7-10700K`
 
@@ -757,7 +757,7 @@ calculates the next prime number smaller than the given number (in safe integer 
 function lastPrime(x: number): number|undefined
 ```
 
-<details open><summary>Performance test</summary>
+<details open><summary><b>Performance test</b></summary>
 
 > node.js `v16.13.1` on intel `i7-10700K`
 
@@ -801,7 +801,7 @@ console.log(...(function*(s,e){for(let p=nextPrime(s-1)??NaN;p<=e;p=nextPrime(p)
 //=> 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97
 ```
 
-<details open><summary>Performance test</summary>
+<details open><summary><b>Performance test</b></summary>
 
 > node.js `v16.13.1` on intel `i7-10700K`
 
@@ -839,7 +839,7 @@ prime factors are in ascending order and the list is empty for numbers below `2`
 function factorize(n: number): number[]
 ```
 
-<details open><summary>Performance test</summary>
+<details open><summary><b>Performance test</b></summary>
 
 > node.js `v16.13.1` on intel `i7-10700K`
 
