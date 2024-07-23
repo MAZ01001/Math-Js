@@ -6,11 +6,6 @@
 - [Vector.js](#vectorjs)
 - [ComplexNumber.js](#complexnumberjs)
 - [BigIntType.js](#biginttypejs)
-  - [Supported numerical bases](#biginttype-supported-numerical-bases "Scroll to section: [BigIntType] Supported numerical bases")
-    - [Supported numerical base names](#biginttype-supported-numerical-base-names "Scroll to section: [BigIntType] Supported numerical base names")
-  - [Supported rounding types](#biginttype-supported-rounding-types "Scroll to section: [BigIntType] Supported rounding types")
-  - [Supported modulo types](#biginttype-supported-modulo-types "Scroll to section: [BigIntType] Supported modulo types")
-    - [Modulo examples](#biginttype-modulo-examples "Scroll to section: [BigIntType] Modulo examples")
 - [BigIntFractionComplex.js](#bigintfractioncomplexjs)
 - [functions.js](#functionsjs)
 
@@ -240,7 +235,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 - internal values: `sign:Boolean` / `digits:Uint8Array` (base 256 digits) / `length:Number` (length of digit-array)
 - during [JS type coercion](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#type_coercion "MDN reference on type coercion in JS"), it converts to `BigInt` by default or in the context of numbers and to (base 16) `String` when used in the context of strings
 - conversions to `toBigInt()` / `ToNumber()` / `ToString(base)`
-- can be created from, and converted to, different [bases](#biginttype-supported-numerical-bases "see all supported bases")
+- can be created from, and converted to, different bases (see __supported numerical bases__ below)
 - encode `toURL()` / `fromURL()`
 - comparisons:
   - `isOdd()` / `isEven()`
@@ -256,21 +251,18 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
   - operations:
     - `++A` / `--A` / `A += B` / `A -= B`
     - `A *= B` using karatsubas algorithm / `A **= B`
-    - `A /= B` with [rounding](#biginttype-supported-rounding-types "see supported rounding types") / `A %= B` with [rounding](#biginttype-supported-modulo-types "see supported modulo types")
-    - `A *= 2` / `A /= 2` with [rounding](#biginttype-supported-rounding-types "see supported rounding types")
-    - `A *= (256 ** x)` with [rounding](#biginttype-supported-rounding-types "see supported rounding types") - (digit-shifts)
+    - `A /= B` with rounding (see __supported rounding types__ below) / `A %= B` with rounding (see __supported modulo types__ below)
+    - `A *= 2` / `A /= 2` with rounding (see __supported rounding types__ below)
+    - `A *= (256 ** x)` with rounding (see __supported rounding types__ below) - (digit-shifts)
     - `A **= 2` / `A **= 3`
   - bitwise operations:
     - `A >>>= x` / `A <<= x` / `A &= B` / `A |= B` / `A ^= B` / `A ~= A`
   - `GCD(A, B)`
-  - `mapRange(a, b, a2, b2)` with [rounding](#biginttype-supported-rounding-types "see supported rounding types") and limit (cap at a2 / b2)
+  - `mapRange(a, b, a2, b2)` with rounding (see __supported rounding types__ below) and limit (cap at a2 / b2)
 - `randomInt(min, max)` (using `Math.random()`)
 - _↑ (`A` and `B` are type `BigIntType` and `x` is type `Number`) ↑_
 
-Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
-
-### [BigIntType] Supported numerical bases
+<details closed><summary><b>Supported numerical bases</b></summary>
 
 > ALL YOUR BASE ARE BELONG TO US
 
@@ -288,14 +280,11 @@ Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
     (in base 10 / with `0-9`)
   - `"braille"` is in base 256 but uses braille patterns (`U+2800` to `U+28FF` inclusive) as digit-charset
 
-Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+</details>
 
-#### [BigIntType] Supported numerical base names
+<details closed><summary><b>Supported numerical base names</b></summary>
 
 > [Wikipedia: Numerical Bases](https://en.wikipedia.org/wiki/List_of_numeral_systems#Standard_positional_numeral_systems)
-
-<details closed><summary>click to show table</summary>
 
 | base | names                                                |       base | names                                          |
 | ----:| ---------------------------------------------------- | ----------:| ---------------------------------------------- |
@@ -355,14 +344,9 @@ Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
 
 </details>
 
-Scroll [UP](#biginttype-supported-numerical-bases "Scroll to start of section: [BigIntType] Supported numerical bases")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
-
-### [BigIntType] Supported rounding types
+<details closed><summary><b>Supported rounding types</b></summary>
 
 > [![Wikipedia: Rounding (interactible graph)](https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Comparison_rounding_graphs_SMIL.svg/300px-Comparison_rounding_graphs_SMIL.svg.png "Wikipedia: Rounding (interactible graph)")](https://en.wikipedia.org/wiki/Rounding)
-
-<details open><summary>click to hide table</summary>
 
 | name        | description                                 |                                     example                                      |
 | ----------- | ------------------------------------------- |:--------------------------------------------------------------------------------:|
@@ -379,14 +363,9 @@ Scroll [UP](#biginttype-supported-numerical-bases "Scroll to start of section: [
 
 </details>
 
-Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
-
-### [BigIntType] Supported modulo types
+<details closed><summary><b>Supported modulo types</b></summary>
 
 > [Wikipedia: Modulo](https://en.wikipedia.org/wiki/Modulo)
-
-<details open><summary>click to hide table</summary>
 
 | name              | description                              |
 | ----------------- | ---------------------------------------- |
@@ -404,12 +383,7 @@ Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
 
 </details>
 
-Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
-    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
-
-#### [BigIntType] Modulo examples
-
-<details closed><summary>click to show table</summary>
+<details closed><summary><b>Modulo examples</b></summary>
 
 $\large 3 \bmod 5 \rightarrow \dfrac{3}{5} = 0\dfrac{3}{5} = 0.6 \rightarrow \text{round up}$
 |               | trunc | floor | euclid | round | ceil | raise |
@@ -455,7 +429,7 @@ $\large 3 \bmod 3 \rightarrow \dfrac{3}{3} = 1\dfrac{0}{3} = 1.0 \rightarrow \te
 
 _more details/documentation in the file itself via js-docs (`/** */`) and additional commenting with `//~`_
 
-Scroll [UP](#biginttype-supported-modulo-types "Scroll to start of section: [BigIntType] Supported modulo types")
+Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ## [BigIntFractionComplex.js](./BigIntFractionComplex.js)
