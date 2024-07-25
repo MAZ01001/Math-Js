@@ -262,7 +262,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 - `randomInt(min, max)` (using `Math.random()`)
 - _↑ (`A` and `B` are type `BigIntType` and `x` is type `Number`) ↑_
 
-<details closed><summary><b>Supported numerical bases</b></summary>
+<details closed id="biginttypejs-supported-numerical-bases"><summary><b>Supported numerical bases</b></summary>
 
 > ALL YOUR BASE ARE BELONG TO US
 
@@ -282,7 +282,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 
 </details>
 
-<details closed><summary><b>Supported numerical base names</b></summary>
+<details closed id="biginttypejs-supported-numerical-base-names"><summary><b>Supported numerical base names</b></summary>
 
 > [Wikipedia: Numerical Bases](https://en.wikipedia.org/wiki/List_of_numeral_systems#Standard_positional_numeral_systems)
 
@@ -344,7 +344,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 
 </details>
 
-<details closed><summary><b>Supported rounding types</b></summary>
+<details closed id="biginttypejs-supported-rounding-types"><summary><b>Supported rounding types</b></summary>
 
 > [![Wikipedia: Rounding (interactible graph)](https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Comparison_rounding_graphs_SMIL.svg/300px-Comparison_rounding_graphs_SMIL.svg.png "Wikipedia: Rounding (interactible graph)")](https://en.wikipedia.org/wiki/Rounding)
 
@@ -363,7 +363,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 
 </details>
 
-<details closed><summary><b>Supported modulo types</b></summary>
+<details closed id="biginttypejs-supported-modulo-types"><summary><b>Supported modulo types</b></summary>
 
 > [Wikipedia: Modulo](https://en.wikipedia.org/wiki/Modulo)
 
@@ -383,7 +383,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 
 </details>
 
-<details closed><summary><b>Modulo examples</b></summary>
+<details closed id="biginttypejs-modulo-examples"><summary><b>Modulo examples</b></summary>
 
 $\large3\bmod5\implies\frac35=0\frac35=0.6\qquad\text{round up}$
 
@@ -462,7 +462,7 @@ some useful math functions
 
 > also see [`other-projects/useful.js`](https://github.com/MAZ01001/other-projects#usefuljs)
 
-<details closed><summary><code>mapRange</code></summary>
+<details closed id="functionsjs-mapRange"><summary><code>mapRange</code></summary>
 
 translate the given number to another range
 
@@ -475,7 +475,7 @@ mapRange(3, 0, 1, 0, 100, true); //=> 100
 
 </details>
 
-<details closed><summary><code>toPercent</code></summary>
+<details closed id="functionsjs-toPercent"><summary><code>toPercent</code></summary>
 
 calculates the percentage of the given number within the given range
 
@@ -486,7 +486,7 @@ toPercent(150, 100, 200); //=> 0.5 = 50%
 
 </details>
 
-<details closed><summary><code>deg2rad</code></summary>
+<details closed id="functionsjs-deg2rad"><summary><code>deg2rad</code></summary>
 
 converts the given angle from DEG to RAD
 
@@ -496,7 +496,7 @@ function deg2rad(deg: number): number
 
 </details>
 
-<details closed><summary><code>rad2deg</code></summary>
+<details closed id="functionsjs-rad2deg"><summary><code>rad2deg</code></summary>
 
 converts the given angle from RAD to DEG
 
@@ -506,7 +506,7 @@ function rad2deg(rad: number): number
 
 </details>
 
-<details closed><summary><code>gcd</code></summary>
+<details closed id="functionsjs-gcd"><summary><code>gcd</code></summary>
 
 calculates the greatest common divisor of `n` and `m` (positive safe integers `[1..2↑53[`)
 
@@ -517,7 +517,7 @@ gcd(45, 100); //=> 5 → (45/5) / (100/5) → 9/20
 
 </details>
 
-<details closed><summary><code>dec2frac</code></summary>
+<details closed id="functionsjs-dec2frac"><summary><code>dec2frac</code></summary>
 
 converts a decimal number to an improper-fraction (rough estimation)
 
@@ -534,7 +534,7 @@ dec2frac(0.12, 2); //=> { a:0, b:4, c:33, i:0, r:"precision" } → 0+4/33 → 0.
 
 </details>
 
-<details closed><summary><code>padNum</code></summary>
+<details closed id="functionsjs-padNum"><summary><code>padNum</code></summary>
 
 convert number to string with padding \
 format: `[sign] [padded start ' '] [.] [padded end '0'] [e ~]`
@@ -546,7 +546,7 @@ padNum("1.23e2", 3, 5); //=> "+  1.23000e2"
 
 </details>
 
-<details closed><summary><code>euclideanModulo</code></summary>
+<details closed id="functionsjs-euclideanModulo"><summary><code>euclideanModulo</code></summary>
 
 calculates the modulo of two whole numbers (euclidean division)
 
@@ -558,7 +558,7 @@ function euclideanModulo(a: number, b: number): number
 
 </details>
 
-<details closed><summary><code>randomRange</code></summary>
+<details closed id="functionsjs-randomRange"><summary><code>randomRange</code></summary>
 
 genarates a random number within given range (inclusive)
 
@@ -570,7 +570,7 @@ function randomRange(min: number, max: number): number
 
 </details>
 
-<details closed><summary><code>randomRangeInt</code></summary>
+<details closed id="functionsjs-randomRangeInt"><summary><code>randomRangeInt</code></summary>
 
 genarates a random integer within given range (inclusive)
 
@@ -580,7 +580,7 @@ function randomRangeInt(min: number, max: number): number
 
 </details>
 
-<details closed><summary><code>divisionWithRest</code></summary>
+<details closed id="functionsjs-divisionWithRest"><summary><code>divisionWithRest</code></summary>
 
 division with two unsigned numbers
 
@@ -595,7 +595,7 @@ also see [`Math-Js/BigIntType.js : #calcDivRest`](https://github.com/MAZ01001/Ma
 
 </details>
 
-<details closed><summary><code>randomBools</code></summary>
+<details closed id="functionsjs-randomBools"><summary><code>randomBools</code></summary>
 
 generate a set amount of random booleans \
 _generator function_
@@ -607,7 +607,7 @@ for(const rng of randomBools(3))console.log("%O",rng);
 
 </details>
 
-<details closed><summary><code>rangeGenerator</code></summary>
+<details closed id="functionsjs-rangeGenerator"><summary><code>rangeGenerator</code></summary>
 
 creates a generator for given range - iterable \
 _use `Array.from()` to create a normal `number[]` array_
@@ -619,7 +619,7 @@ for(const odd of rangeGenerator(1, 100, 2))console.log(odd); //~ 1 3 5 .. 97 99
 
 </details>
 
-<details closed><summary><code>rng32bit</code></summary>
+<details closed id="functionsjs-rng32bit"><summary><code>rng32bit</code></summary>
 
 get a function to get random numbers like Math.random but from a given seed \
 _uses `MurmurHash3` for seeding and `sfc32` for generating 32bit values_
@@ -633,7 +633,7 @@ rng32bit("seed")()/0x100000000;//=> 0.8370377507526428 [0.0 inclusive to 1.0 exc
 
 </details>
 
-<details closed><summary><code>valueNoise</code></summary>
+<details closed id="functionsjs-valueNoise"><summary><code>valueNoise</code></summary>
 
 calculates value noise for given coordinates \
 uses quintic interpolation for mixing numbers, and a quick (non-cryptographic) hash function to get random noise from coordinates \
@@ -673,7 +673,7 @@ document.body.style.backgroundImage = (() => {
 </details>
 </details>
 
-<details closed><summary><code>factorial</code></summary>
+<details closed id="functionsjs-factorial"><summary><code>factorial</code></summary>
 
 calculates the factorial of a non-zero positive integer
 
@@ -694,7 +694,7 @@ factorial(19n);//=> 121645100408832000n
 
 </details>
 
-<details closed><summary><code>isPrime</code></summary>
+<details closed id="functionsjs-isPrime"><summary><code>isPrime</code></summary>
 
 calculates if a given number (in safe integer range: `]-2↑53,2↑53[`) is prime
 
@@ -734,7 +734,7 @@ for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"
 </details>
 </details>
 
-<details closed><summary><code>lastPrime</code></summary>
+<details closed id="functionsjs-lastPrime"><summary><code>lastPrime</code></summary>
 
 calculates the next prime number smaller than the given number (in safe integer range: `]-2↑53,2↑53[`)
 
@@ -772,7 +772,7 @@ for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"
 </details>
 </details>
 
-<details closed><summary><code>nextPrime</code></summary>
+<details closed id="functionsjs-nextPrime"><summary><code>nextPrime</code></summary>
 
 calculates the next prime number larger than the given number (in safe integer range: `]-2↑53,2↑53[`)
 
@@ -816,7 +816,7 @@ for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"
 </details>
 </details>
 
-<details closed><summary><code>factorize</code></summary>
+<details closed id="functionsjs-factorize"><summary><code>factorize</code></summary>
 
 calculates the prime decomposition of the given safe integer (`]-2↑53..2↑53[`)
 
