@@ -235,7 +235,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 - internal values: `sign:Boolean` / `digits:Uint8Array` (base 256 digits) / `length:Number` (length of digit-array)
 - during [JS type coercion](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#type_coercion "MDN reference on type coercion in JS"), it converts to `BigInt` by default or in the context of numbers and to (base 16) `String` when used in the context of strings
 - conversions to `toBigInt()` / `ToNumber()` / `ToString(base)`
-- can be created from, and converted to, different bases (see __supported numerical bases__ below)
+- can be created from, and converted to, different [bases](#biginttypejs-supported-numerical-bases "scroll down to see more info on the supported numerical bases")
 - encode `toURL()` / `fromURL()`
 - comparisons:
   - `isOdd()` / `isEven()`
@@ -251,14 +251,14 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
   - operations:
     - `++A` / `--A` / `A += B` / `A -= B`
     - `A *= B` using karatsubas algorithm / `A **= B`
-    - `A /= B` with rounding (see __supported rounding types__ below) / `A %= B` with rounding (see __supported modulo types__ below)
-    - `A *= 2` / `A /= 2` with rounding (see __supported rounding types__ below)
-    - `A *= (256 ** x)` with rounding (see __supported rounding types__ below) - (digit-shifts)
+    - `A /= B` with [rounding](#biginttypejs-supported-rounding-types "scroll down to see more info on the supported rounding types") / `A %= B` with [rounding](#biginttypejs-supported-modulo-types "scroll down to see more info on the supported modulo types")
+    - `A *= 2` / `A /= 2` with [rounding](#biginttypejs-supported-rounding-types "scroll down to see more info on the supported rounding types")
+    - `A *= (256 ** x)` with [rounding](#biginttypejs-supported-rounding-types "scroll down to see more info on the supported rounding types") - (digit-shifts)
     - `A **= 2` / `A **= 3`
   - bitwise operations:
     - `A >>>= x` / `A <<= x` / `A &= B` / `A |= B` / `A ^= B` / `A ~= A`
   - `GCD(A, B)`
-  - `mapRange(a, b, a2, b2)` with rounding (see __supported rounding types__ below) and limit (cap at a2 / b2)
+  - `mapRange(a, b, a2, b2)` with [rounding](#biginttypejs-supported-rounding-types "scroll down to see more info on the supported rounding types") and limit (cap at a2 / b2)
 - `randomInt(min, max)` (using `Math.random()`)
 - _↑ (`A` and `B` are type `BigIntType` and `x` is type `Number`) ↑_
 
