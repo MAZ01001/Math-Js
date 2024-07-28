@@ -184,13 +184,10 @@ Scroll [UP](#vectorjs "Scroll to start of section: Vector.js")
   - assume first entry is the "positive" root ie. principal root
 
   ```javascript
-  new ComplexNumber(2,0).pow(-4).roots(-4).next().value
-      ?.roundEpsilon().toString()??"no root";
-  "2+0i";
-
-  [...new ComplexNumber(2,0).pow(-4).roots(-4)]
-      .map(v=>v.roundEpsilon().toString());
-  ["2+0i", "0+2i", "-2+0i", "0-2i"];
+  new ComplexNumber(2,0).pow(-4).roots(-4).next().value?.roundEpsilon().toString()??"no root";
+  //=> "2+0i"
+  [...new ComplexNumber(2,0).pow(-4).roots(-4)].map(v=>v.roundEpsilon().toString());
+  //=> ["2+0i", "0+2i", "-2+0i", "0-2i"]
   ```
 
 the class and its prototype are immutable!
