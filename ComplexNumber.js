@@ -648,13 +648,10 @@ const ComplexNumber=class ComplexNumber{
      * @throws {TypeError} if {@linkcode n} is not a non-zero safe integer
      * @returns {Generator<ComplexNumber,void,unknown>} generator giving a list of newly created complex numbers (ordered counterclockwise from positive real axis - assume the first element is the "positive" root ie. principal root)
      * @example
-     * new ComplexNumber(2,0).pow(-4).roots(-4).next().value
-     *     ?.roundEpsilon().toString()??"no root";
-     * "2+0i";
-     *
-     * [...new ComplexNumber(2,0).pow(-4).roots(-4)]
-     *     .map(v=>v.roundEpsilon().toString());
-     * ["2+0i", "0+2i", "-2+0i", "0-2i"];
+     * new ComplexNumber(2,0).pow(-4).roots(-4).next().value?.roundEpsilon().toString()??"no root";
+     * //=> "2+0i"
+     * [...new ComplexNumber(2,0).pow(-4).roots(-4)].map(v=>v.roundEpsilon().toString());
+     * //=> ["2+0i", "0+2i", "-2+0i", "0-2i"]
      */
     *roots(n){
         if(!Number.isSafeInteger(n)||n===0)throw new TypeError("[root] n is not a non-zero safe integer.");
