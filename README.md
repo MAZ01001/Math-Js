@@ -456,6 +456,11 @@ Scroll [UP](#bigintfractioncomplexjs "Scroll to start of section: BigIntFraction
 
 RNG stuff
 
+> WIP
+>
+> - voronoi noise
+> - perlin noise
+
 Static methods for `RNG.noise(x, seed)` (non-cryptographic 32bit hash) and `RNG.valueNoise2D(x, y, seed)`.
 
 After instanciating an RNG object (`sfc32`) with a seed (`MurmurHash3`) one can get random values via:
