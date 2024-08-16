@@ -164,6 +164,35 @@ const RNG=class RNG{
      * @returns {number} the noise value for this pixel, 0 (inclusive) to 1 (exclusive)
      * @throws {TypeError} if {@linkcode x} or {@linkcode y} are not safe numbers (not exceed {@linkcode Number.MAX_SAFE_INTEGER} but not strictly integers)
      * @throws {TypeError} if {@linkcode seed} is given but not a positive 32bit integer
+     * @example
+     * //? script within HTML after body (with 1 canvas element) loads ~ call gen(seed) with differend seed from dev-console (F12)
+     * const size = Object.freeze([1920, 1080]),
+     *     canvas = Object.assign(document.getElementsByTagName("canvas")[0], { width: size[0], height: size[1] }),
+     *     context = canvas.getContext("2d"),
+     *     exampleNoise = context.createImageData(...size, {colorSpace: "srgb"});
+     * async function gen(seed){
+     *     "use strict";
+     *     let drawn = 0;
+     *     for(let x = 0, y = 0; y < size[1] && x < size[0]; ++x >= size[0] && (x = 0, ++y)){
+     *         const pixel
+     *             //// = RNG.noise(x + y * 0xF47A23, seed) * 256 / 0x100000000;
+     *             //// = RNG.noise(Math.floor(x / 10) + Math.floor(y / 10) * 0xF47A23, seed) * 256 / 0x100000000;
+     *             = RNG.valueNoise2D(x / 128, y / 128, seed) * 128
+     *             + RNG.valueNoise2D(x /  64, y /  64, seed) *  64
+     *             + RNG.valueNoise2D(x /  32, y /  32, seed) *  32
+     *             + RNG.valueNoise2D(x /  16, y /  16, seed) *  16
+     *             + RNG.valueNoise2D(x /   8, y /   8, seed) *   8;
+     *             // ...
+     *         exampleNoise.data.set([pixel, pixel, pixel, 0xFF], (y * size[0] + x) * 4);
+     *         if(++drawn > 10000){
+     *             drawn = 0;
+     *             context.putImageData(exampleNoise, 0, 0);
+     *             await new Promise(E => window.requestAnimationFrame(E));
+     *         }
+     *     }
+     *     context.putImageData(exampleNoise, 0, 0);
+     * }
+     * gen(0);
      */
     static valueNoise2D(x,y,seed){
         if(typeof x!=="number"||Math.abs(x)>Number.MAX_SAFE_INTEGER)throw new TypeError("[RNG:valueNoise2D] x is not a safe number.");
