@@ -448,8 +448,6 @@ Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
 >
 > idea: BigInt >> Fraction & Infinity >> ComplexNumber
 
-----
-
 Scroll [UP](#bigintfractioncomplexjs "Scroll to start of section: BigIntFractionComplex.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
