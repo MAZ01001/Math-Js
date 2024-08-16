@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RNG example</title>
+    <style>
+        body{
+            background-color: #000;
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas{
+            width: 100vw;
+            height: 100vh;
+            object-fit: contain;
+        }
+    </style>
+    <script src="./RNG.js"></script>
+</head>
+<body>
+    <noscript>JavaScript must be enabled!</noscript>
+    <canvas id="canvas">your browser does not support HTML5 canvas!</canvas>
+    <script>
+        "use strict";
+        const
+            /**@type {readonly[number,number]} render width/height*/
+            size=Object.freeze([1920,1080]),
+            /**@type {HTMLCanvasElement}*/
+            canvas=Object.assign(document.getElementById("canvas"),{width:size[0],height:size[1]}),
+            /**@type {CanvasRenderingContext2D}*/
+            context=canvas.getContext("2d"),
+            /**image data for rendering to {@linkcode context}*/
+            exampleNoise=context.createImageData(...size,{colorSpace:"srgb"}),
+            /**one element render queue - pause/resume and abort mid-rendering, no render overlap (abort existing render before starting anew)*/
+            render=new class{
+                _pause_=false;
+                _break_=false;
+                _running_=false;
+                /**if a calculation/draw is currently running (or is not fully aborted yet)*/
+                get running(){return this._running_;}
+                /**if a calculation/draw is currently paused (not necessarily {@linkcode running})*/
+                get paused(){return this._pause_;}
+                /**pause currently running calculation/draw*/
+                pause(){this._pause_=true;}
+                /**resumes currently paused calculation/draw*/
+                resume(){this._pause_=false;}
+                /**toggle pause currently running calculation/draw (and returns current pause state)*/
+                toggle(){return this._pause_=!this._pause_;}
+                /**aborts currently running calculation/draw*/
+                break(){this._break_=true;}
+                /**resets variables for next calculation/draw*/
+                reset(){this._break_=(this._pause_=false);}
+                /**indicates the start of a new calculation/draw*/
+                start(){this._running_=true;}
+                /**indicates the end of the current calculation/draw*/
+                end(){this._running_=false;}
+                /**call during calculation/draw for an opportunity to pause/resume/break*/
+                async check(){
+                    for(;this._pause_;await new Promise(E=>setTimeout(E,100)));
+                    return this._break_;
+                }
+            };
+        /**
+         * ## [async] Generate new 2D value noise based on {@linkcode seed}
+         * interrupt via {@linkcode render}
+         * @param {number} [seed]
+         */
+        async function gen(seed){
+            "use strict";
+            render.break();
+            render.resume();
+            for(;render.running;await new Promise(E=>setTimeout(E,0)));
+            render.reset();
+            render.start();
+            let drawn=0;
+            let t=0;
+            for(let x=0,y=0;y<size[1]&&x<size[0];++x>=size[0]&&(x=0,++y)){
+                const a=performance.now();
+                const px
+                    // =RNG.noise(x+y*0xF47A23,seed)*256/0x100000000;
+                    // =RNG.noise(Math.floor(x/10)+Math.floor(y/10)*0xF47A23,seed)*256/0x100000000;
+                    // =RNG.noise(Math.trunc(x/  8)+(Math.trunc(y/  8)*0xF47A23),seed)*128/0x100000000
+                    // +RNG.noise(Math.trunc(x/ 16)+(Math.trunc(y/ 16)*0xF47A23),seed)* 64/0x100000000
+                    // +RNG.noise(Math.trunc(x/ 32)+(Math.trunc(y/ 32)*0xF47A23),seed)* 32/0x100000000
+                    // +RNG.noise(Math.trunc(x/ 64)+(Math.trunc(y/ 64)*0xF47A23),seed)* 16/0x100000000
+                    // +RNG.noise(Math.trunc(x/128)+(Math.trunc(y/128)*0xF47A23),seed)*  8/0x100000000;
+                    =RNG.valueNoise2D(x/128,y/128,seed)*128
+                    +RNG.valueNoise2D(x/ 64,y/ 64,seed)* 64
+                    +RNG.valueNoise2D(x/ 32,y/ 32,seed)* 32
+                    +RNG.valueNoise2D(x/ 16,y/ 16,seed)* 16
+                    +RNG.valueNoise2D(x/  8,y/  8,seed)*  8;
+                t+=performance.now()-a;
+                exampleNoise.data.set([px,px,px,255],(y*size[0]+x)*4);
+                if(++drawn>50000){
+                    drawn=0;
+                    context.putImageData(exampleNoise,0,0);
+                    await new Promise(E=>window.requestAnimationFrame(E));
+                    if(await render.check())break;
+                }
+            }
+            console.log("%ctotal:\t%sms\navg:\t%sms","color:#0f0;background-color:#000",t.toFixed(6).padStart(11),(t/(size[0]*size[1])).toFixed(6).padStart(11));
+            context.putImageData(exampleNoise,0,0);
+            render.end();
+        }
+        //~ little under 1 sec to render
+        gen();
+    </script>
+</body>
+</html>
