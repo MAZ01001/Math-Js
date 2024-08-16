@@ -504,6 +504,8 @@ The class and its prototype are immutable!
 
 </details>
 
+Test render with `valueNoise2D`: <https://maz01001.github.io/Math-Js/RNG_example.html>
+
 <details closed><summary>Performance test</summary>
 
 > node.js `v16.13.1` on intel `i7-10700K`
