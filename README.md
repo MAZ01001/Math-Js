@@ -499,6 +499,53 @@ The class and its prototype are immutable!
 
 </details>
 
+<details closed><summary>Performance test</summary>
+
+> node.js `v16.13.1` on intel `i7-10700K`
+
+```javascript
+new RNG();new RNG();new RNG();//! warmup
+const a=performance.now();
+const rng=new RNG();
+const b=performance.now();
+rng.val32;
+const c=performance.now();
+{
+    const rng=new RNG();
+    for(let i=0;i<10000;++i)rng.val32;
+}
+const d=performance.now();
+new RNG().val32;
+const e=performance.now();
+for(let i=0;i<1000;++i){new RNG("Lorem").val32;new RNG("ipsum").val32;new RNG("dolor").val32;new RNG("sit").val32;new RNG("amet").val32;new RNG("consectetur").val32;new RNG("adipiscing").val32;new RNG("elit").val32;new RNG("Terram").val32;new RNG("mihi").val32;}
+const f=performance.now();
+for(let i=0;i<10000;++i)new RNG(""+i).val32;
+const g=performance.now();
+RNG.noise(0x3FA98E75);
+const h=performance.now();
+for(let i=0;i<1000;++i){RNG.noise(0x3FA98E75);RNG.noise(0x16D9FCA5);RNG.noise(0x1C7590AF);RNG.noise(0x28C6E13D);RNG.noise(0x2CA6DF15);RNG.noise(0x4E0C719F);RNG.noise(0x5237A8B1);RNG.noise(0xD7F3E9AB);RNG.noise(0xF21D5409);RNG.noise(0xF93C5AEB);}
+const i=performance.now();
+for(let i=0;i<10000;++i)RNG.noise(i);
+const j=performance.now();
+for(let i=0;i<10000;++i)RNG.valueNoise2D(i,i*0xF47A23);
+const k=performance.now();
+console.log([
+    `                     init new RNG: ${(b-a).toFixed(4).padStart(9)} ms`,//=>    0.0150 ms
+    `                            val32: ${(c-b).toFixed(4).padStart(9)} ms`,//=>    0.0285 ms
+    `              init + 10'000 val32: ${(d-c).toFixed(4).padStart(9)} ms`,//=>    1.8899 ms
+    `                       init val32: ${(e-d).toFixed(4).padStart(9)} ms`,//=>    0.0218 ms
+    `             1000 * 10 init val32: ${(f-e).toFixed(4).padStart(9)} ms`,//=>   10.0103 ms
+    `                10'000 init val32: ${(g-f).toFixed(4).padStart(9)} ms`,//=>    5.5522 ms
+    `                      prime noise: ${(h-g).toFixed(4).padStart(9)} ms`,//=>    0.0781 ms
+    `            1000 * 10 prime noise: ${(i-h).toFixed(4).padStart(9)} ms`,//=>    1.7489 ms
+    `             10'000 counter noise: ${(j-i).toFixed(4).padStart(9)} ms`,//=>    0.2728 ms
+    `10'000 counter+prime valueNoise2D: ${(k-j).toFixed(4).padStart(9)} ms`,//=>    4.4087 ms
+    `                            TOTAL: ${(k-a).toFixed(4).padStart(9)} ms`,//=>   24.0262 ms
+].join("\n"));
+```
+
+</details>
+
 Scroll [UP](#rngjs "Scroll to start of section: RNG.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
