@@ -473,7 +473,7 @@ After instanciating an RNG object (`sfc32`) with a seed (`MurmurHash3`) one can 
 
 The RNG state (from an instance) can be saved via `state` and later restored via `RNG.from(state)`.
 
-internal but non-private methods:
+Internal but non-private methods:
 
 - `RNG._hash_(str)` creates a 128bit hash via `MurmurHash3` (non-cryptographic)
 - `RNG._qLerp_(a, b, t)` quintic interpolation used by `valueNoise2D`
