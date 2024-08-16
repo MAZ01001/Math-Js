@@ -7,6 +7,7 @@
 - [ComplexNumber.js](#complexnumberjs)
 - [BigIntType.js](#biginttypejs)
 - [BigIntFractionComplex.js](#bigintfractioncomplexjs)
+- [RNG.js](#rngjs)
 - [functions.js](#functionsjs)
 
 ----
@@ -449,6 +450,56 @@ Scroll [UP](#biginttypejs "Scroll to start of section: BigIntType.js")
 > idea: BigInt >> Fraction & Infinity >> ComplexNumber
 
 Scroll [UP](#bigintfractioncomplexjs "Scroll to start of section: BigIntFractionComplex.js")
+    | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
+
+## [RNG.js](./RNG.js)
+
+RNG stuff
+
+Static methods for `RNG.noise(x, seed)` (non-cryptographic 32bit hash) and `RNG.valueNoise2D(x, y, seed)`.
+
+After instanciating an RNG object (`sfc32`) with a seed (`MurmurHash3`) one can get random values via:
+
+- `val32` gives a random 32bit unsigned integer
+- `val` gives a random float 0 to 1 (both inclusive)
+- `dec` gives a random decimal 0 to 1 (exclusive 1)
+- `bool` gives a random boolean value
+- `range(min, max)` gives a random float within the given range (both inclusive)
+
+The RNG state (from an instance) can be saved via `state` and later restored via `RNG.from(state)`.
+
+internal but non-private methods:
+
+- `RNG._hash_(str)` creates a 128bit hash via `MurmurHash3` (non-cryptographic)
+- `RNG._qLerp_(a, b, t)` quintic interpolation used by `valueNoise2D`
+
+The class and its prototype are immutable!
+
+<details closed><summary>Import</summary>
+
+- import [dynamically](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import "MDN JS import() / dynamic import")
+
+  ```javascript
+  const { RNG } = await import("./RNG.js");
+  ```
+
+- import in node.js
+
+  ```javascript
+  const { RNG } = require("./RNG.js");
+  // or in modules ↓
+  import { RNG } from "./RNG.js";
+  ```
+
+- import in html:
+
+  ```html
+  <script src="./RNG.js"></script>
+  ```
+
+</details>
+
+Scroll [UP](#rngjs "Scroll to start of section: RNG.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
 
 ## [functions.js](./functions.js)
