@@ -209,6 +209,8 @@ const RNG=class RNG{
             tr=RNG.noise(f+0xF47A24,seed);
         return RNG._qLerp_(RNG._qLerp_(bl,br,xf),RNG._qLerp_(tl,tr,xf),y-yi)/0x100000000;
     }
+    // TODO ? voronoi noise
+    // TODO ? perlin noise
     static{//~ make class and prototype immutable
         Object.freeze(RNG.prototype);
         Object.freeze(RNG);
