@@ -953,5 +953,51 @@ for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"
 </details>
 </details>
 
+<details closed><summary id="functionsjs-chanceAmount"><code>chanceAmount</code></summary>
+
+Calculate the number of consecutive tries needed until an event with a given % change has a 90% (or custom) chance of success overall
+
+```typescript
+// [overload] calculate how many consecutive tries, with <chance>% each, are needed to have a <goal>% (default 90%) chance of success overall (that it happens once)
+function chanceAmount(chance: number, tries?: null, goal?: number): number
+
+// [overload] calculate how much chance of success (that it happens once) there is overall, for <tries> consecutive tries with <chance>% each
+function chanceAmount(chance: number, tries: number, goal?: null): number
+
+// [overload] calculate what % chance each try has, when <tries> consecutive tries have a <goal>% chance of success overall (that it happens once)
+function chanceAmount(chance: undefined | null, tries: number, goal: number): number
+```
+
+<details closed><summary><b>Parameter info</b></summary>
+
+- `chance`
+  - percentage of the chance for given event succeeding (once)
+  - default none (expected to be given)
+- `tries`
+  - number of consecutive tries (can be decimal)
+  - default `null` (expected to be the output)
+- `goal`
+  - percentage of the final/total chance of success for given event (after `tries` number of consecutive tries)
+  - default 90% (`0.90`)
+
+</details>
+
+> 100% - (100% - `chance`%)^`tries` = `goal`%
+
+Set two variables to calculate the missing third
+
+<details open><summary><b>Examples</b></summary>
+
+```javascript
+// in explanation: (input) {default} [output]
+chanceAmount(0.40);             //=> 4.507575551943848  | [4.51] consecutive tries with (40%)    each to have a {90%} chance of success overall
+chanceAmount(0.40, null, 0.50); //=> 1.3569154488567239 | [1.36] consecutive tries with (40%)    each to have a (50%) chance of success overall
+chanceAmount(0.40, 2);          //=> 0.64               | (2)    consecutive tries with (40%)    each to have a [64%] chance of success overall
+chanceAmount(null, 2, 0.50);    //=> 0.2928932188134524 | (2)    consecutive tries with [29.29%] each to have a (50%) chance of success overall
+```
+
+</details>
+</details>
+
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
