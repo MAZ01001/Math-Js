@@ -251,6 +251,29 @@
             html.goal.value=html.p.value;
             html.goal.dispatchEvent(new InputEvent("input"));
         },{passive:true});
+        /**@type {(ev:KeyboardEvent,el:HTMLInputElement)=>void} ! can call {@linkcode Event.preventDefault}*/
+        const keyInc=(ev,el)=>{
+            let dir=ev.key==="ArrowUp"?1:ev.key==="ArrowDown"?-1:0;
+            if(dir===0)return;
+            el.value=String(Number(el.value));
+            if(/e/i.test(el.value))return;
+            ev.preventDefault();
+            if(ev.shiftKey)dir*=10;
+            if(ev.ctrlKey)dir*=100;
+            if(ev.altKey)dir=.1/dir;
+            const[,n,r]=el.value.match(/^(\d*(?:\.\d{0,5})?)(\d*?)$/)??[,"",""];
+            const num=Number((Number(n)+dir).toFixed(5)+r);
+            if(num<Number(el.min||NaN))el.value=el.min;
+            else if(num>Number(el.max||NaN))el.value=el.max;
+            else el.value=String(num);
+            el.dispatchEvent(new InputEvent("input"));
+        }
+        html.chance.addEventListener("keydown",ev=>keyInc(ev,html.chance),{passive:false});
+        html.tries.addEventListener("keydown",ev=>keyInc(ev,html.tries),{passive:false});
+        html.goal.addEventListener("keydown",ev=>keyInc(ev,html.goal),{passive:false});
+        html.x.addEventListener("keydown",ev=>keyInc(ev,html.x),{passive:false});
+        html.min.addEventListener("keydown",ev=>keyInc(ev,html.min),{passive:false});
+        html.max.addEventListener("keydown",ev=>keyInc(ev,html.max),{passive:false});
     </script>
 </body>
 </html>
