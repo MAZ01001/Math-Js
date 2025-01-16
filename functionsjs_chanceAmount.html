@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="[MAZ01001.github.io] Calculate the chance of success for consecutive repeats of events with equal chances">
+    <meta name="author" content="MAZ01001">
+    <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
+    <link rel="icon" type="image/x-icon" href="../img/MAZ_logo.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
+    <link rel="manifest" href="../img/site.webmanifest">
+    <link rel="mask-icon" href="../img/safari-pinned-tab.svg" color="#ff9900">
+    <link rel="shortcut icon" href="../img/favicon.ico">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-config" content="../img/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    <title>Chance Calculator</title>
+    <style>
+    </style>
+    <script>
+        "use strict";
+        /**
+         * ## Calculate the number of consecutive tries needed until an event with a given % change has a 90% (or custom) chance of success overall
+         * set two variables to calculate the missing (or `null`) third: {@linkcode tries} consecutive tries with {@linkcode chance}% each to have a {@linkcode goal}% chance of success overall \
+         * give percentages in decimal values (`[0,1]`); also tries can have decimals (`[0,∞[`)
+         * @param {number|null} [chance] - percentage of the chance for given event succeeding (once) - default none (expected to be given)
+         * @param {number|null} [tries] - number of consecutive tries (can be decimal) - default `null` (expected to be the output)
+         * @param {number|null} [goal] - percentage of the final/total chance of success for given event (after {@linkcode tries} number of consecutive tries) - default 90% (`0.90`)
+         * @returns {number} parameter that was not given (or `null`): {@linkcode chance}, {@linkcode tries}, or {@linkcode goal}
+         * @example // in explanation: (input) {default} [output]
+         * chanceAmount(0.40);             //=> 4.507575551943848  | [4.51] consecutive tries with (40%)    each to have a {90%} chance of success overall
+         * chanceAmount(0.40, null, 0.50); //=> 1.3569154488567239 | [1.36] consecutive tries with (40%)    each to have a (50%) chance of success overall
+         * chanceAmount(0.40, 2);          //=> 0.64               | (2)    consecutive tries with (40%)    each to have a [64%] chance of success overall
+         * chanceAmount(null, 2, 0.50);    //=> 0.2928932188134524 | (2)    consecutive tries with [29.29%] each to have a (50%) chance of success overall
+         * @throws {TypeError} if {@linkcode chance}, {@linkcode tries}, or {@linkcode goal} are not numbers (not type number or `NaN`)
+         * @throws {RangeError} if {@linkcode chance} or {@linkcode goal} are negative or above 100% (`1.00`)
+         * @throws {RangeError} if {@linkcode tries} is negative or `Infinity`
+         * @throws {SyntaxError} if an invalid set of parameters are given (only two parameters are given (missing is `null` or `undefined`))
+         * @typedef {(chance:number,tries?:null,goal?:number)=>number} CalcTries calculate how many consecutive tries, with {@linkcode chance}% each, are needed to have a {@linkcode goal}% (default 90%) chance of success overall (that it happens once)
+         * @typedef {(chance:number,tries:number,goal?:null)=>number} CalcGoal calculate how much chance of success (that it happens once) there is overall, for {@linkcode tries} consecutive tries with {@linkcode chance}% each
+         * @typedef {(chance:undefined|null,tries:number,goal:number)=>number} CalcChance calculate what % chance each try has, when {@linkcode tries} consecutive tries have a {@linkcode goal}% chance of success overall (that it happens once)
+         * @type {CalcChance&CalcTries&CalcGoal}
+         */
+        const chanceAmount=(chance,tries,goal)=>{
+            if(chance!=null){
+                if(typeof chance!=="number"||Number.isNaN(chance))throw new TypeError("[chanceAmount] chance is not a number");
+                if(chance<0||chance>1)throw new RangeError("[chanceAmount] chance can't be negative or above 100%");
+            }
+            if(tries!=null){
+                if(typeof tries!=="number"||Number.isNaN(tries))throw new TypeError("[chanceAmount] tries is not a number");
+                if(tries<0||tries===Infinity)throw new RangeError("[chanceAmount] tries can't be negative or infinite");
+            }
+            if(goal!=null){
+                if(typeof goal!=="number"||Number.isNaN(goal))throw new TypeError("[chanceAmount] goal is not a number");
+                if(goal<0||goal>1)throw new RangeError("[chanceAmount] goal can't be negative or above 100%");
+            }
+            //~ tries = log[1 - chance](1 - goal) = log(1 - goal) / log(1 - chance)
+            if(chance!=null&&tries==null){
+                //? avoid NaN for chance:0% and goal:0% → tries:0
+                if(goal===0)return 0;
+                //? avoid NaN for chance:100% and goal:100% → tries:1
+                if(chance===1)return 1;
+                return Math.log1p(-(goal??.9))/Math.log1p(-chance);
+            }
+            //~ goal = 1 - (1 - chance)^tries
+            if(chance!=null&&tries!=null&&goal==null)return 1-(1-chance)**tries;
+            //~ chance = 1 - root[tries](1 - goal) = 1 - (1 - goal)^(1 / tries)
+            if(chance==null&&tries!=null&&goal!=null){
+                //? avoid NaN for tries:0 and goal:0% → chance:0%
+                if(goal===0)return 0;
+                return 1-(1-goal)**(1/tries);
+            }
+            throw new SyntaxError("[chanceAmount] invalid set of parameters given");
+        };
+    </script>
+</head>
+<body>
+    <noscript>JavaScript must be enabled!</noscript>
+</body>
+</html>
