@@ -957,6 +957,8 @@ for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"
 
 Calculate the number of consecutive tries needed until an event with a given % change has a 90% (or custom) chance of success overall
 
+> Online calculator: <https://maz01001.github.io/Math-Js/functionsjs_chanceAmount>
+
 ```typescript
 // [overload] calculate how many consecutive tries, with <chance>% each, are needed to have a <goal>% (default 90%) chance of success overall (that it happens once)
 function chanceAmount(chance: number, tries?: null, goal?: number): number
