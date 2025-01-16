@@ -174,6 +174,83 @@
             /**@type {HTMLInputElement}*/cpy_chance:document.getElementById("cpy_chance"),
             /**@type {HTMLInputElement}*/cpy_goal:document.getElementById("cpy_goal"),
         });
+        html.out_chance.addEventListener("change",()=>{
+            html.chance.required=!(html.cpy_chance.disabled=html.chance.readOnly=true);
+            html.tries.required=!(html.tries.readOnly=false);
+            html.goal.required=!(html.cpy_goal.disabled=html.goal.readOnly=false);
+            chance();
+        },{passive:true});
+        html.out_tries.addEventListener("change",()=>{
+            html.chance.required=!(html.cpy_chance.disabled=html.chance.readOnly=false);
+            html.tries.required=!(html.tries.readOnly=true);
+            html.goal.required=!(html.cpy_goal.disabled=html.goal.readOnly=false);
+            chance();
+        },{passive:true});
+        html.out_goal.addEventListener("change",()=>{
+            html.chance.required=!(html.cpy_chance.disabled=html.chance.readOnly=false);
+            html.tries.required=!(html.tries.readOnly=false);
+            html.goal.required=!(html.cpy_goal.disabled=html.goal.readOnly=true);
+            chance();
+        },{passive:true});
+        /**calculate chance according to html elements and set output html*/
+        const chance=()=>{
+            html.tries.placeholder="";
+            if(html.tries.readOnly){
+                const chance=Number(html.chance.value||NaN)/100,
+                    goal=Number(html.goal.value||NaN)/100;
+                if(
+                    Number.isNaN(chance)||chance>1||chance<0
+                    ||Number.isNaN(goal)||goal>1||goal<0
+                )html.tries.value="";
+                else{
+                    const out=chanceAmount(chance,null,goal);
+                    if(out===Infinity){
+                        html.tries.value="";
+                        html.tries.placeholder="Infinity";
+                    }else html.tries.value=String(out);
+                }
+            }else if(html.goal.readOnly){
+                const chance=Number(html.chance.value||NaN)/100,
+                    tries=Number(html.tries.value||NaN);
+                if(
+                    Number.isNaN(chance)||chance>1||chance<0
+                    ||Number.isNaN(tries)||tries<0
+                )html.goal.value="";
+                else html.goal.value=String(chanceAmount(chance,tries)*100);
+            }else if(html.chance.readOnly){
+                const tries=Number(html.tries.value||NaN),
+                    goal=Number(html.goal.value||NaN)/100;
+                if(
+                    Number.isNaN(tries)||tries<0
+                    ||Number.isNaN(goal)||goal>1||goal<0
+                )html.chance.value="";
+                else html.chance.value=String(chanceAmount(null,tries,goal)*100);
+            }
+        };
+        html.chance.addEventListener("input",chance,{passive:true});
+        html.tries.addEventListener("input",chance,{passive:true});
+        html.goal.addEventListener("input",chance,{passive:true});
+        /**@type {(n:number,x:number,y:number)=>number}*/
+        const map=(n,x,y)=>y<x?(n-y)/(x-y):(n-x)/(y-x);
+        /**calculate range according to html elements and set output html*/
+        const range=()=>{
+            const x=Number(html.x.value||NaN),
+                min=Number(html.min.value||NaN),
+                max=Number(html.max.value||NaN);
+            if(Number.isNaN(x)||Number.isNaN(min)||Number.isNaN(max))html.p.value="";
+            else html.p.value=String(map(x,min,max)*100);
+        };
+        html.x.addEventListener("input",range,{passive:true});
+        html.min.addEventListener("input",range,{passive:true});
+        html.max.addEventListener("input",range,{passive:true});
+        html.cpy_chance.addEventListener("click",()=>{
+            html.chance.value=html.p.value;
+            html.chance.dispatchEvent(new InputEvent("input"));
+        },{passive:true});
+        html.cpy_goal.addEventListener("click",()=>{
+            html.goal.value=html.p.value;
+            html.goal.dispatchEvent(new InputEvent("input"));
+        },{passive:true});
     </script>
 </body>
 </html>
