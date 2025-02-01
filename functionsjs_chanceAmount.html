@@ -29,30 +29,10 @@
         body{
             background-color: #000;
             color: #0f0;
-            font-family: "consolas", "Courier New", Courier, monospace;
+            font-family: "consolas", monospace;
             font-size: medium;
             color-scheme: dark;
             cursor: default;
-        }
-        div#box{
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            translate: -50% -50%;
-            min-width: 28.5rem;
-            max-width: 100vw;
-            max-height: 100vh;
-            width: max-content;
-            height: max-content;
-            overflow: auto;
-            padding: 1rem;
-            box-sizing: border-box;
-            background-color: #222;
-            border: 2px outset #444;
-        }
-        ::selection{
-            background-color: #f90;
-            color: #000;
         }
         fieldset>legend{cursor: help;}
         input[type=radio]{
@@ -71,7 +51,6 @@
             height: 1rem;
             margin-inline: 2px;
         }
-        fieldset#chanceCalc input[type=number]{width: 5.5rem;}
         input:read-only{background-color: #222;}
         input:invalid{border-color: #f00;}
         input:invalid:focus-visible{
@@ -90,6 +69,23 @@
             background-color: #333;
         }
         input[type=button]:active{background-color: #555;}
+        div#box{
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            translate: -50% -50%;
+            max-width: 100vw;
+            max-height: 100vh;
+            width: max-content;
+            height: max-content;
+            overflow: auto;
+            padding: 1rem;
+            box-sizing: border-box;
+            background-color: #222;
+            border: 2px outset #444;
+        }
+        div#box>fieldset{min-width: max-content;}
+        fieldset#chanceCalc input[type=number]{width: 5.5rem;}
     </style>
     <script>
         "use strict";
