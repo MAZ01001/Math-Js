@@ -104,7 +104,7 @@ const RNG=class RNG{
      * `sfc32`
      * @returns {boolean} `true` or `false`
      */
-    get bool(){return this.val32<0x10000;}
+    get bool(){return this.val32<0x80000000;}
     /**
      * ## Get the next random value and translate it to given range (float)
      * `sfc32`
