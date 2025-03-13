@@ -38,8 +38,8 @@
         input[type=radio]{
             cursor: pointer;
             margin-inline-end: .75rem;
+            accent-color: #0f0;
         }
-        input[type=radio]:checked{accent-color: #0f0;}
         input{
             font: inherit;
             color: inherit;
@@ -51,7 +51,10 @@
             height: 1rem;
             margin-inline: 2px;
         }
-        input:read-only{background-color: #222;}
+        input[type=number]:read-only{
+            cursor: default;
+            background-color: #222;
+        }
         input:invalid{border-color: #f00;}
         input:invalid:focus-visible{
             outline-style: solid;
@@ -66,9 +69,11 @@
         input[type=button]:disabled{
             cursor: not-allowed;
             color: #0a0;
+            border: 2px solid #7777;
             background-color: #333;
         }
-        input[type=button]:active{background-color: #555;}
+        input[type=button]:enabled:active{background-color: #555;}
+        input[type=button]:disabled:active{border-color: #722;}
         div#box{
             position: fixed;
             top: 50%;
