@@ -1070,5 +1070,55 @@ P(6, 3); //=> 20 ↓
 </details>
 </details>
 
+<details><summary id="functionsjs-choose"><code>choose</code></summary>
+
+Calculate the binomial coefficient $\displaystyle{n\choose m}$
+
+```typescript
+function choose(n: number, m: number): number
+```
+
+<details><summary><b>Parameter info</b></summary>
+
+- `n`
+  - number of elements available
+  - _must be a positive safe integer_
+- `m`
+  - number of elements choosen
+  - _must be a positive safe integer_
+
+</details>
+
+<details open><summary><b>Examples</b></summary>
+
+```javascript
+console.table(
+    Array.from({ length: 7 }, (_, n) =>
+        Array.from({ length: 7 }, (_, m) =>
+            choose(n, m)
+        )
+    )
+);
+// (↕ n | ↔ m)
+// ┌─────────┬───┬───┬────┬────┬────┬───┬───┐
+// │ (index) │ 0 │ 1 │ 2  │ 3  │ 4  │ 5 │ 6 │
+// ├─────────┼───┼───┼────┼────┼────┼───┼───┤
+// │ 0       │ 1 │ 0 │ 0  │ 0  │ 0  │ 0 │ 0 │
+// │ 1       │ 1 │ 1 │ 0  │ 0  │ 0  │ 0 │ 0 │
+// │ 2       │ 1 │ 2 │ 1  │ 0  │ 0  │ 0 │ 0 │
+// │ 3       │ 1 │ 3 │ 3  │ 1  │ 0  │ 0 │ 0 │
+// │ 4       │ 1 │ 4 │ 6  │ 4  │ 1  │ 0 │ 0 │
+// │ 5       │ 1 │ 5 │ 10 │ 10 │ 5  │ 1 │ 0 │
+// │ 6       │ 1 │ 6 │ 15 │ 20 │ 15 │ 6 │ 1 │
+// └─────────┴───┴───┴────┴────┴────┴───┴───┘
+
+choose(3, 2); //=> 3 ({ {1,2}, {1,3}, {2,3} })
+
+choose(20, 10); //=> 184756
+```
+
+</details>
+</details>
+
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")

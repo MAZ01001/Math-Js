@@ -648,3 +648,25 @@ function P(elements,length){
     }
     return list;
 }
+/**
+ * ## calculate the binomial coefficient ({@linkcode n} choose {@linkcode m})
+ * @param {number} n - number of elements available
+ * @param {number} m - number of elements choosen
+ * @returns {number} number of all possible unique (unordered) permutations
+ * @throws {TypeError} if {@linkcode n} or {@linkcode m} are not positive safe integers
+ * @example
+ * choose(3,2); //=> 3 ({ {1,2}, {1,3}, {2,3} })
+ * choose(20,10); //=> 184756
+ */
+function choose(n,m){
+    if(!Number.isSafeInteger(n)||n<0)throw new TypeError("[choose] n is not a positive safe integer.");
+    if(!Number.isSafeInteger(m)||m<0)throw new TypeError("[choose] m is not a positive safe integer.");
+    if(m===0)return 1;
+    if(n<m)return 0;
+    let a=1,b=1;
+    for(let k=1;k<=m;++k){
+        a*=(n-m)+k;
+        b*=k;
+    }//~ always results in an integer (if not for float imprecision)
+    return a/b;
+}
