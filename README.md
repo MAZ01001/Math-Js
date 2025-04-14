@@ -260,7 +260,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 - `randomInt(min, max)` (using `Math.random()`)
 - _↑ (`A` and `B` are type `BigIntType` and `x` is type `Number`) ↑_
 
-<details closed><summary id="biginttypejs-supported-numerical-bases"><b>Supported numerical bases</b></summary>
+<details><summary id="biginttypejs-supported-numerical-bases"><b>Supported numerical bases</b></summary>
 
 > ALL YOUR BASE ARE BELONG TO US
 
@@ -280,7 +280,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 
 </details>
 
-<details closed><summary id="biginttypejs-supported-numerical-base-names"><b>Supported numerical base names</b></summary>
+<details><summary id="biginttypejs-supported-numerical-base-names"><b>Supported numerical base names</b></summary>
 
 > [Wikipedia: Numerical Bases](https://en.wikipedia.org/wiki/List_of_numeral_systems#Standard_positional_numeral_systems)
 
@@ -342,7 +342,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 
 </details>
 
-<details closed><summary id="biginttypejs-supported-rounding-types"><b>Supported rounding types</b></summary>
+<details><summary id="biginttypejs-supported-rounding-types"><b>Supported rounding types</b></summary>
 
 > [![Wikipedia: Rounding (interactible graph)](https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Comparison_rounding_graphs_SMIL.svg/300px-Comparison_rounding_graphs_SMIL.svg.png "Wikipedia: Rounding (interactible graph)")](https://en.wikipedia.org/wiki/Rounding)
 
@@ -361,7 +361,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 
 </details>
 
-<details closed><summary id="biginttypejs-supported-modulo-types"><b>Supported modulo types</b></summary>
+<details><summary id="biginttypejs-supported-modulo-types"><b>Supported modulo types</b></summary>
 
 > [Wikipedia: Modulo](https://en.wikipedia.org/wiki/Modulo)
 
@@ -381,7 +381,7 @@ human "readable" code with lots of documentation (js-doc & some comments) and de
 
 </details>
 
-<details closed><summary id="biginttypejs-modulo-examples"><b>Modulo examples</b></summary>
+<details><summary id="biginttypejs-modulo-examples"><b>Modulo examples</b></summary>
 
 $\large3\bmod5\implies\frac35=0\frac35=0.6\qquad\text{round up}$
 
@@ -480,7 +480,7 @@ Internal but non-private methods:
 
 The class and its prototype are immutable!
 
-<details closed><summary>Import</summary>
+<details><summary>Import</summary>
 
 - import [dynamically](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import "MDN JS import() / dynamic import")
 
@@ -506,7 +506,7 @@ The class and its prototype are immutable!
 
 Test render with `valueNoise2D`: <https://maz01001.github.io/Math-Js/RNG_example>
 
-<details closed><summary>Performance test</summary>
+<details><summary>Performance test</summary>
 
 > node.js `v16.13.1` on intel `i7-10700K`
 
@@ -562,7 +562,7 @@ some useful math functions
 
 > also see [`other-projects/useful.js`](https://github.com/MAZ01001/other-projects#usefuljs)
 
-<details closed><summary id="functionsjs-mapRange"><code>mapRange</code></summary>
+<details><summary id="functionsjs-mapRange"><code>mapRange</code></summary>
 
 translate the given number to another range
 
@@ -575,7 +575,7 @@ mapRange(3, 0, 1, 0, 100, true); //=> 100
 
 </details>
 
-<details closed><summary id="functionsjs-toPercent"><code>toPercent</code></summary>
+<details><summary id="functionsjs-toPercent"><code>toPercent</code></summary>
 
 calculates the percentage of the given number within the given range
 
@@ -586,7 +586,7 @@ toPercent(150, 100, 200); //=> 0.5 = 50%
 
 </details>
 
-<details closed><summary id="functionsjs-deg2rad"><code>deg2rad</code></summary>
+<details><summary id="functionsjs-deg2rad"><code>deg2rad</code></summary>
 
 converts the given angle from DEG to RAD
 
@@ -596,7 +596,7 @@ function deg2rad(deg: number): number
 
 </details>
 
-<details closed><summary id="functionsjs-rad2deg"><code>rad2deg</code></summary>
+<details><summary id="functionsjs-rad2deg"><code>rad2deg</code></summary>
 
 converts the given angle from RAD to DEG
 
@@ -606,7 +606,7 @@ function rad2deg(rad: number): number
 
 </details>
 
-<details closed><summary id="functionsjs-gcd"><code>gcd</code></summary>
+<details><summary id="functionsjs-gcd"><code>gcd</code></summary>
 
 calculates the greatest common divisor of `n` and `m` (positive safe integers `[1..2↑53[`)
 
@@ -617,7 +617,7 @@ gcd(45, 100); //=> 5 → (45/5) / (100/5) → 9/20
 
 </details>
 
-<details closed><summary id="functionsjs-dec2frac"><code>dec2frac</code></summary>
+<details><summary id="functionsjs-dec2frac"><code>dec2frac</code></summary>
 
 converts a decimal number to an improper-fraction (rough estimation)
 
@@ -634,7 +634,7 @@ dec2frac(0.12, 2); //=> { a:0, b:4, c:33, i:0, r:"precision" } → 0+4/33 → 0.
 
 </details>
 
-<details closed><summary id="functionsjs-padNum"><code>padNum</code></summary>
+<details><summary id="functionsjs-padNum"><code>padNum</code></summary>
 
 convert number to string with padding \
 format: `[sign] [padded start ' '] [.] [padded end '0'] [e ~]`
@@ -646,7 +646,7 @@ padNum("1.23e2", 3, 5); //=> "+  1.23000e2"
 
 </details>
 
-<details closed><summary id="functionsjs-euclideanModulo"><code>euclideanModulo</code></summary>
+<details><summary id="functionsjs-euclideanModulo"><code>euclideanModulo</code></summary>
 
 calculates the modulo of two whole numbers (euclidean division)
 
@@ -658,7 +658,7 @@ function euclideanModulo(a: number, b: number): number
 
 </details>
 
-<details closed><summary id="functionsjs-randomRange"><code>randomRange</code></summary>
+<details><summary id="functionsjs-randomRange"><code>randomRange</code></summary>
 
 genarates a random number within given range (inclusive)
 
@@ -670,7 +670,7 @@ function randomRange(min: number, max: number): number
 
 </details>
 
-<details closed><summary id="functionsjs-randomRangeInt"><code>randomRangeInt</code></summary>
+<details><summary id="functionsjs-randomRangeInt"><code>randomRangeInt</code></summary>
 
 genarates a random integer within given range (inclusive)
 
@@ -680,7 +680,7 @@ function randomRangeInt(min: number, max: number): number
 
 </details>
 
-<details closed><summary id="functionsjs-divisionWithRest"><code>divisionWithRest</code></summary>
+<details><summary id="functionsjs-divisionWithRest"><code>divisionWithRest</code></summary>
 
 division with two unsigned numbers
 
@@ -695,7 +695,7 @@ also see [`Math-Js/BigIntType.js : #calcDivRest`](https://github.com/MAZ01001/Ma
 
 </details>
 
-<details closed><summary id="functionsjs-randomBools"><code>randomBools</code></summary>
+<details><summary id="functionsjs-randomBools"><code>randomBools</code></summary>
 
 generate a set amount of random booleans \
 _generator function_
@@ -707,7 +707,7 @@ for(const rng of randomBools(3))console.log("%O",rng);
 
 </details>
 
-<details closed><summary id="functionsjs-rangeGenerator"><code>rangeGenerator</code></summary>
+<details><summary id="functionsjs-rangeGenerator"><code>rangeGenerator</code></summary>
 
 creates a generator for given range - iterable \
 _use `Array.from()` to create a normal `number[]` array_
@@ -719,7 +719,7 @@ for(const odd of rangeGenerator(1, 100, 2))console.log(odd); //~ 1 3 5 .. 97 99
 
 </details>
 
-<details closed><summary id="functionsjs-rng32bit"><code>rng32bit</code></summary>
+<details><summary id="functionsjs-rng32bit"><code>rng32bit</code></summary>
 
 get a function to get random numbers like Math.random but from a given seed \
 _uses `MurmurHash3` for seeding and `sfc32` for generating 32bit values_
@@ -733,7 +733,7 @@ rng32bit("seed")()/0x100000000;//=> 0.8370377507526428 [0.0 inclusive to 1.0 exc
 
 </details>
 
-<details closed><summary id="functionsjs-valueNoise"><code>valueNoise</code></summary>
+<details><summary id="functionsjs-valueNoise"><code>valueNoise</code></summary>
 
 calculates value noise for given coordinates \
 uses quintic interpolation for mixing numbers, and a quick (non-cryptographic) hash function to get random noise from coordinates \
@@ -773,7 +773,7 @@ document.body.style.backgroundImage = (() => {
 </details>
 </details>
 
-<details closed><summary id="functionsjs-factorial"><code>factorial</code></summary>
+<details><summary id="functionsjs-factorial"><code>factorial</code></summary>
 
 calculates the factorial of a non-zero positive integer
 
@@ -794,7 +794,7 @@ factorial(19n);//=> 121645100408832000n
 
 </details>
 
-<details closed><summary id="functionsjs-isPrime"><code>isPrime</code></summary>
+<details><summary id="functionsjs-isPrime"><code>isPrime</code></summary>
 
 calculates if a given number (in safe integer range: `]-2↑53,2↑53[`) is prime
 
@@ -834,7 +834,7 @@ for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"
 </details>
 </details>
 
-<details closed><summary id="functionsjs-lastPrime"><code>lastPrime</code></summary>
+<details><summary id="functionsjs-lastPrime"><code>lastPrime</code></summary>
 
 calculates the next prime number smaller than the given number (in safe integer range: `]-2↑53,2↑53[`)
 
@@ -872,7 +872,7 @@ for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"
 </details>
 </details>
 
-<details closed><summary id="functionsjs-nextPrime"><code>nextPrime</code></summary>
+<details><summary id="functionsjs-nextPrime"><code>nextPrime</code></summary>
 
 calculates the next prime number larger than the given number (in safe integer range: `]-2↑53,2↑53[`)
 
@@ -916,7 +916,7 @@ for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"
 </details>
 </details>
 
-<details closed><summary id="functionsjs-factorize"><code>factorize</code></summary>
+<details><summary id="functionsjs-factorize"><code>factorize</code></summary>
 
 calculates the prime decomposition of the given safe integer (`]-2↑53..2↑53[`)
 
@@ -953,7 +953,7 @@ for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"
 </details>
 </details>
 
-<details closed><summary id="functionsjs-chanceAmount"><code>chanceAmount</code></summary>
+<details><summary id="functionsjs-chanceAmount"><code>chanceAmount</code></summary>
 
 Calculate the number of consecutive tries needed until an event with a given % change has a 90% (or custom) chance of success overall
 
@@ -970,7 +970,7 @@ function chanceAmount(chance: number, tries: number, goal?: null): number
 function chanceAmount(chance: undefined | null, tries: number, goal: number): number
 ```
 
-<details closed><summary><b>Parameter info</b></summary>
+<details><summary><b>Parameter info</b></summary>
 
 - `chance`
   - percentage of the chance for given event succeeding (once)
