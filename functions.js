@@ -622,3 +622,29 @@ const chanceAmount=(chance,tries,goal)=>{
     }
     throw new SyntaxError("[chanceAmount] invalid set of parameters given");
 };
+/**
+ * ## generate all unique (unordered) permutations of tuples of {@linkcode elements} (indices) with size {@linkcode length}
+ * the size of the resulting (outer) list is the binomial coefficient `n choose m` where `n` is {@linkcode elements} and `m` is {@linkcode length}
+ * @param {number} elements - number of elements available (max index + 1)
+ * @param {number} length - number of elements in one tuple (inner list)
+ * @returns {number[][]} - list of (all unique unordered) tuples (size {@linkcode length}) with indices for {@linkcode elements}
+ * @throws {TypeError} if {@linkcode elements} or {@linkcode length} are not positive safe integers
+ * @example P(3,2); //=> [ [0,1], [0,2], [1,2] ]
+ */
+function P(elements,length){
+    if(!Number.isSafeInteger(elements)||elements<0)throw new TypeError("[P] elements is not a positive safe integer.");
+    if(!Number.isSafeInteger(length)||length<0)throw new TypeError("[P] length is not a positive safe integer.");
+    if(length===0)return[[]];
+    if(elements<length)return[];
+    const list=[],index=Array.from({length},(_,i)=>i);
+    for(let j=0,k=0;index[length-1]<elements;){
+        list.push(index.slice());
+        inc:for(j=length-1;j>=0;--j)
+            if(++index[j]<elements){
+                for(k=j+1;k<length;++k)
+                    if((index[k]=index[k-1]+1)>=elements)continue inc;
+                break;
+            }
+    }
+    return list;
+}

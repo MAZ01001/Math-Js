@@ -1001,5 +1001,74 @@ chanceAmount(null, 2, 0.50);    //=> 0.2928932188134524 | (2)    consecutive tri
 </details>
 </details>
 
+<details><summary id="functionsjs-P"><code>P</code></summary>
+
+Generate all unique (unordered) permutations of tuples of `elements` (indices) with size `length`
+
+The size of the resulting (outer) list is the binomial coefficient $\displaystyle{n\choose m}$ where $n$ is `elements` and $m$ is `length`
+
+```typescript
+function P(elements: number, length: number): number[][]
+```
+
+<details><summary><b>Parameter info</b></summary>
+
+- `elements`
+  - number of elements available (max index + 1)
+  - _must be a positive safe integer_
+- `length`
+  - number of elements in one tuple (inner list)
+  - _must be a positive safe integer_
+
+</details>
+
+<details open><summary><b>Examples</b></summary>
+
+```javascript
+console.table(
+    Array.from({ length: 4 }, (_, elements) =>
+        Array.from({ length: 4 }, (_, length) =>
+            JSON.stringify(P(elements, length), null, 0)
+        )
+    )
+);
+// (↕ elements | ↔ length)
+// ┌─────────┬────────┬─────────────────┬───────────────────────┬─────────────┐
+// │ (index) │ 0      │ 1               │ 2                     │ 3           │
+// ├─────────┼────────┼─────────────────┼───────────────────────┼─────────────┤
+// │ 0       │ '[[]]' │ '[]'            │ '[]'                  │ '[]'        │
+// │ 1       │ '[[]]' │ '[[0]]'         │ '[]'                  │ '[]'        │
+// │ 2       │ '[[]]' │ '[[0],[1]]'     │ '[[0,1]]'             │ '[]'        │
+// │ 3       │ '[[]]' │ '[[0],[1],[2]]' │ '[[0,1],[0,2],[1,2]]' │ '[[0,1,2]]' │
+// └─────────┴────────┴─────────────────┴───────────────────────┴─────────────┘
+
+P(4, 2); //=> 6 ↓
+// [
+//     [0,1], [0,2], [0,3],
+//     [1,2], [1,3],
+//     [2,3]
+// ]
+
+P(6, 3); //=> 20 ↓
+// [
+//     [0,1,2], [0,1,3], [0,1,4], [0,1,5],
+//     [0,2,3], [0,2,4], [0,2,5],
+//     [0,3,4], [0,3,5],
+//     [0,4,5],
+//
+//     [1,2,3], [1,2,4], [1,2,5],
+//     [1,3,4], [1,3,5],
+//     [1,4,5],
+//
+//     [2,3,4], [2,3,5],
+//     [2,4,5],
+//
+//     [3,4,5]
+// ]
+```
+
+</details>
+</details>
+
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")
