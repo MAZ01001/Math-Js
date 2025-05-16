@@ -603,6 +603,37 @@ function factorize2D(n){
     return fac;
 }
 /**
+ * ## Integer factorization (prime decomposition)
+ * via (modified) trial division
+ * @param {number} n - positive safe integer (`[0..2↑53[`)
+ * @returns {Map<number,number>} prime factors of {@linkcode n} as `prime => amount` (only primes that appear at least once; added in ascending order; empty for numbers below `2`)
+ * @throws {TypeError} if {@linkcode n} is not a positive safe integer
+ */
+function factorizeMap(n){
+    "use strict";
+    if(!Number.isSafeInteger(n)||n<0)throw new TypeError("[factorize] n is not a positive safe integer.");
+    if(n<2)return new Map();
+    const fac=new Map();
+    //~ check for 2 and 3 so that factors of n are >=5 before loop
+    let f2=0,f3=0;
+    for(;(n&1)===0;n*=.5)++f2;
+    for(;n%3===0;n/=3)++f3;
+    if(f2>0)fac.set(2,f2);
+    if(f3>0)fac.set(3,f3);
+    //~ (loop) check ±1 of every 6th number until sqrt(n) (inclusive) or n=1
+    for(let d=5,fd=0,e=0,fe=0;n>1;d+=6){
+        if(d*d>n){
+            if(n>1)fac.set(n,1);
+            return fac;
+        }
+        for(fd=0;n%d===0;n/=d)++fd;
+        for(fe=0,e=d+2;n%e===0;n/=e)++fe;
+        if(fd>0)fac.set(d,fd);
+        if(fe>0)fac.set(e,fe);
+    }
+    return fac;
+}
+/**
  * ## Calculate the number of consecutive tries needed until an event with a given % change has a 90% (or custom) chance of success overall
  * set two variables to calculate the missing (or `null`) third: {@linkcode tries} consecutive tries with {@linkcode chance}% each to have a {@linkcode goal}% chance of success overall \
  * give percentages in decimal values (`[0,1]`); also tries can have decimals (`[0,∞[`)
