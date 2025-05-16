@@ -608,13 +608,76 @@ function rad2deg(rad: number): number
 
 <details><summary id="functionsjs-gcd"><code>gcd</code></summary>
 
-calculates the greatest common divisor of `n` and `m` (positive safe integers `[1..2↑53[`)
+calculates the greatest common divisor of `n` and `m` (positive safe integers (except 0) `[1..2↑53[`)
 
 ```typescript
 function gcd(n: number, m: number): number
 gcd(45, 100); //=> 5 → (45/5) / (100/5) → 9/20
+// gcd(3*3*5, 2*2*5*5) = 5 | all prime factors with the lowest exponent each
+// gcd(x, y, z) = gcd(gcd(x, y), z)
 ```
 
+the least common multiple can also be calculated via GCD
+
+```typescript
+function lcm(n: number, m: number): number {
+    return n * (m / gcd(n, m));
+}
+lcm(28, 42); //=> 84 → x/28 + y/42 = (3x + 2y)/84 ← 84/28=3 & 84/42=2
+// lcm(2*2*7, 2*3*7) = 2*2*3*7 | all prime factors with the highest exponent each
+// lcm(x, y, z) = lcm(lcm(x, y), z)
+```
+
+also, both can be calculated via [`factorizeMap`](#functionsjs-factorizeMap "scroll to documentation"), which might be faster/better for multiple parameters
+
+<details><summary><b>Click to show code</b></summary>
+
+```typescript
+function gcd(n: number, ...m: number[]): number {
+    if(m.length===0) return n;
+    if(m.length===1){
+        let k = m[0];
+        if(n < k) [n, k] = [k, n];
+        for(let r = 0; (r = n % k) > 0; n = k, k = r);
+        return k;
+    }
+    const fac: Map<number, number> = factorizeMap(n);
+    for(let i = 0; i < m.length ; ++i){
+        const mf: Map<number, number> = factorizeMap(m[i]);
+        for(const [f, c] of fac){
+            const mc = mf.get(f);
+            if(mc == null) fac.delete(f);
+            else fac.set(f, Math.min(c, mc));
+        }
+    }
+    let mul = 1;
+    for(const [f, c] of fac) mul *= f**c;
+    return mul;
+}
+```
+
+```typescript
+function lcm(n: number, ...m: number[]): number {
+    if(m.length===0) return n;
+    if(m.length===1){
+        // GCD(n, m[0]) => l
+        let [k, l] = n < m[0] ? [m[0], n] : [n, m[0]];
+        for(let r = 0; (r = k % l) > 0; k = l, l = r);
+        return n * (m[0] / l);
+    }
+    const fac: Map<number, number> = factorizeMap(n);
+    for(let i = 0; i < m.length ; ++i)
+        for(const [f, c] of factorizeMap(m[i])){
+            const nc = fac.get(f);
+            if(nc == null || c > nc) fac.set(f, c);
+        }
+    let mul = 1;
+    for(const [f, c] of fac) mul *= f**c;
+    return mul;
+}
+```
+
+</details>
 </details>
 
 <details><summary id="functionsjs-dec2frac"><code>dec2frac</code></summary>
@@ -918,7 +981,7 @@ for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"
 
 <details><summary id="functionsjs-factorize"><code>factorize</code></summary>
 
-calculates the prime decomposition of the given safe integer (`]-2↑53..2↑53[`)
+calculates the prime decomposition of the given positive safe integer (`[0..2↑53[`)
 
 prime factors are in ascending order and the list is empty for numbers below `2` (no prime factors)
 
@@ -928,22 +991,22 @@ function factorize(n: number): number[]
 
 <details open><summary><b>Performance test</b></summary>
 
-> node.js `v16.13.1` on intel `i7-10700K`
+> node.js `v22.12.0` on intel `i7-10700K`
 
 ```javascript
 const t=[
-    performance.now(),factorize(4),               //=>   0.0494 ms : 2 2 (warmup)
-    performance.now(),factorize(4),               //=>   0.0022 ms : 2 2
-    performance.now(),factorize(108),             //=>   0.0014 ms : 2 2 3 3 3
-    performance.now(),factorize(337500),          //=>   0.0022 ms : 2 2 3 3 3 5 5 5 5 5
-    performance.now(),factorize(277945762500),    //=>   0.0049 ms : 2 2 3 3 3 5 5 5 5 5 7 7 7 7 7 7 7
+    performance.now(),factorize(4),               //=>   0.0464 ms : 2 2
+    performance.now(),factorize(4),               //=>   0.0013 ms : 2 2
+    performance.now(),factorize(108),             //=>   0.0013 ms : 2 2 3 3 3
+    performance.now(),factorize(337500),          //=>   0.0034 ms : 2 2 3 3 3 5 5 5 5 5
+    performance.now(),factorize(277945762500),    //=>   0.0512 ms : 2 2 3 3 3 5 5 5 5 5 7 7 7 7 7 7 7
     //~ https://oeis.org/A076265 ↑
-    performance.now(),factorize(33332),           //=>   0.0079 ms : 2 2 13 641
-    performance.now(),factorize(33223575732),     //=>   0.0279 ms : 2 2 3 599 1531 3019
-    performance.now(),factorize(277945762499),    //=>   3.5837 ms : 41 6779164939
-    performance.now(),factorize(2**53-3155490991),//=> 175.6862 ms : 94906249 94906249  (largest safe prime**2)
-    performance.now(),factorize(2**53-111),       //=> 174.6259 ms : 9007199254740881   (largest safe prime)
-    performance.now(),factorize(2**53-94),        //=> 121.8000 ms : 2 4503599627370449 (largest safe 2*prime)
+    performance.now(),factorize(33332),           //=>   0.0064 ms : 2 2 13 641
+    performance.now(),factorize(33223575732),     //=>   0.0178 ms : 2 2 3 599 1531 3019
+    performance.now(),factorize(277945762499),    //=>   1.0247 ms : 41 6779164939
+    performance.now(),factorize(2**53-3155490991),//=> 189.1658 ms : 94906249 94906249  (largest safe prime^2)
+    performance.now(),factorize(2**53-111),       //=> 175.2009 ms : 9007199254740881   (largest safe prime)
+    performance.now(),factorize(2**53-94),        //=> 124.4266 ms : 2 4503599627370449 (largest safe 2*prime)
     performance.now()
 ];
 //@ts-ignore t has an even number of entries where every even element is type `number` and every odd `number[]` (impossible to type-doc and/or detect by linter)
