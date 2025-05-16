@@ -295,6 +295,7 @@ function divisionWithRest(A,B){
  * @example for(const rng of randomBools(3))console.log("%O",rng);
  */
 function*randomBools(amount){
+    "use strict";
     if(amount==null)return yield Math.random()<.5;
     if(typeof amount!=="number"||amount<0||!Number.isSafeInteger(amount))throw new TypeError('[randomBools] amount is not a positive safe integer');
     while(amount-->0)yield Math.random()<.5;
@@ -312,6 +313,7 @@ function*randomBools(amount){
  * @example for(const odd of rangeGenerator(1, 100, 2))console.log(odd); //~ 1 3 5 .. 97 99
  */
 function*rangeGenerator(start,end,step,overflow){
+    "use strict";
     if(typeof start!=="number"||!Number.isFinite(start))throw TypeError("[range_gen] start is not a finite number");
     if(typeof end!=="number"||!Number.isFinite(end))throw TypeError("[range_gen] end is not a finite number");
     if(step==null)step=1;
@@ -592,6 +594,7 @@ function factorize(n){
  * @type {CalcChance&CalcTries&CalcGoal}
  */
 const chanceAmount=(chance,tries,goal)=>{
+    "use strict";
     if(chance!=null){
         if(typeof chance!=="number"||Number.isNaN(chance))throw new TypeError("[chanceAmount] chance is not a number");
         if(chance<0||chance>1)throw new RangeError("[chanceAmount] chance can't be negative or above 100%");
@@ -632,6 +635,7 @@ const chanceAmount=(chance,tries,goal)=>{
  * @example P(3,2); //=> [ [0,1], [0,2], [1,2] ]
  */
 function P(elements,length){
+    "use strict";
     if(!Number.isSafeInteger(elements)||elements<0)throw new TypeError("[P] elements is not a positive safe integer.");
     if(!Number.isSafeInteger(length)||length<0)throw new TypeError("[P] length is not a positive safe integer.");
     if(length===0)return[[]];
@@ -659,6 +663,7 @@ function P(elements,length){
  * choose(20,10); //=> 184756
  */
 function choose(n,m){
+    "use strict";
     if(!Number.isSafeInteger(n)||n<0)throw new TypeError("[choose] n is not a positive safe integer.");
     if(!Number.isSafeInteger(m)||m<0)throw new TypeError("[choose] m is not a positive safe integer.");
     if(m===0)return 1;
