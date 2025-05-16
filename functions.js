@@ -73,18 +73,18 @@ function rad2deg(rad){
 }
 /**
  * ## Computes the greatest-common-divisor of two integers
- * @param {number} n - positive safe integer `[1..2↑53[`
- * @param {number} m - positive safe integer `[1..2↑53[`
+ * @param {number} n - positive safe integer (except `0`) `[1..2↑53[`
+ * @param {number} m - positive safe integer (except `0`) `[1..2↑53[`
  * @returns {number} greatest-common-divisor `[1..2↑53[`
- * @throws {TypeError} if {@linkcode n} or {@linkcode m} are not positive safe integers `[1..2↑53[`
+ * @throws {TypeError} if {@linkcode n} or {@linkcode m} are not positive safe integers (or `0`) `[1..2↑53[`
  * @example gcd(45, 100); //=> 5 → (45/5) / (100/5) → 9/20 = 45/100
  */
 function gcd(n,m){
     "use strict";
-    if(typeof n!=="number"||n<1||!Number.isSafeInteger(n))throw new TypeError("[gcd] n is not a safe integer > 0");
-    if(typeof m!=="number"||m<1||!Number.isSafeInteger(m))throw new TypeError("[gcd] m is not a safe integer > 0");
+    if(!Number.isSafeInteger(n)||n<1)throw new TypeError("[gcd] n is not a positive safe integer or 0");
+    if(!Number.isSafeInteger(m)||m<1)throw new TypeError("[gcd] m is not a positive safe integer or 0");
     if(n<m)[n,m]=[m,n];
-    for(let r=0;(r=n%m)>0;[n,m]=[m,r]);
+    for(let r=0;(r=n%m)>0;n=m,m=r);
     return m;
 }
 /**
@@ -548,13 +548,13 @@ function nextPrime(x){
 /**
  * ## Integer factorization (prime decomposition)
  * via (modified) trial division
- * @param {number} n - safe integer (`]-2↑53..2↑53[`)
+ * @param {number} n - positive safe integer (`[0..2↑53[`)
  * @returns {number[]} prime factors of {@linkcode n} in ascending order (empty for numbers below `2`)
- * @throws {TypeError} if {@linkcode n} is not a safe integer
+ * @throws {TypeError} if {@linkcode n} is not a positive safe integer
  */
 function factorize(n){
     "use strict";
-    if(!Number.isSafeInteger(n))throw new TypeError("[factorize] n is not a safe integer.");
+    if(!Number.isSafeInteger(n)||n<0)throw new TypeError("[factorize] n is not a positive safe integer.");
     if(n<2)return[];
     const fac=[];
     //~ check for 2 and 3 so that factors of n are >=5 before loop
