@@ -1016,6 +1016,45 @@ for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"
 </details>
 </details>
 
+<details><summary id="functionsjs-factorize2D"><code>factorize2D</code></summary>
+
+calculates the prime decomposition of the given positive safe integer (`[0..2↑53[`)
+
+prime factors are in ascending order as `[prime, amount]` (if `amount` is at least 1)
+
+list is empty for numbers below `2` (no prime factors)
+
+```typescript
+function factorize2D(n: number): [number, number][]
+```
+
+<details open><summary><b>Performance test</b></summary>
+
+> node.js `v22.12.0` on intel `i7-10700K`
+
+```javascript
+const t=[
+    performance.now(),factorize2D(4),               //=>   0.0603 ms : 2^2
+    performance.now(),factorize2D(4),               //=>   0.0016 ms : 2^2
+    performance.now(),factorize2D(108),             //=>   0.0016 ms : 2^2 * 3^3
+    performance.now(),factorize2D(337500),          //=>   0.0036 ms : 2^2 * 3^3 * 5^5
+    performance.now(),factorize2D(277945762500),    //=>   0.0535 ms : 2^2 * 3^3 * 5^5 * 7^7
+    //~ https://oeis.org/A076265 ↑
+    performance.now(),factorize2D(33332),           //=>   0.0193 ms : 2^2 * 13 * 641
+    performance.now(),factorize2D(33223575732),     //=>   0.0225 ms : 2^2 * 3 * 599 * 1531 * 3019
+    performance.now(),factorize2D(277945762499),    //=>   1.1257 ms : 41 * 6779164939
+    performance.now(),factorize2D(2**53-3155490991),//=> 198.6742 ms : 94906249^2           (largest safe prime^2)
+    performance.now(),factorize2D(2**53-111),       //=> 179.9169 ms : 9007199254740881     (largest safe prime)
+    performance.now(),factorize2D(2**53-94),        //=> 126.8393 ms : 2 * 4503599627370449 (largest safe 2*prime)
+    performance.now()
+];
+//@ts-ignore t has an even number of entries where every even element is type `number` and every odd `number[]` (impossible to type-doc and/or detect by linter)
+for(let i=0;i+1<t.length;i+=2)console.log((t[i+2]-t[i]).toFixed(4).padStart(9),"ms :",t[i+1].map(v=>v[1]===1?v[0]:v[0]+"^"+v[1]).join(" * "));
+```
+
+</details>
+</details>
+
 <details><summary id="functionsjs-chanceAmount"><code>chanceAmount</code></summary>
 
 Calculate the number of consecutive tries needed until an event with a given % change has a 90% (or custom) chance of success overall
