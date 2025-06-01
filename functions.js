@@ -73,10 +73,10 @@ function rad2deg(rad){
 }
 /**
  * ## Computes the greatest-common-divisor of two integers
- * @param {number} n - positive safe integer (except `0`) `[1..2↑53[`
- * @param {number} m - positive safe integer (except `0`) `[1..2↑53[`
- * @returns {number} greatest-common-divisor `[1..2↑53[`
- * @throws {TypeError} if {@linkcode n} or {@linkcode m} are not positive safe integers (or `0`) `[1..2↑53[`
+ * @param {number} n - positive safe integer (except `0`) `[1..2^53[`
+ * @param {number} m - positive safe integer (except `0`) `[1..2^53[`
+ * @returns {number} greatest-common-divisor `[1..2^53[`
+ * @throws {TypeError} if {@linkcode n} or {@linkcode m} are not positive safe integers (or `0`) `[1..2^53[`
  * @example gcd(45, 100); //=> 5 → (45/5) / (100/5) → 9/20 = 45/100
  */
 function gcd(n,m){
@@ -474,10 +474,10 @@ function factorial(n){
 }
 /**
  * ## Checks if {@linkcode x} is a prime number
- * @param {number} x - real number (in safe integer range: `]-2↑53,2↑53[`)
+ * @param {number} x - real number (in safe integer range: `]-2^53,2^53[`)
  * @returns {boolean} `true` when {@linkcode x} is a prime number and `false` otherwise
  * @throws {TypeError} if {@linkcode x} is not a number
- * @throws {RangeError} if {@linkcode x} is not in safe integer range (`]-2↑53,2↑53[`)
+ * @throws {RangeError} if {@linkcode x} is not in safe integer range (`]-2^53,2^53[`)
  */
 function isPrime(x){
     "use strict";
@@ -493,10 +493,10 @@ function isPrime(x){
 }
 /**
  * ## Calculates the next prime number smaller than {@linkcode x}
- * @param {number} x - real number (in safe integer range: `]-2↑53,2↑53[`)
+ * @param {number} x - real number (in safe integer range: `]-2^53,2^53[`)
  * @returns {number|undefined} next prime number smaller than {@linkcode x} or `undefined` for {@linkcode x} below or equal to 2 (no last prime)
  * @throws {TypeError} if {@linkcode x} is not a number
- * @throws {RangeError} if {@linkcode x} is not in safe integer range (`]-2↑53,2↑53[`)
+ * @throws {RangeError} if {@linkcode x} is not in safe integer range (`]-2^53,2^53[`)
  */
 function lastPrime(x){
     "use strict";
@@ -519,10 +519,10 @@ function lastPrime(x){
 }
 /**
  * ## Calculates the next prime number larger than {@linkcode x}
- * @param {number} x - real number (in safe integer range: `]-2↑53,2↑53[`)
- * @returns {number|undefined} next prime number larger than {@linkcode x} or `undefined` when going outside safe integer range (`>=2↑53`)
+ * @param {number} x - real number (in safe integer range: `]-2^53,2^53[`)
+ * @returns {number|undefined} next prime number larger than {@linkcode x} or `undefined` when going outside safe integer range (`>=2^53`)
  * @throws {TypeError} if {@linkcode x} is not a number
- * @throws {RangeError} if {@linkcode x} is not in safe integer range (`]-2↑53,2↑53[`)
+ * @throws {RangeError} if {@linkcode x} is not in safe integer range (`]-2^53,2^53[`)
  */
 function nextPrime(x){
     "use strict";
@@ -548,7 +548,7 @@ function nextPrime(x){
 /**
  * ## Integer factorization (prime decomposition)
  * via (modified) trial division
- * @param {number} n - positive safe integer (`[0..2↑53[`)
+ * @param {number} n - positive safe integer (`[0..2^53[`)
  * @returns {number[]} prime factors of {@linkcode n} in ascending order (empty for numbers below `2`)
  * @throws {TypeError} if {@linkcode n} is not a positive safe integer
  */
@@ -574,7 +574,7 @@ function factorize(n){
 /**
  * ## Integer factorization (prime decomposition)
  * via (modified) trial division
- * @param {number} n - positive safe integer (`[0..2↑53[`)
+ * @param {number} n - positive safe integer (`[0..2^53[`)
  * @returns {[number,number][]} prime factors of {@linkcode n} in ascending order as `[prime,amount]` (only primes that appear at least once; empty for numbers below `2`)
  * @throws {TypeError} if {@linkcode n} is not a positive safe integer
  */
@@ -605,7 +605,7 @@ function factorize2D(n){
 /**
  * ## Integer factorization (prime decomposition)
  * via (modified) trial division
- * @param {number} n - positive safe integer (`[0..2↑53[`)
+ * @param {number} n - positive safe integer (`[0..2^53[`)
  * @returns {Map<number,number>} prime factors of {@linkcode n} as `prime => amount` (only primes that appear at least once; added in ascending order; empty for numbers below `2`)
  * @throws {TypeError} if {@linkcode n} is not a positive safe integer
  */
