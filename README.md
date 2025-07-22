@@ -1275,5 +1275,90 @@ choose(20, 10); //=> 184756
 </details>
 </details>
 
+<details><summary id="functionsjs-barycentricCoordinates"><code>barycentricCoordinates2D</code>/<code>barycentricCoordinates3D</code></summary>
+
+Calculate _barycentric coordinates_ $\displaystyle\{m_1\colon m_2\colon m_3\}$ of a point in relation to a triangle in 2D/3D
+
+> english: <https://en.wikipedia.org/wiki/Barycentric_coordinate_system> \
+> deutsch: <https://de.wikipedia.org/wiki/Baryzentrische_Koordinaten>
+>
+> _yes, they're very different_
+
+```typescript
+function barycentricCoordinates2D(
+    v0: [number, number],
+    v1: [number, number],
+    v2: [number, number],
+    point: [number, number]
+): [number, number, number, number]
+
+function barycentricCoordinates3D(
+    v0: [number, number, number],
+    v1: [number, number, number],
+    v2: [number, number, number],
+    point: [number, number, number]
+): [number, number, number, number]
+```
+
+<details><summary><b>Parameter info</b></summary>
+
+- `v0`
+  - position of first triangle vertex
+  - _must be a finite 2D/3D vector_
+- `v1`
+  - position of second triangle vertex
+  - _must be a finite 2D/3D vector_
+- `v2`
+  - position of third triangle vertex
+  - _must be a finite 2D/3D vector_
+- `point`
+  - position of a point
+  - _must be a finite 2D/3D vector_
+
+_`v0`, `v1`, and `v2` must not all be the same point_
+
+</details>
+
+<details open><summary><code>barycentricCoordinates2D</code></summary>
+
+gives $\displaystyle[m_1,m_2,m_3,m_{one}]$ (with $\displaystyle m_1+m_2+m_3=m_{one}$) where all masses are positive when `point` is inside triangle
+
+> [!NOTE]
+>
+> normalize via $\displaystyle\left\{\frac{m_1}{m_{one}}\colon\frac{m_2}{m_{one}}\colon\frac{m_3}{m_{one}}\right\}$ (sum of weights = 1) to use for interpolation
+
+> [!WARNING]
+>
+> $\displaystyle m_{one}$ is 0 if the triangle has no area, ie, is a line (or a point, but that will throw an error)
+>
+> _the property that all masses are positive when `point` is inside triangle still holds when the triangle is a line (but not if it's a point) so that does not throw an error_
+
+> [!IMPORTANT]
+>
+> if triangle vertices are given in reverse/clockwise order, all values are inverted, and so `point` is inside the triangle when all masses are negative (check if `one` is negative and invert all values to "fix")
+
+</details>
+
+<details open><summary><code>barycentricCoordinates3D</code></summary>
+
+gives $\displaystyle[m_1,m_2,m_3,m_{one}]$ (with unsigned values) where $\displaystyle m_1+m_2+m_3=m_{one}$ when `point` is inside triangle
+
+> [!NOTE]
+>
+> normalize via $\displaystyle\left\{\frac{m_1}{m_{one}}\colon\frac{m_2}{m_{one}}\colon\frac{m_3}{m_{one}}\right\}$ (sum of weights = 1) to use for interpolation
+
+> [!WARNING]
+>
+> $\displaystyle m_{one}$ is 0 if the triangle has no area, ie, is a line (or a point, but that will throw an error); wich makes it useless for interpolation
+>
+> _the property that $\displaystyle m_1+m_2+m_3=m_{one}$ when `point` is inside triangle still holds when the triangle is a line (but not if it's a point) so that does not throw an error_
+
+> [!TIP]
+>
+> the way it's calculated makes it a bit more expensive than the 2D version (uses `Math.hypot()` 4 times), so use only when 3D is required
+
+</details>
+</details>
+
 Scroll [UP](#functionsjs "Scroll to start of section: functions.js")
     | [TOP](#math-in-javascript "Scroll to top of document: Math in JavaScript")

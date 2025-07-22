@@ -750,3 +750,77 @@ function choose(n,m){
     }//~ always results in an integer (if not for float imprecision)
     return a/b;
 }
+/**
+ * ## calculate barycentric coordinates of {@linkcode point} in 2D
+ * @param {[number,number]} v0 - first triangle vertex position
+ * @param {[number,number]} v1 - second triangle vertex position
+ * @param {[number,number]} v2 - third triangle vertex position
+ * @param {[number,number]} point - position of a point
+ * @returns {[number,number,number,number]} `[m1, m2, m3, one]` (with `m1 + m2 + m3 = one`) where all masses are positive when {@linkcode point} is inside triangle (to normalize do `[m1/one, m2/one, m3/one]` ! `one` is 0 if the triangle has no area/is a line ! also, values may be inverted when `one` is negative (triangle vertices are given in reverse/clockwise order))
+ * @throws {TypeError} if any argument is not a finite 2D vector
+ * @throws {RangeError} if all triangle vertices have the same position
+ */
+function barycentricCoordinates2D(v0,v1,v2,point){
+    "use strict";
+    if(!Array.isArray(v0)||v0.length!==2||!v0.every(n=>Number.isFinite(n)))throw new TypeError("[barycentricCoordinates2D] v0 is not a finite 2D vector");
+    if(!Array.isArray(v1)||v1.length!==2||!v1.every(n=>Number.isFinite(n)))throw new TypeError("[barycentricCoordinates2D] v1 is not a finite 2D vector");
+    if(!Array.isArray(v2)||v2.length!==2||!v2.every(n=>Number.isFinite(n)))throw new TypeError("[barycentricCoordinates2D] v2 is not a finite 2D vector");
+    if(!Array.isArray(point)||point.length!==2||!point.every(n=>Number.isFinite(n)))throw new TypeError("[barycentricCoordinates2D] point is not a finite 2D vector");
+    if(v0.every((v,i)=>v===v1[i]&&v===v2[i]))throw new RangeError("[barycentricCoordinates2D] all triangle vertices have the same position");
+    //~          m1        +        m2        +        m3        =        1
+    //~ | (x1-xp)  (x2-xp) | (x2-xp)  (x0-xp) | (x0-xp)  (x1-xp) | (x1-x0) (x2-x1) |
+    //~ | (y1-yp)  (y2-yp) | (y2-yp)  (y0-yp) | (y0-yp)  (y1-yp) | (y1-y0) (y2-y1) |
+    //~ value=cross2(col0,col1)
+    //? in 2D m1+m2+m3 is always "1" (rather the sign of each weight (special 2D crossproduct) is used to determine if the point is inside the triangle) and one of those can be calculated with the other three (here "1"), to save on some processing
+    //? the weights m1,m2,m3 can also be made unsigned and then m1+m2+m3 is only equal to "1" when the point is within the triangle (like in 3D)
+    //! "1" is 0 if the triangle is a line; all masses are also 0 if the point is inside that line or if the triangle is a point, no matter if the given point is equal to it or not (in-/outside), hence the range error
+    //! all values may be inverted when "1" is negative (when triangle vertices are given in clockwise order)
+    const
+        p0x=v0[0]-point[0],p0y=v0[1]-point[1],
+        p1x=v1[0]-point[0],p1y=v1[1]-point[1],
+        p2x=v2[0]-point[0],p2y=v2[1]-point[1],
+        m1=p1x*p2y-p2x*p1y,
+        m2=p2x*p0y-p0x*p2y,
+        m3=p0x*p1y-p1x*p0y;
+    return[m1,m2,m3,m1+m2+m3];
+    // const x01=v1[0]-v0[0],y01=v1[1]-v0[1],
+    //     x12=v2[0]-v1[0],y12=v2[1]-v1[1];
+    // return[m1,m2,m3,x01*y12-x12*y01];
+}
+/**
+ * ## calculate barycentric coordinates of {@linkcode point} in 3D
+ * @param {[number,number,number]} v0 - position of first triangle vertex
+ * @param {[number,number,number]} v1 - position of second triangle vertex
+ * @param {[number,number,number]} v2 - position of third triangle vertex
+ * @param {[number,number,number]} point - position of a point
+ * @returns {[number,number,number,number]} `[m1, m2, m3, one]` (with unsigned values) where `m1 + m2 + m3 = one` whenever {@linkcode point} is inside the triangle (to normalize do `[m1/one, m2/one, m3/one]` ! `one` is 0 if the triangle has no area/is a line)
+ * @throws {TypeError} if any argument is not a finite 3D vector
+ * @throws {RangeError} if all triangle vertices have the same position
+ */
+function barycentricCoordinates3D(v0,v1,v2,point){
+    "use strict";
+    if(!Array.isArray(v0)||v0.length!==3||!v0.every(n=>Number.isFinite(n)))throw new TypeError("[barycentricCoordinates3D] v0 is not a finite 3D vector");
+    if(!Array.isArray(v1)||v1.length!==3||!v1.every(n=>Number.isFinite(n)))throw new TypeError("[barycentricCoordinates3D] v1 is not a finite 3D vector");
+    if(!Array.isArray(v2)||v2.length!==3||!v2.every(n=>Number.isFinite(n)))throw new TypeError("[barycentricCoordinates3D] v2 is not a finite 3D vector");
+    if(!Array.isArray(point)||point.length!==3||!point.every(n=>Number.isFinite(n)))throw new TypeError("[barycentricCoordinates3D] point is not a finite 3D vector");
+    if(v0.every((v,i)=>v===v1[i]&&v===v2[i]))throw new RangeError("[barycentricCoordinates3D] all triangle vertices have the same position");
+    //~          m1        +        m2        +        m3        =        1
+    //~ | (x1-xp)  (x2-xp) | (x2-xp)  (x0-xp) | (x0-xp)  (x1-xp) | (x1-x0) (x2-x1) |
+    //~ | (y1-yp)  (y2-yp) | (y2-yp)  (y0-yp) | (y0-yp)  (y1-yp) | (y1-y0) (y2-y1) |
+    //~ | (z1-zp)  (z2-zp) | (z2-zp)  (z0-zp) | (z0-zp)  (z1-zp) | (z1-z0) (z2-z1) |
+    //~ value=length(cross(col0,col1))
+    //? the (normal) 3D crossproduct gives a vector, wich have no signed (positive/negative) direction and therefore the length is used as weights (slower calculation than 2D) and the sum of those (unsigned) weights is only equal to "1" when the point is on the same plane & inside the triangle
+    //! "1" is 0 if the triangle is a line; all masses are also 0 if the point is inside that line or if the triangle is a point, no matter if the given point is equal to it or not (in-/outside), hence the range error
+    const
+        p0x=v0[0]-point[0],p0y=v0[1]-point[1],p0z=v0[2]-point[2],
+        p1x=v1[0]-point[0],p1y=v1[1]-point[1],p1z=v1[2]-point[2],
+        p2x=v2[0]-point[0],p2y=v2[1]-point[1],p2z=v2[2]-point[2],
+        x01=v1[0]-v0[0],y01=v1[1]-v0[1],z01=v1[2]-v0[2],
+        x12=v2[0]-v1[0],y12=v2[1]-v1[1],z12=v2[2]-v1[2];
+    return[
+        Math.hypot(p1x*p2y-p2x*p1y,p1y*p2z-p2y*p1z,p1z*p2x-p2z*p1x),
+        Math.hypot(p2x*p0y-p0x*p2y,p2y*p0z-p0y*p2z,p2z*p0x-p0z*p2x),
+        Math.hypot(p0x*p1y-p1x*p0y,p0y*p1z-p1y*p0z,p0z*p1x-p1z*p0x),
+        Math.hypot(x01*y12-x12*y01,y01*z12-y12*z01,z01*x12-z12*x01)
+    ];
+}
