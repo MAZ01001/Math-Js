@@ -42,6 +42,27 @@ function mapRange(n,a,b,x,y,limit){
     return((y-x)/(b-a))*(n-a)+x;
 }
 /**
+ * ## linear interpolation
+ * @param {number} a - start ({@linkcode t}=0)
+ * @param {number} b - end ({@linkcode t}=1)
+ * @param {number} t - factor in range `[0,1]` (can be outside range)
+ * @returns {number} linear blend from {@linkcode a} to {@linkcode b}
+ * @throws {TypeError} if {@linkcode a} or {@linkcode b} are not finite numbers or {@linkcode t} is not a number (or `NaN`)
+ */
+function lerp(a,b,t){
+    if(!Number.isFinite(a))throw new TypeError("[lerp] a is not a finite number");
+    if(!Number.isFinite(b))throw new TypeError("[lerp] b is not a finite number");
+    if(typeof t!=="number"||Number.isNaN(t))throw new TypeError("[lerp] t is not a number");
+    if(a===b)return a;
+    switch(t){
+        case 0:return a;
+        case 1:return b;
+        case-Infinity:return a<b?-Infinity:Infinity;
+        case Infinity:return a<b?Infinity:-Infinity;
+        default:return a+(b-a)*t;
+    }
+}
+/**
  * __converts angle from DEG to RAD__
  * @param {number} deg - angle in degrees
  * @returns {number} angle in radians

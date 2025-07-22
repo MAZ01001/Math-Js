@@ -575,6 +575,31 @@ mapRange(3,   0, 1, 0, 100, true); //=> 100
 
 </details>
 
+<details><summary id="functionsjs-lerp"><code>lerp</code></summary>
+
+linear interpolation from one number to another (via percentage)
+
+```typescript
+function lerp(a: number, b: number, t: number): number
+lerp(0, 100, 0.75); //=> 75
+lerp(4, 10,  0.4);  //=> 6.4
+```
+
+use an easing function to modify `t` before passing it into this functiuon to create a more smoother interpolation (usefull for animations or scaling images)
+
+```javascript
+function smoothstep(t: number): number {
+  return (3 - 2 * t) * t * t;
+}
+function smootherstep(t: number): number {
+  return ((6 * t - 15) * t + 10) * t * t * t;
+}
+```
+
+see <https://easings.net/> for more examples; also open-source: <https://github.com/ai/easings.net>
+
+</details>
+
 <details><summary id="functionsjs-deg2rad"><code>deg2rad</code></summary>
 
 converts the given angle from DEG to RAD
