@@ -1277,7 +1277,7 @@ choose(20, 10); //=> 184756
 
 <details><summary id="functionsjs-barycentricCoordinates"><code>barycentricCoordinates2D</code>/<code>barycentricCoordinates3D</code></summary>
 
-Calculate _barycentric coordinates_ $\displaystyle\{m_1\colon m_2\colon m_3\}$ of a point in relation to a triangle in 2D/3D
+Calculate _barycentric coordinates_ $\displaystyle\left\lbrace m_1\colon m_2\colon m_3\right\rbrace$ of a point in relation to a triangle in 2D/3D
 
 > english: <https://en.wikipedia.org/wiki/Barycentric_coordinate_system> \
 > deutsch: <https://de.wikipedia.org/wiki/Baryzentrische_Koordinaten>
@@ -1321,11 +1321,11 @@ _`v0`, `v1`, and `v2` must not all be the same point_
 
 <details open><summary><code>barycentricCoordinates2D</code></summary>
 
-gives $\displaystyle[m_1,m_2,m_3,m_{one}]$ (with $\displaystyle m_1+m_2+m_3=m_{one}$) where all masses are positive when `point` is inside triangle
+gives $\displaystyle\left\lbrack m_1,m_2,m_3,m_{one}\right\rbrack$ (with $\displaystyle m_1+m_2+m_3=m_{one}$) where all masses are positive when `point` is inside triangle
 
 > [!NOTE]
 >
-> normalize via $\displaystyle\left\{\frac{m_1}{m_{one}}\colon\frac{m_2}{m_{one}}\colon\frac{m_3}{m_{one}}\right\}$ (sum of weights = 1) to use for interpolation
+> normalize via $\displaystyle\left\lbrace\frac{m_1}{m_{one}}\colon\frac{m_2}{m_{one}}\colon\frac{m_3}{m_{one}}\right\rbrace$ (sum of weights = 1) to use for interpolation
 
 > [!WARNING]
 >
@@ -1341,11 +1341,11 @@ gives $\displaystyle[m_1,m_2,m_3,m_{one}]$ (with $\displaystyle m_1+m_2+m_3=m_{o
 
 <details open><summary><code>barycentricCoordinates3D</code></summary>
 
-gives $\displaystyle[m_1,m_2,m_3,m_{one}]$ (with unsigned values) where $\displaystyle m_1+m_2+m_3=m_{one}$ when `point` is inside triangle
+gives $\displaystyle\left\lbrack m_1,m_2,m_3,m_{one}\right\rbrack$ (with unsigned values) where $\displaystyle m_1+m_2+m_3=m_{one}$ when `point` is inside triangle
 
 > [!NOTE]
 >
-> normalize via $\displaystyle\left\{\frac{m_1}{m_{one}}\colon\frac{m_2}{m_{one}}\colon\frac{m_3}{m_{one}}\right\}$ (sum of weights = 1) to use for interpolation
+> normalize via $\displaystyle\left\lbrace\frac{m_1}{m_{one}}\colon\frac{m_2}{m_{one}}\colon\frac{m_3}{m_{one}}\right\rbrace$ (sum of weights = 1) to use for interpolation
 
 > [!WARNING]
 >
