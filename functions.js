@@ -1,29 +1,37 @@
 //@ts-check
 "use strict";
 /**
- * ## Calculates new bounds/scale for given number {@linkcode n}
- * Number can be out of bounds
- * @param {number} n - initial number
- * @param {number} a - initial lower bound
- * @param {number} b - initial upper bound
- * @param {number} x - new lower bound
- * @param {number} y - new upper bound
+ * ## Translate a number from one range to another
+ * @param {number} n - a number (can be outside given range)
+ * @param {number} a - initial range start
+ * @param {number} b - initial range end
+ * @param {number} x - new range start
+ * @param {number} y - new range end
  * @param {boolean} [limit] - if `true` clamps output to min {@linkcode x} and max {@linkcode y} - default `false`
- * @returns {number} new number
- * @throws {TypeError} if {@linkcode n}, {@linkcode a}, {@linkcode b}, {@linkcode x} or {@linkcode y} are not numbers
- * @throws {RangeError} if {@linkcode a} and {@linkcode b} are equal (no initial range)
+ * @returns {number} translated number
+ * @throws {TypeError} if {@linkcode n}, {@linkcode a}, {@linkcode b}, {@linkcode x} or {@linkcode y} are not numbers (or `NaN`)
+ * @throws {TypeError} if {@linkcode limit} is given but not a boolean
+ * @throws {RangeError} if {@linkcode a} and {@linkcode b} are equal and {@linkcode n} is not equal to both while {@linkcode limit} is `false` (or not given)
+ * @throws {RangeError} if {@linkcode a} and {@linkcode b} are equal while {@linkcode x} and {@linkcode y} are not (can't translate point to rage)
  * @example mapRange(0.5, 0, 1, 0, 100); //=> 50
  */
 function mapRange(n,a,b,x,y,limit){
     "use strict";
-    if(typeof n!=="number")throw new TypeError("[mapRange] n is not a number.");
-    if(typeof a!=="number")throw new TypeError("[mapRange] a is not a number.");
-    if(typeof b!=="number")throw new TypeError("[mapRange] b is not a number.");
-    if(typeof x!=="number")throw new TypeError("[mapRange] x is not a number.");
-    if(typeof y!=="number")throw new TypeError("[mapRange] y is not a number.");
-    if(a===b)throw new RangeError("[mapRange] a and b are equal.");
+    if(typeof n!=="number"||Number.isNaN(n))throw new TypeError("[mapRange] n is not a number.");
+    if(typeof a!=="number"||Number.isNaN(a))throw new TypeError("[mapRange] a is not a number.");
+    if(typeof b!=="number"||Number.isNaN(b))throw new TypeError("[mapRange] b is not a number.");
+    if(typeof x!=="number"||Number.isNaN(x))throw new TypeError("[mapRange] x is not a number.");
+    if(typeof y!=="number"||Number.isNaN(y))throw new TypeError("[mapRange] y is not a number.");
+    if(typeof(limit??=false)!=="boolean")throw new TypeError("[mapRange] limit (given) is not a boolean.");
+    if(a===b){
+        if(x===y){
+            if(limit||n===a)return x;
+            throw new RangeError("[mapRange] n is not equal to given point (not range) while limit is disabled.");
+        }
+        throw new RangeError("[mapRange] can't translate point to range.");
+    }
     if(x===y)return x;
-    if(limit??false)
+    if(limit)
         if(a<b){
             if(n<=a)return x;
             if(n>=b)return y;
