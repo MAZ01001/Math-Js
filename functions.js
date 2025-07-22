@@ -42,22 +42,6 @@ function mapRange(n,a,b,x,y,limit){
     return((y-x)/(b-a))*(n-a)+x;
 }
 /**
- * __calculates percentage of a number within bounds__
- * @param {number} n - initial number
- * @param {number} x - lower bound
- * @param {number} y - upper bound
- * @returns {number} percent as decimal number [0 to 1]
- * @throws {TypeError} if {@linkcode n}, {@linkcode x} or {@linkcode y} are not numbers
- * @example toPercent(150, 100, 200); //=> 0.5
- */
-function toPercent(n,x,y){
-    "use strict";
-    if(typeof n!=="number")throw new TypeError("[toPercent] n is not a number");
-    if(typeof x!=="number")throw new TypeError("[toPercent] x is not a number");
-    if(typeof y!=="number")throw new TypeError("[toPercent] y is not a number");
-    return y<x?(n-y)/(x-y):(n-x)/(y-x);
-}
-/**
  * __converts angle from DEG to RAD__
  * @param {number} deg - angle in degrees
  * @returns {number} angle in radians

@@ -575,17 +575,6 @@ mapRange(3, 0, 1, 0, 100, true); //=> 100
 
 </details>
 
-<details><summary id="functionsjs-toPercent"><code>toPercent</code></summary>
-
-calculates the percentage of the given number within the given range
-
-```typescript
-function toPercent(n: number, x: number, y: number): number
-toPercent(150, 100, 200); //=> 0.5 = 50%
-```
-
-</details>
-
 <details><summary id="functionsjs-deg2rad"><code>deg2rad</code></summary>
 
 converts the given angle from DEG to RAD
