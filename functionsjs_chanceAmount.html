@@ -162,20 +162,20 @@
     <noscript>JavaScript must be enabled!</noscript>
     <div id="box">
         <fieldset id="chanceCalc"><legend title="Select the output with the bullet points on the left and then edit the other two values">Chance Calculator</legend>
-            <p><input type="radio" name="out" id="out_chance" title="Click to select output variable"><label title="chance of the event succeeding for one (independent) attempt"><input type="number" id="chance" min="0" max="100" step="any" autofocus required><span>% success chance for one try</span></label></p>
-            <p><input type="radio" name="out" id="out_tries" title="Click to select output variable" checked><label title="number of (consecutive but independent) attempts"><input type="number" id="tries" min="0" step="any" readonly><span>number of consecutive tries</span></label></p>
-            <p><input type="radio" name="out" id="out_goal" title="Click to select output variable"><label title="change of having (at least) one success during all attempts"><input type="number" id="goal" min="0" max="100" step="any" value="90" required><span>% total chance of success</span></label></p>
+            <p><input type="radio" name="out" id="out_chance" title="Click to select output variable"><label title="Chance of the event succeeding for one (independent) attempt"><input type="number" id="chance" min="0" max="100" step="any" autofocus required><span>% success chance for one try</span></label></p>
+            <p><input type="radio" name="out" id="out_tries" title="Click to select output variable" checked><label title="Number of (consecutive but independent) attempts"><input type="number" id="tries" min="0" step="any" readonly><span>number of consecutive tries</span></label></p>
+            <p><input type="radio" name="out" id="out_goal" title="Click to select output variable"><label title="Chance of having (at least) one success during all attempts"><input type="number" id="goal" min="0" max="100" step="any" value="90" required><span>% total chance of success</span></label></p>
         </fieldset>
         <br>
-        <fieldset id="rangeCalc"><legend title="convert any number within the given range to a percentage; for use in the chance calculator">Range Calculator</legend>
+        <fieldset id="rangeCalc"><legend title="Convert any number within the given range to a percentage; for use in the chance calculator">Range Calculator</legend>
             <p>
                 <input type="number" id="x" step="any" required placeholder="x" title="Range value">
                 <label>from <input type="number" id="min" step="any" value="0" required placeholder="min" title="Range start value"></label>
                 <label>to <input type="number" id="max" step="any" required placeholder="max" title="Range end value"></label>
                 <label>&rArr; <input type="number" id="p" step="any" placeholder="--" readonly title="Percentage of value within given range">%</label>
             </p>
-            <input type="button" id="cpy_chance" title="click to use the calculated percentage as the single chance in the chance calculator" value="copy to single chance">
-            <input type="button" id="cpy_goal" title="click to use the calculated percentage as the total chance in the chance calculator" value="copy to total chance">
+            <input type="button" id="cpy_chance" title="Click to use the calculated percentage as the single chance in the chance calculator" value="copy to single chance">
+            <input type="button" id="cpy_goal" title="Click to use the calculated percentage as the total chance in the chance calculator" value="copy to total chance">
         </fieldset>
     </div>
     <script>
